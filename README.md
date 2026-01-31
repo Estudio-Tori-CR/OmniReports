@@ -72,7 +72,7 @@ If you want to:
 
 You must request **explicit written permission**.
 
-📧 Contact: **jean.quesada@estudio-tori.com**
+📧 Contact: **info@estudio-tori.com**
 
 ---
 
