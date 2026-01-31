@@ -16,7 +16,7 @@ export default class Miselanius {
     return n.toString().padStart(2, "0");
   };
 
-  public toOracleDateTimeString(iso: string, includeHour: boolean) {
+  public toOracleDateTimeString(iso: string, includeHour: boolean = true) {
     const d = new Date(iso);
 
     // Validación
@@ -39,7 +39,7 @@ export default class Miselanius {
     return `TO_DATE('${yyyy}-${mm}-${dd}', 'YYYY-MM-DD')`;
   }
 
-  public toMySqlDateTimeString(iso: string, includeHour: boolean) {
+  public toMySqlDateTimeString(iso: string, includeHour: boolean = true) {
     const d = this.parseISO(iso);
     const yyyy = d.getFullYear();
     const mm = this.pad2(d.getMonth() + 1);
@@ -55,7 +55,7 @@ export default class Miselanius {
     return `STR_TO_DATE('${yyyy}-${mm}-${dd}', '%Y-%m-%d')`;
   }
 
-  public toSqlServerDateTimeString(iso: string, includeHour: boolean) {
+  public toSqlServerDateTimeString(iso: string, includeHour: boolean = true) {
     const d = this.parseISO(iso);
     const yyyy = d.getFullYear();
     const mm = this.pad2(d.getMonth() + 1);

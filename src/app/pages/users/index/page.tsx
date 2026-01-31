@@ -101,50 +101,54 @@ const Index = () => {
         <div className="container">
           <div className="center-container">
             <SortTable
-              columnsNames={[
-                "Email",
-                "First Name",
-                "Last Name",
-                "Role",
-                "Status",
-              ]}
+              columnsNames={
+                [
+                  "Email",
+                  "First Name",
+                  "Last Name",
+                  "Role",
+                  "Status",
+                ] as unknown as any
+              }
               rows={usersTable}
               max={10}
-              buttons={[
-                (row: any) => {
-                  if (row[0] !== currentUser.email) {
-                    return (
-                      <PersonalButton
-                        text="Edit"
-                        isPrimary={true}
-                        callback={() => editUser(row)}
-                      />
-                    );
-                  }
-                },
-                (row: any) => {
-                  if (row[0] !== currentUser.email) {
-                    if (row[4] === "Active") {
+              buttons={
+                [
+                  (row: any) => {
+                    if (row[0] !== currentUser.email) {
                       return (
                         <PersonalButton
-                          text="Delete"
-                          className="redButton"
+                          text="Edit"
                           isPrimary={true}
-                          callback={() => disableUser(row)}
-                        />
-                      );
-                    } else {
-                      return (
-                        <PersonalButton
-                          text="Active"
-                          isPrimary={true}
-                          callback={() => activeUser(row)}
+                          callback={() => editUser(row)}
                         />
                       );
                     }
-                  }
-                },
-              ]}
+                  },
+                  (row: any) => {
+                    if (row[0] !== currentUser.email) {
+                      if (row[4] === "Active") {
+                        return (
+                          <PersonalButton
+                            text="Delete"
+                            className="redButton"
+                            isPrimary={true}
+                            callback={() => disableUser(row)}
+                          />
+                        );
+                      } else {
+                        return (
+                          <PersonalButton
+                            text="Active"
+                            isPrimary={true}
+                            callback={() => activeUser(row)}
+                          />
+                        );
+                      }
+                    }
+                  },
+                ] as unknown as any
+              }
             />
           </div>
         </div>

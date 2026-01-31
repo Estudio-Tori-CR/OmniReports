@@ -66,7 +66,16 @@ export class MySqlConnection extends ConnectionMongo {
     try {
       if (isCall) {
         const [rows] = await conn.query<QueryRows>(query);
-        return rows[0];
+        if (Array.isArray(rows)) {
+          // If multiple result sets are returned (RowDataPacket[][]), return the first result set.
+          if (rows.length > 0 && Array.isArray(rows[0])) {
+            return rows[0];
+          }
+          // Otherwise return the single-row/result array.
+          return rows;
+        }
+        // Non-array result (e.g. ResultSetHeader)
+        return rows;
       }
 
       const [rows] = await conn.execute<QueryRows>(query);

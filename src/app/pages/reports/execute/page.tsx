@@ -46,7 +46,7 @@ const Maintenance = () => {
         tmpReport.isActive = response.body.isActive;
         response.body.querys.forEach((x) => {
           tmpReport.querys.push({
-            instance: x.instance.toString(),
+            instance: x.instance?.toString() as string,
             query: x.query,
             sheetName: x.sheetName,
             parameters: x.parameters,

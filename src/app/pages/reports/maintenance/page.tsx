@@ -61,7 +61,7 @@ const Maintenance = () => {
         tmpReport.isActive = response.body.isActive;
         response.body.querys.forEach((x) => {
           tmpReport.querys.push({
-            instance: x.instance.toString(),
+            instance: x.instance?.toString() as string,
             query: x.query,
             sheetName: x.sheetName,
             parameters: x.parameters,
@@ -179,7 +179,9 @@ const Maintenance = () => {
       console.log(
         exportData.instances?.some((y) => y._id?.toString() === x.instance),
       );
-      if (!exportData.instances?.some((y) => y._id?.toString() === x.instance)) {
+      if (
+        !exportData.instances?.some((y) => y._id?.toString() === x.instance)
+      ) {
         exportData.instances?.push(
           instances?.find((y) => y._id?.toString() === x.instance) as Instance,
         );
@@ -286,19 +288,25 @@ const Maintenance = () => {
                     />
                     <SortTable
                       rows={report.querys[index].parameters}
-                      columnsNames={["Name", "Label", "Type"]}
-                      buttons={[
-                        (row: string[]) => {
-                          return (
-                            <PersonalButton
-                              text="Delete"
-                              className="redButton"
-                              isPrimary={true}
-                              callback={() => onDeleteParameter(row[0], index)}
-                            />
-                          );
-                        },
-                      ]}
+                      columnsNames={
+                        ["Name", "Label", "Type"] as unknown as null | undefined
+                      }
+                      buttons={
+                        [
+                          (row: string[]) => {
+                            return (
+                              <PersonalButton
+                                text="Delete"
+                                className="redButton"
+                                isPrimary={true}
+                                callback={() =>
+                                  onDeleteParameter(row[0], index)
+                                }
+                              />
+                            );
+                          },
+                        ] as unknown as null | undefined
+                      }
                     />
                     <div className="rightButtonsContainer">
                       <PersonalButton

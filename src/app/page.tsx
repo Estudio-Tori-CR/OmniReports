@@ -33,7 +33,7 @@ export default function Home() {
       if (response.isSuccess && response.body) {
         dispatch(
           setUser({
-            _id: response.body._id?.toString(),
+            _id: response.body._id?.toString() as string,
             email: response.body.email,
             fullName: `${response.body.firstName} ${response.body.lastName}`,
             role: [response.body.roles],

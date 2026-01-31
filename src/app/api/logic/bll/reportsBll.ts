@@ -34,7 +34,7 @@ class ReportsBll {
 
         for (const element of params) {
           let queryToExecute = q.query;
-          const instance = await mainDal.GetInstance(q.instance.toString());
+          const instance = await mainDal.GetInstance(q.instance as string);
 
           for (const param of element.parameters) {
             let value = param.value.toString();
@@ -116,8 +116,10 @@ class ReportsBll {
     for (const element of sheets) {
       const sheet = workbook.addWorksheet(element.sheetName);
       const rows = element.results ?? [];
-      
-      const columns = rows.length ? Object.keys(rows[0]) : [];
+
+      const columns = rows.length
+        ? Object.keys(((rows as any[])[0] ?? {}) as Record<string, any>)
+        : [];
 
       sheet.columns = columns.map((key) => ({
         header: key,

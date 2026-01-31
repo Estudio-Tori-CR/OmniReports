@@ -14,7 +14,7 @@ export type SessionPayload = {
 };
 
 type RouteContext = {
-  params?: Record<string, string>;
+  params: Promise<Record<string, string>>;
 };
 
 type Handler = (
@@ -22,8 +22,8 @@ type Handler = (
   ctx: RouteContext,
 ) => Promise<Response> | Response;
 
-export function withRoles(allowed: Role[], handler: Handler) {
-  return async (req: NextRequest, ctx: RouteContext = {}) => {
+export function withRoles(allowed: Role[], handler: Handler): Handler {
+  return async (req: NextRequest, ctx: RouteContext) => {
     const auth = req.headers.get("authorization");
     if (!auth || !auth.startsWith("Bearer ")) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -36,6 +36,7 @@ export function withRoles(allowed: Role[], handler: Handler) {
 
       const roles = (payload.roles ?? []) as Role[];
       const ok = roles.some((r) => allowed.includes(r));
+
       if (!ok) {
         return NextResponse.json({ error: "Forbidden" }, { status: 403 });
       }
