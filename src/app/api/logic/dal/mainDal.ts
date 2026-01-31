@@ -2,6 +2,7 @@ import UserModel, { User } from "@/app/models/User";
 import { ConnectionMongo } from "../connections/mongoDB/connection";
 import InstanceModel, { Instance } from "@/app/models/Instance";
 import ReportModel, { DBReport } from "@/app/models/Report";
+import LogModel, { Log } from "@/app/models/Log";
 
 class MainDal {
   private connection: ConnectionMongo;
@@ -102,6 +103,11 @@ class MainDal {
       _id: reportId,
     });
     return result[0];
+  }
+
+  public async InserLog(body: Log) {
+    const result = await this.connection.insert<Log>(LogModel, body);
+    return result;
   }
 }
 

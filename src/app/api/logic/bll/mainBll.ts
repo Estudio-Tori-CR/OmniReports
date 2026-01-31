@@ -5,12 +5,16 @@ import Encript from "../../utilities/Encript";
 import BaseResponse from "@/app/models/baseResponse";
 import { Instance } from "@/app/models/Instance";
 import { DBReport, ExportReport } from "@/app/models/Report";
+import Mail from "../../utilities/Mail";
+import Logs from "../../utilities/Logs";
+import { Log } from "@/app/models/Log";
 
 class MainBll {
   private dal: MainDal;
-
+  private log: Logs;
   constructor() {
     this.dal = new MainDal();
+    this.log = new Logs();
   }
 
   public async LogIn(email: string, password: string) {
@@ -60,10 +64,23 @@ class MainBll {
   }
 
   public async InserUser(body: User) {
-    body.password = new Miselanius().GenerateRandomPassword();
+    const { hash, password } = new Miselanius().GenerateRandomPassword();
+    body.password = hash;
     const result = await this.dal.InserUser(body);
     const response = new BaseResponse<null>();
     if (result) {
+      try {
+        const mail = new Mail();
+        await mail.SendMail({
+          to: body.email,
+          subject: "Welcome to OmniReports",
+          html: `<p>Hello ${body.firstName} ${body.lastName},</p><p>Your account has been created successfully.</p><p>Your temporary password is: ${password}</p>`,
+        });
+      } catch (err) {
+        this.log.log(`Error sending email to ${body.email}: ${err}`, "error");
+        response.isSuccess = false;
+        response.message = "User created, but failed to send email.";
+      }
       response.isSuccess = true;
       response.message = "Success";
     } else {
@@ -83,7 +100,7 @@ class MainBll {
       response.message = "Success";
     } else {
       response.isSuccess = false;
-      response.message = "Unexpected Error";
+      response.message = "Error Updating User";
     }
 
     return response;
@@ -100,13 +117,13 @@ class MainBll {
       response.body = result;
     } else {
       response.isSuccess = false;
-      response.message = "Invalid Password";
+      response.message = "Your current password is incorrect";
     }
 
     return response;
   }
 
-  public async ChnagePassword(userId: string, body: User) {
+  public async ChangePassword(userId: string, body: User) {
     body.password = new Encript().Hash(body.password);
     const result = await this.dal.UpdateUser(userId, body);
     const response = new BaseResponse<null>();
@@ -116,7 +133,7 @@ class MainBll {
       response.message = "Success";
     } else {
       response.isSuccess = false;
-      response.message = "Unexpected Error";
+      response.message = "Error Changing Password";
     }
 
     return response;
@@ -132,7 +149,7 @@ class MainBll {
       response.message = "Success";
     } else {
       response.isSuccess = false;
-      response.message = "Unexpected Error";
+      response.message = "Error Inserting Instance";
     }
 
     return response;
@@ -148,7 +165,7 @@ class MainBll {
       response.message = "Success";
     } else {
       response.isSuccess = false;
-      response.message = "Unexpected Error";
+      response.message = "Error Updating Instance";
     }
 
     return response;
@@ -204,7 +221,7 @@ class MainBll {
       response.message = "Success";
     } else {
       response.isSuccess = false;
-      response.message = "Unexpected Error";
+      response.message = "Error Inserting Report";
     }
 
     return response;
@@ -222,7 +239,7 @@ class MainBll {
       response.message = "Success";
     } else {
       response.isSuccess = false;
-      response.message = "Unexpected Error";
+      response.message = "Error Updating Report";
     }
 
     return response;
@@ -284,7 +301,6 @@ class MainBll {
                 y.instance = id.body as string;
               }
             });
-            console.log(id);
           }
         }
         report.report._id = undefined;
@@ -296,11 +312,20 @@ class MainBll {
         response.message = "Invalid Information";
       }
     } catch (err) {
+      this.log.log(`Error importing report: ${err}`, "error");
       response.isSuccess = false;
-      response.message = "Unexpected Error";
+      response.message = "Unexpected error or the file is invalid";
     }
 
     return response;
+  }
+
+  public async InserLog(body: Log) {
+    try {
+      await this.dal.InserLog(body);
+    } catch (err) {
+      this.log.log(`Error inserting log: ${err}`, "error");
+    }
   }
 }
 

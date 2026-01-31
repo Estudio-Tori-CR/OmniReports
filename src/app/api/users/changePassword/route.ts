@@ -3,6 +3,9 @@ import { withRoles } from "../../middleware";
 import BaseResponse from "@/app/models/baseResponse";
 import UserModel, { User } from "@/app/models/User";
 import MainBll from "../../logic/bll/mainBll";
+import Logs from "../../utilities/Logs";
+
+const log: Logs = new Logs();
 
 export const PUT = withRoles(
   ["ADMIN", "DEVELOPER", "REPORTS"],
@@ -14,10 +17,11 @@ export const PUT = withRoles(
       const body: User = Object.assign(new UserModel(), await req.json());
       const { searchParams } = new URL(req.url);
       const userId = searchParams.get("userId");
-      response = await bll.ChnagePassword(userId as string, body);
+      response = await bll.ChangePassword(userId as string, body);
     } catch (err) {
       response.isSuccess = false;
       response.message = "Unexpected error";
+    log.log(err as string, "error");
     }
 
     return NextResponse.json(response);

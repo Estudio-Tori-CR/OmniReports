@@ -49,17 +49,22 @@ const Index = () => {
       title: "Import Report",
     });
 
+    if (!fileText) {
+      return;
+    }
     const jsonData = JSON.parse(fileText as string);
-    console.log(jsonData);
+
     const response = await client.Import({
       instances: jsonData.instances,
       report: jsonData.report,
     });
 
-    await message.Toast({
-      icon: response.isSuccess ? "success" : "error",
-      title: response.message,
-    });
+    if (response.isSuccess) {
+      await message.Toast({
+        icon: "success",
+        title: response.message,
+      });
+    }
 
     setFileImported(true);
   };

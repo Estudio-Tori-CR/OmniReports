@@ -3,9 +3,12 @@ import { withRoles } from "../../middleware";
 import BaseResponse from "@/app/models/baseResponse";
 import ReportsBll from "../../logic/bll/reportsBll";
 import { ExecuteReport } from "@/app/models/executeReport";
+import Logs from "../../utilities/Logs";
+
+const log: Logs = new Logs();
 
 export const POST = withRoles(
-  ["ADMIN", "DEVELOPER", "REPORT"],
+  ["ADMIN", "DEVELOPER", "REPORTS"],
   async (req: Request) => {
     let response: BaseResponse<string> = new BaseResponse<string>();
     try {
@@ -14,11 +17,12 @@ export const POST = withRoles(
         new ExecuteReport(),
         await req.json(),
       );
-      
+
       response = await bll.ExecuteOne(body);
     } catch (err) {
       response.isSuccess = false;
       response.message = "Unexpected error";
+      log.log(err as string, "error");
     }
 
     return NextResponse.json(response);

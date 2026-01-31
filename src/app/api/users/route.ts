@@ -1,8 +1,11 @@
 import { NextResponse } from "next/server";
 import { withRoles } from "../middleware";
 import BaseResponse from "@/app/models/baseResponse";
-import UserModel, { User } from "@/app/models/User";
+import { User } from "@/app/models/User";
 import MainBll from "../logic/bll/mainBll";
+import Logs from "../utilities/Logs";
+
+const log: Logs = new Logs();
 
 export const GET = withRoles(["ADMIN"], async (req: Request) => {
   let response: BaseResponse<User[]> = new BaseResponse<User[]>();
@@ -12,6 +15,7 @@ export const GET = withRoles(["ADMIN"], async (req: Request) => {
   } catch (err) {
     response.isSuccess = false;
     response.message = "Unexpected error";
+    log.log(err as string, "error");
   }
 
   return NextResponse.json(response);

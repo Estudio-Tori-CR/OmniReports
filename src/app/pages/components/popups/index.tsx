@@ -127,7 +127,7 @@ class Message {
       html: `
       <div style="display:flex; flex-direction:column; gap:10px; text-align:left;">
         <label for="swal-file" style="font-size:14px;">Select a file</label>
-        <input id="swal-file" type="file" />
+        <input id="swal-file" type="file" accept=".json"/>
         <div id="swal-file-name" style="font-size:12px; opacity:.8;"></div>
       </div>
     `,
@@ -155,7 +155,7 @@ class Message {
           return false;
         }
         const text = await readFileAsText(selectedFile);
-        return text; 
+        return text;
       },
     });
 

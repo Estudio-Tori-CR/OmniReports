@@ -3,8 +3,11 @@ import Encript from "./Encript";
 export default class Miselanius {
   public GenerateRandomPassword() {
     const randomNumber = Math.floor(Math.random() * 100000);
-    console.log(randomNumber.toString().padStart(5, "0"));
-    return new Encript().Hash(randomNumber.toString().padStart(5, "0"));
+    const password = randomNumber.toString().padStart(5, "0");
+    return {
+      hash: new Encript().Hash(password),
+      password,
+    };
   }
 
   private parseISO(iso: string) {

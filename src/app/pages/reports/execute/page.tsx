@@ -105,15 +105,15 @@ const Maintenance = () => {
         )
       ].value = value;
     }
-    console.log(copy);
+
     setExecuteReport(copy);
   };
 
-  const onExport = () => {
+  const onExport = async () => {
     const copy = Object.assign(new ExecuteReport(), executeReport);
     copy.id = reportId;
 
-    client.Execute(copy, report.name);
+    await client.Execute(copy, report.name);
   };
 
   return (

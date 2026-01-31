@@ -45,13 +45,13 @@ const Maintenance = () => {
     } else {
       response = await client.Insert(user);
     }
-    
-    const icon = response.isSuccess ? "success" : "error";
 
-    await message.Toast({
-      icon,
-      title: response.message,
-    });
+    if (response.isSuccess) {
+      await message.Toast({
+        icon: "success",
+        title: response.message,
+      });
+    }
 
     if (response.isSuccess) {
       router.replace(`/pages/users/index`);

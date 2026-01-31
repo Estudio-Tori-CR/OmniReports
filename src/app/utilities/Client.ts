@@ -2,8 +2,15 @@ import axios, { AxiosResponse } from "axios";
 import BaseResponse from "../models/baseResponse";
 import { getToken } from "./Middleware";
 import Loader from "../pages/components/loading";
+import Message from "../pages/components/popups";
 
 class Client {
+  private message: Message;
+
+  constructor() {
+    this.message = new Message();
+  }
+
   private async getAuthHeader() {
     const cookiesToken = await getToken();
     return cookiesToken ? { Authorization: `Bearer ${cookiesToken}` } : {};
@@ -26,6 +33,11 @@ class Client {
     if (hideLoading) {
       Loader().hidde();
     }
+
+    if (!respose.isSuccess) {
+      this.message.Toast({ icon: "error", title: respose.message });
+    }
+
     return respose;
   }
 
@@ -51,12 +63,24 @@ class Client {
     if (hideLoading) {
       Loader().hidde();
     }
+
+    if (!respose.isSuccess) {
+      this.message.Toast({ icon: "error", title: respose.message });
+    }
+
     return respose;
   }
 
-  public async Put<T, T1>(query: string, json: T): Promise<BaseResponse<T1>> {
+  public async Put<T, T1>(
+    query: string,
+    json: T,
+    showLoading: boolean = true,
+    hideLoading: boolean = true,
+  ): Promise<BaseResponse<T1>> {
     axios.defaults.withCredentials = true;
-    Loader().show();
+    if (showLoading) {
+      Loader().show();
+    }
     let respose: BaseResponse<T1> = new BaseResponse<T1>();
     try {
       const result: AxiosResponse = await axios.put(`/api/${query}`, json, {
@@ -66,7 +90,15 @@ class Client {
     } catch (err) {
       respose.isSuccess = false;
     }
-    Loader().hidde();
+
+    if (hideLoading) {
+      Loader().hidde();
+    }
+
+    if (!respose.isSuccess) {
+      this.message.Toast({ icon: "error", title: respose.message });
+    }
+
     return respose;
   }
 }

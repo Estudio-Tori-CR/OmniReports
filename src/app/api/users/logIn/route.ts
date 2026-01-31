@@ -3,6 +3,7 @@ import MainBll from "../../logic/bll/mainBll";
 import BaseResponse from "@/app/models/baseResponse";
 import { NextResponse } from "next/server";
 import { SignJWT } from "jose";
+import Logs from "../../utilities/Logs";
 
 const JWT_NAME = "session";
 const JWT_SECRET = process.env.JWT_SECRET!;
@@ -10,6 +11,8 @@ const JWT_SECRET = process.env.JWT_SECRET!;
 const secretKey = new TextEncoder().encode(JWT_SECRET);
 
 const EXPIRES_SECONDS = parseInt(process.env.EXPIRES_SECONDS as string); // 8 horas
+
+const log: Logs = new Logs();
 
 export const POST = async (req: Request) => {
   let response: BaseResponse<User> = new BaseResponse<User>();
@@ -48,6 +51,7 @@ export const POST = async (req: Request) => {
   } catch (err) {
     response.isSuccess = false;
     response.message = "Unexpected error";
+    log.log(err as string, "error");
   }
 
   return NextResponse.json(response);

@@ -36,15 +36,10 @@ const ChangePassword = () => {
             .ChangePassword(currentUser._id, response.body)
             .then((response) => {
               message.Toast({
-                icon: response.isSuccess ? "success" : "error",
+                icon: "success",
                 title: response.message,
               });
             });
-        } else {
-          message.Toast({
-            icon: "error",
-            title: response.message,
-          });
         }
       });
   };
