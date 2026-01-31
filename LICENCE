@@ -1,0 +1,71 @@
+OmniReports – Source Available License – No Modification (SAL-NM) v1.0
+
+Copyright (c) 2026 Jean Carlos Quesada Cascante
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of OmniReports and associated documentation files (the "Software"), to use, execute, and review the Software’s source code for personal, educational, or internal business purposes, subject to the following conditions:
+
+1. Permitted Use
+
+You are allowed to:
+
+Use and run the Software in source or compiled form.
+
+View and study the source code.
+
+Deploy the Software for personal, educational, or internal business use.
+
+2. Restrictions (No Modification / No Derivatives)
+
+You are NOT allowed to:
+
+Modify, adapt, translate, or create derivative works from the Software.
+
+Distribute, publish, sublicense, sell, rent, or lease modified versions of the Software.
+
+Create forks, clones, or rebranded versions of the Software.
+
+Remove, alter, or obscure any copyright notices.
+
+In short: You may use it, but you may not change it.
+
+3. Redistribution
+
+You may redistribute only unmodified copies of the Software, provided that:
+
+This license is included in full with the redistribution.
+
+The Software remains unaltered and unmodified.
+
+The redistribution clearly credits the original author.
+
+4. Contributions
+
+If you wish to contribute improvements, fixes, or changes, you must:
+
+Submit them through official channels (pull request / patch / issue),
+
+and acknowledge that the author retains the right to accept, reject, or rewrite them.
+
+Contributors do not gain any ownership or licensing rights to modifications.
+
+5. Commercial Use
+
+Commercial use is permitted only for:
+
+Internal usage inside an organization,
+
+Running the Software as-is.
+
+Commercial redistribution, hosting as a SaaS product, resale, or bundling into commercial products is NOT permitted without explicit written permission from the author.
+
+6. Termination
+
+Any violation of this license immediately terminates your rights under this license.
+
+7. Disclaimer of Warranty
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT.
+
+8. Limitation of Liability
+
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
