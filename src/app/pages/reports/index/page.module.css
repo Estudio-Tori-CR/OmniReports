@@ -1,0 +1,16 @@
+.reportName {
+  max-height: 2.5rem;
+  overflow: auto;
+}
+
+.button {
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  border: none;
+  color: var(--white);
+  background-color: var(--primary-color);
+}
+
+.button:hover {
+  cursor: pointer;
+}

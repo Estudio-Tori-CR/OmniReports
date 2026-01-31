@@ -1,0 +1,26 @@
+import { NextResponse } from "next/server";
+import { withRoles } from "../../middleware";
+import BaseResponse from "@/app/models/baseResponse";
+import ReportsBll from "../../logic/bll/reportsBll";
+import { ExecuteReport } from "@/app/models/executeReport";
+
+export const POST = withRoles(
+  ["ADMIN", "DEVELOPER", "REPORT"],
+  async (req: Request) => {
+    let response: BaseResponse<string> = new BaseResponse<string>();
+    try {
+      const bll = new ReportsBll();
+      const body: ExecuteReport = Object.assign(
+        new ExecuteReport(),
+        await req.json(),
+      );
+      
+      response = await bll.ExecuteOne(body);
+    } catch (err) {
+      response.isSuccess = false;
+      response.message = "Unexpected error";
+    }
+
+    return NextResponse.json(response);
+  },
+);

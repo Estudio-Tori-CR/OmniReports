@@ -1,0 +1,84 @@
+.default-style-sort-table {
+  width: 100%;
+}
+
+.default-style-sort-table > table {
+  border-bottom: none;
+  border-spacing: 0px;
+  position: relative;
+  width: 100%;
+  color: #707070;
+}
+
+.default-style-sort-table > table > thead > tr > th {
+  color: #4a4a4a;
+  background: #f0f0f0;
+  cursor: pointer;
+}
+
+.default-style-sort-table > table > thead > tr > th,
+.default-style-sort-table > table > tbody > tr > td {
+  border-bottom: 1px solid #e3e3e3;
+  padding: 10px;
+  text-align: left;
+}
+
+.default-style-sort-table > table > thead > tr > th:last-child,
+.default-style-sort-table > table > tbody > tr > td:last-child {
+  border-right: none;
+}
+
+.default-style-sort-table > .paginator {
+  width: auto;
+  float: right;
+  margin-top: 1%;
+}
+
+.default-style-sort-table > .paginator > * {
+  display: inline-block;
+  cursor: pointer;
+}
+
+.default-style-sort-table > .paginator > button {
+  background: #032b40;
+  border-radius: 4px;
+  color: #f0f0f0;
+  outline: none;
+  border: none;
+  padding: 5px;
+  cursor: pointer;
+}
+
+.default-style-sort-table > .paginator > ul {
+  list-style: none;
+  padding: 0px;
+  margin: 0px;
+  position: relative;
+  top: 8px;
+}
+
+.default-style-sort-table > .paginator > ul > li {
+  float: left;
+  padding: 2px 5px;
+  margin: 0px 5px;
+  background: #032b40;
+  border-radius: 4px;
+  color: #f0f0f0;
+}
+
+.default-style-sort-table > .paginator > ul > .active {
+  background: #09547a;
+}
+
+.default-style-sort-table > .paginator > button:hover,
+.default-style-sort-table > .paginator > ul > li:hover {
+  background: #09547a;
+  cursor: pointer;
+}
+
+tbody > tr > td {
+  max-width: 62rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

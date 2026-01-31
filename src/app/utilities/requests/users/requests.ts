@@ -1,0 +1,86 @@
+import BaseResponse from "@/app/models/baseResponse";
+import Client from "../../Client";
+import type { User, UserInt } from "../../../models/User";
+
+class UsersReq {
+  client = new Client();
+
+  public async LogIn(
+    email: string,
+    password: string,
+  ): Promise<BaseResponse<User>> {
+    const result = await this.client.Post<User, User>(`users/logIn`, {
+      email,
+      password,
+      firstName: "",
+      lastName: "",
+      roles: "",
+      reports: [],
+      isActive: false,
+    });
+
+    return result;
+  }
+
+  public async Insert(body: UserInt): Promise<BaseResponse<null>> {
+    const result = await this.client.Post<UserInt, null>(
+      `users/maintenance`,
+      body,
+    );
+
+    return result;
+  }
+
+  public async Update(
+    userId: string | undefined,
+    body: UserInt,
+  ): Promise<BaseResponse<null>> {
+    const result = await this.client.Put<UserInt, null>(
+      `users/maintenance?userId=${userId}`,
+      body,
+    );
+
+    return result;
+  }
+
+  public async GetOne(userId: string): Promise<BaseResponse<User>> {
+    const result = await this.client.Get<User>(
+      `users/findOne?userId=${userId}`,
+    );
+
+    return result;
+  }
+
+  public async GetAll(filter: string): Promise<BaseResponse<User[]>> {
+    const result = await this.client.Get<User[]>("users/");
+
+    return result;
+  }
+
+  public async ValidatePassword(
+    currentPassword: string,
+    userId: string,
+  ): Promise<BaseResponse<User>> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = await this.client.Post<any, User>("users/validatePassword", {
+      currentPassword,
+      userId,
+    });
+
+    return result;
+  }
+
+  public async ChangePassword(
+    userId: string | undefined,
+    body: UserInt,
+  ): Promise<BaseResponse<null>> {
+    const result = await this.client.Put<UserInt, null>(
+      `users/changePassword?userId=${userId}`,
+      body,
+    );
+
+    return result;
+  }
+}
+
+export default UsersReq;

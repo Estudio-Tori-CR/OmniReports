@@ -1,0 +1,132 @@
+:root {
+  --background: #ececec;
+  --primary-color: #061b2f;
+  --label-color: #333333;
+  --secondary-color: #1aa0ff;
+  --white: #ececec;
+  --black: #333333;
+  --red: #a92525;
+  --gray: #b6b6b6;
+  --sub-title: #7c7c7c;
+}
+
+/* @media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+} */
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  height: 100%;
+  background-color: var(--background);
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+label {
+  color: var(--label-color);
+}
+
+.ps-menu-button {
+  background: var(--primary-color);
+}
+
+.css-1tqrhto > .ps-menu-button:hover,
+.css-1t8x7v1 > .ps-menu-button:hover,
+.css-16jesut > .ps-menu-button:hover {
+  background-color: var(--secondary-color) !important;
+}
+
+.rightButtonsContainer {
+  display: flex;
+  flex-direction: row-reverse;
+  width: 100%;
+  position: relative;
+}
+
+.redButton {
+  background-color: var(--red) !important;
+}
+
+.container {
+  display: grid;
+  width: 100%;
+  height: 100%;
+}
+
+.center-container {
+  place-self: center;
+  width: 100%;
+  height: max-content;
+  max-height: 100%;
+  background: #fff;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  box-shadow: 9px 11px 49px 0px rgba(54, 54, 54, 0.75);
+  -webkit-box-shadow: 9px 11px 49px 0px rgba(54, 54, 54, 0.75);
+  -moz-box-shadow: 9px 11px 49px 0px rgba(54, 54, 54, 0.75);
+}
+
+.form-title {
+  border-bottom: 1px var(--gray) solid;
+  padding-bottom: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.form-title > h1 {
+  color: var(--black);
+  margin-bottom: 1rem;
+}
+
+.form-title > p {
+  color: var(--sub-title);
+}
+
+.squares-container {
+  display: grid;
+  column-gap: 1rem;
+  row-gap: 1rem;
+  grid-template-columns: repeat(8, 1fr);
+}
+
+.square {
+  text-align: center;
+  border: 1px solid var(--gray);
+  border-radius: 0.3rem;
+  min-height: 8rem;
+  padding: 1rem;
+  display: grid;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.square:hover {
+  border-color: var(--primary-color);
+  cursor: pointer;
+}
+
+.square > svg,
+.square > div > svg {
+  width: 80px;
+  height: 80px;
+}
+
+/* @media (prefers-color-scheme: dark) {
+  html {
+    color-scheme: dark;
+  }
+} */
