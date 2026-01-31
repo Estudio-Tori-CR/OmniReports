@@ -92,6 +92,7 @@ const Maintenance = () => {
                 type="textarea"
                 isRequired={true}
                 value={instance?.connectionString}
+                placeholder="Server=localhost;Port=3306;Database=employees_small;User ID=root;Password=root;SslMode=Preferred;Connection Timeout=15;Default Command Timeout=30;Allow User Variables=true"
                 onChange={(e) =>
                   setInstance((i) => ({ ...i, connectionString: e }))
                 }

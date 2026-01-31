@@ -1,8 +1,13 @@
 import Connection from "@/app/interfaces/Connection";
 import { MySqlConnection } from "../connections/mySql/connection";
+import { SqlServerConnection } from "../connections/sqlServer/connection";
 
 class ReportsDal {
-  private connection: Connection | MySqlConnection | undefined;
+  private connection:
+    | Connection
+    | MySqlConnection
+    | SqlServerConnection
+    | undefined;
   private Connect = (connectionString: string, dbTye: string) => {
     switch (dbTye) {
       case "OracleDB":
@@ -11,6 +16,7 @@ class ReportsDal {
         this.connection = new MySqlConnection(connectionString);
         break;
       case "SQLServer":
+        this.connection = new SqlServerConnection(connectionString);
         break;
     }
   };

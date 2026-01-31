@@ -7,6 +7,7 @@ interface InputProps {
   id?: string;
   value?: string;
   type: string;
+  placeholder?: string;
   readOnly?: boolean;
   isRequired?: boolean;
   min?: number;
@@ -20,6 +21,7 @@ const PersonalInput: React.FC<InputProps> = ({
   id,
   value,
   type,
+  placeholder = "",
   readOnly = false,
   isRequired = false,
   min = 0,
@@ -41,6 +43,7 @@ const PersonalInput: React.FC<InputProps> = ({
           required={isRequired}
           disabled={disable}
           rows={8}
+          placeholder={placeholder}
           onChange={(e) => onChange(e.target.value)}
           onBlur={(e) => {
             onBlur(e.target.value);
@@ -59,6 +62,7 @@ const PersonalInput: React.FC<InputProps> = ({
           required={isRequired}
           min={min}
           disabled={disable}
+          placeholder={placeholder}
           onChange={(e) => onChange(e.target.value)}
           onBlur={(e) => {
             onBlur(e.target.value);

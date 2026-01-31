@@ -36,11 +36,12 @@ class MainBll {
   public async GetUser(userId: string) {
     const result = await this.dal.GetUser(userId);
     const response = new BaseResponse<User>();
+    response.isSuccess = true;
     if (result) {
       response.isSuccess = true;
       response.message = "Success";
       response.body = result;
-    } else {
+    } else if (userId !== "") {
       response.isSuccess = false;
       response.message = "Information Not Found";
     }
@@ -197,12 +198,12 @@ class MainBll {
   public async GetInstance(instanceId: string) {
     const result = await this.dal.GetInstance(instanceId);
     const response = new BaseResponse<Instance>();
+    response.isSuccess = true;
     if (result) {
       result.connectionString = new Encript().decrypt(result.connectionString);
-      response.isSuccess = true;
       response.message = "Success";
       response.body = result;
-    } else {
+    } else if (instanceId !== "") {
       response.isSuccess = false;
       response.message = "Information Not Found";
     }
@@ -262,15 +263,16 @@ class MainBll {
 
   public async GetReport(reportId: string) {
     const result = await this.dal.GetReport(reportId);
-    result.querys.map((x) => {
+    result?.querys.map((x) => {
       x.query = new Encript().decrypt(x.query);
     });
     const response = new BaseResponse<DBReport>();
+    response.isSuccess = true;
     if (result) {
       response.isSuccess = true;
       response.message = "Success";
       response.body = result;
-    } else {
+    } else if (reportId !== "") {
       response.isSuccess = false;
       response.message = "Information Not Found";
     }

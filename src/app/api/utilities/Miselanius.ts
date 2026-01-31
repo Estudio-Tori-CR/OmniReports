@@ -68,9 +68,9 @@ export default class Miselanius {
       const hh = this.pad2(d.getHours());
       const mi = this.pad2(d.getMinutes());
       const ss = this.pad2(d.getSeconds());
-      return `CONVERT(datetime, '${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}', 120)`;
+      return `'${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}'`;
     }
 
-    return `CONVERT(datetime, '${yyyy}-${mm}-${dd}', 23)`;
+    return `'${yyyy}-${mm}-${dd}'`;
   }
 }

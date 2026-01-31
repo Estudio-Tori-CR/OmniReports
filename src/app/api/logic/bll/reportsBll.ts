@@ -28,12 +28,12 @@ class ReportsBll {
     try {
       const encript = new Encript();
       const report = await mainDal.GetReport(execute.id);
-      report.querys.forEach((q) => {
+      report?.querys.forEach((q) => {
         q.query = encript.decrypt(q.query);
       });
       const querysToExecute: QueryToExecute[] = [];
 
-      for (const q of report.querys) {
+      for (const q of report?.querys ?? []) {
         const params = execute.queryParams.filter(
           (p) => p.sheetName === q.sheetName,
         );
@@ -57,8 +57,7 @@ class ReportsBll {
                   break;
 
                 case "datetime-local":
-                case "date":
-                  switch (instance.type) {
+                  switch (instance?.type) {
                     case "OracleDB":
                       value = utilities.toOracleDateTimeString(value);
                       break;
@@ -67,6 +66,19 @@ class ReportsBll {
                       break;
                     case "SQLServer":
                       value = utilities.toSqlServerDateTimeString(value);
+                      break;
+                  }
+                  break;
+                case "date":
+                  switch (instance?.type) {
+                    case "OracleDB":
+                      value = utilities.toOracleDateTimeString(value, false);
+                      break;
+                    case "MySql":
+                      value = utilities.toMySqlDateTimeString(value, false);
+                      break;
+                    case "SQLServer":
+                      value = utilities.toSqlServerDateTimeString(value, false);
                       break;
                   }
                   break;
@@ -80,9 +92,9 @@ class ReportsBll {
 
             querysToExecute.push({
               connectionString: new Encript().decrypt(
-                instance.connectionString,
+                instance?.connectionString ?? "",
               ),
-              instanceType: instance.type,
+              instanceType: instance?.type as string,
               query: queryToExecute,
               sheetName: element.sheetName,
             });

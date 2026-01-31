@@ -21,6 +21,7 @@ class MainDal {
   }
 
   public async GetUser(userId: string | null) {
+    if (!userId) return null;
     const result = await this.connection.find<User>(UserModel, { _id: userId });
     return result[0];
   }
@@ -73,6 +74,7 @@ class MainDal {
   }
 
   public async GetInstance(instanceId: string | null) {
+    if (!instanceId) return null;
     const result = await this.connection.find<Instance>(InstanceModel, {
       _id: instanceId,
     });
@@ -99,6 +101,7 @@ class MainDal {
   }
 
   public async GetReport(reportId: string | null) {
+    if (!reportId) return null;
     const result = await this.connection.find<DBReport>(ReportModel, {
       _id: reportId,
     });
