@@ -1,12 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import sql, { type config as SqlConfig } from "mssql";
-import { ConnectionMongo } from "../mongoDB/connection";
 
-export class SqlServerConnection extends ConnectionMongo {
+export class SqlServerConnection{
   private connectionString: string;
 
   constructor(connectionString: string) {
-    super();
     this.connectionString = connectionString;
   }
 

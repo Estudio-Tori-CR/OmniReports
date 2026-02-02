@@ -76,12 +76,14 @@ const Index = () => {
           <div className="center-container">
             <div className="form-title">
               <h1>Reports</h1>
-              <p>List of reports</p>
-              <ActionGuard allowed={["ADMIN", "DEVELOPER"]}>
-                <div className="rightButtonsContainer">
-                  <PersonalButton text="Import" callback={onImport} />
-                </div>
-              </ActionGuard>
+              <div style={{ display: "flex" }}>
+                <p style={{ width: "100%" }}>List of reports</p>
+                <ActionGuard allowed={["ADMIN", "DEVELOPER"]}>
+                  <div className="rightButtonsContainer">
+                    <PersonalButton text="Import" callback={onImport} />
+                  </div>
+                </ActionGuard>
+              </div>
             </div>
             <div className="squares-container">
               {reports.map((x) => {

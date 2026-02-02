@@ -10,7 +10,6 @@ import PersonalButton from "../../components/button";
 import RoleGuard from "../../components/RolGuard";
 import Message from "../../components/popups";
 import { ExportReport, ReportInt } from "@/app/models/Report";
-import { format } from "sql-formatter";
 import BaseResponse from "@/app/models/baseResponse";
 import ReportsReq from "@/app/utilities/requests/reports/requests";
 import ActionGuard from "../../components/ActionGuard";
@@ -347,11 +346,15 @@ const Maintenance = () => {
                   type="button"
                   callback={onSubmit}
                 />
-                <PersonalButton
-                  text="Export"
-                  type="button"
-                  callback={onExport}
-                />
+                {reportId && (
+                  <ActionGuard allowed={["ADMIN"]}>
+                    <PersonalButton
+                      text="Export"
+                      type="button"
+                      callback={onExport}
+                    />
+                  </ActionGuard>
+                )}
               </div>
             </form>
           </div>

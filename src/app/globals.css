@@ -123,6 +123,7 @@ label {
 .square > div > svg {
   width: 80px;
   height: 80px;
+  justify-self: center;
 }
 
 /* @media (prefers-color-scheme: dark) {
