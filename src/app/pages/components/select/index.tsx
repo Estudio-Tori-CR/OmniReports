@@ -42,6 +42,7 @@ const PersonalSelect: React.FC<SelectProps> = ({
         data-ms-editor="true"
         value={value ?? ""}
         disabled={disable}
+        required={isRequered}
         onChange={(e) => {
           onChange(e.target.value);
         }}

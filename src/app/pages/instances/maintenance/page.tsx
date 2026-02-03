@@ -1,5 +1,6 @@
 "use client";
 import "./page.module.css";
+import type { SubmitEvent } from "react";
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import AppShell from "../../components/sidebar";
@@ -35,7 +36,8 @@ const Maintenance = () => {
     });
   }, [instanceId]);
 
-  const onSubmit = async () => {
+  const onSubmit = async (e: SubmitEvent) => {
+    e.preventDefault();
     let response = new BaseResponse();
     if (instanceId) {
       response = await client.Update(instanceId, instance);
@@ -79,7 +81,7 @@ const Maintenance = () => {
               <h1>Intances Maintenance</h1>
               <p>Create or update a data base instance</p>
             </div>
-            <form>
+            <form onSubmit={onSubmit}>
               <PersonalInput
                 labelText="Instance Name"
                 type="text"
@@ -119,11 +121,7 @@ const Maintenance = () => {
                     />
                   </ActionGuard>
                 )}
-                <PersonalButton
-                  text="Submit"
-                  type="button"
-                  callback={onSubmit}
-                />
+                <PersonalButton text="Submit" type="submit" />
               </div>
             </form>
           </div>

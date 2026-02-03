@@ -1,6 +1,7 @@
 "use client";
 import "./page.module.css";
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import type { SubmitEvent } from "react";
 import { useSearchParams } from "next/navigation";
 import AppShell from "../../components/sidebar";
 import PersonalInput from "../../components/input";
@@ -38,7 +39,8 @@ const Maintenance = () => {
     });
   }, [userID]);
 
-  const onSubmit = async () => {
+  const onSubmit = async (e: SubmitEvent) => {
+    e.preventDefault();
     let response: BaseResponse<null> = new BaseResponse();
     if (userID) {
       response = await client.Update(userID, user);
@@ -63,7 +65,7 @@ const Maintenance = () => {
       <AppShell>
         <div className="container">
           <div className="center-container">
-            <form>
+            <form onSubmit={onSubmit}>
               <div className="form-title">
                 <h1>User Maintenance</h1>
                 <p>Create or update a user profile</p>
@@ -101,11 +103,7 @@ const Maintenance = () => {
                 onChange={(e) => setUser((u) => ({ ...u, roles: e }))}
               />
               <div className="rightButtonsContainer">
-                <PersonalButton
-                  text="Submit"
-                  type="button"
-                  callback={onSubmit}
-                />
+                <PersonalButton text="Submit" type="submit" />
               </div>
             </form>
           </div>

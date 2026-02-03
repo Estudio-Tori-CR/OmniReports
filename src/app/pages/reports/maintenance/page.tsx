@@ -1,6 +1,7 @@
 "use client";
 import "./page.module.css";
 import { useEffect, useState } from "react";
+import type { SubmitEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import AppShell from "../../components/sidebar";
 import IntancesReq from "@/app/utilities/requests/instances/requests";
@@ -82,7 +83,8 @@ const Maintenance = () => {
     }));
   };
 
-  const onSubmit = async () => {
+  const onSubmit = async (e: SubmitEvent) => {
+    e.preventDefault();
     let response = new BaseResponse();
     if (reportId) {
       response = await client.Update(reportId, report);
@@ -264,7 +266,7 @@ const Maintenance = () => {
               <h1>Reports Maintenance</h1>
               <p>Create or update a data base report</p>
             </div>
-            <form>
+            <form onSubmit={onSubmit}>
               <div style={{ display: "flex" }}>
                 <PersonalInput
                   labelText="Report Name"
@@ -406,11 +408,7 @@ const Maintenance = () => {
                     />
                   </ActionGuard>
                 )}
-                <PersonalButton
-                  text="Save All"
-                  type="button"
-                  callback={onSubmit}
-                />
+                <PersonalButton text="Save All" type="submit" />
                 {reportId && (
                   <ActionGuard allowed={["ADMIN"]}>
                     <PersonalButton

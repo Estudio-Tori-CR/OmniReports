@@ -1,6 +1,7 @@
 "use client";
 import "./page.module.css";
 import { useState } from "react";
+import type { SubmitEvent } from "react";
 import AppShell from "../../../components/sidebar";
 import PersonalInput from "../../../components/input";
 import PersonalButton from "../../../components/button";
@@ -26,7 +27,8 @@ const ChangePassword = () => {
   const client = new UsersReq();
   const message = new Message();
 
-  const onSubmit = async () => {
+  const onSubmit = async (e: SubmitEvent) => {
+    e.preventDefault();
     client
       .ValidatePassword(password.currentPassword, currentUser._id)
       .then((response) => {
@@ -53,7 +55,7 @@ const ChangePassword = () => {
               <h1>Change Password</h1>
               <p>Change your password</p>
             </div>
-            <form>
+            <form onSubmit={onSubmit}>
               <PersonalInput
                 labelText="Current Password"
                 type="password"
@@ -82,11 +84,7 @@ const ChangePassword = () => {
                 }
               />
               <div className="rightButtonsContainer">
-                <PersonalButton
-                  text="Submit"
-                  type="button"
-                  callback={onSubmit}
-                />
+                <PersonalButton text="Submit" type="submit" />
               </div>
             </form>
           </div>

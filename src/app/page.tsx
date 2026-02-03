@@ -27,6 +27,11 @@ export default function Home() {
     removeToken();
   }, []);
 
+  const onSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    LogIn();
+  };
+
   const LogIn = async () => {
     const usersReq = new UsersReq();
     usersReq.LogIn(username, password).then((response) => {
@@ -53,19 +58,26 @@ export default function Home() {
           className="icon"
           style={{ width: "250px", height: "200px" }}
         />
-        <PersonalInput
-          labelText="Email"
-          type="text"
-          value={username}
-          onChange={setUsername}
-        />
-        <PersonalInput
-          labelText="Password"
-          type="password"
-          value={password}
-          onChange={setPassword}
-        />
-        <PersonalButton text="Log In" callback={LogIn} isPrimary={true} />
+        <form onSubmit={onSubmit}>
+          <PersonalInput
+            labelText="Email"
+            type="text"
+            value={username}
+            onChange={setUsername}
+          />
+          <PersonalInput
+            labelText="Password"
+            type="password"
+            value={password}
+            onChange={setPassword}
+          />
+          <PersonalButton
+            text="Log In"
+            callback={LogIn}
+            isPrimary={true}
+            type="submit"
+          />
+        </form>
       </div>
     </div>
   );
