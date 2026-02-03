@@ -282,7 +282,7 @@ class MainBll {
 
   public async ExportReport(report: ExportReport) {
     const response = new BaseResponse<ExportReport>();
-    debugger;
+
     const encript = new Encript();
     report.instances = encript.encrypt(JSON.stringify(report.instances));
     report.report = encript.encrypt(JSON.stringify(report.report));
@@ -295,7 +295,7 @@ class MainBll {
 
   public async ImportReport(report: ExportReport) {
     const response = new BaseResponse<null>();
-    debugger;
+
     const encrypt = new Encript();
     if (report.isEncrypted) {
       report.instances = JSON.parse(

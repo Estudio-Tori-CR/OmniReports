@@ -54,8 +54,12 @@ class Message {
     });
   };
 
-  async ShowParametersUser(opts: ToastOptions) {
-    const initialValue: ParamertersFromValue = {
+  async ShowParametersUser(
+    opts: ToastOptions,
+    form: ParamertersFromValue | null = null,
+  ) {
+
+    const initialValue: ParamertersFromValue = form ?? {
       paramName: "",
       paramType: "",
       paramLabel: "",
@@ -168,13 +172,13 @@ class Message {
     const result = await Swal.fire({
       title: opts.title,
       showCancelButton: true,
-      confirmButtonText: "Load",
+      confirmButtonText: "Export",
       cancelButtonText: "Cancel",
       focusConfirm: false,
 
       // HTML puro
       html: `
-      <div style="display:flex; flex-direction:column; gap:10px; text-align:left;">
+      <div style="display:flex; gap:10px; text-align:center;">
         <input type="checkbox" id="swal-file-encry" />
         <label for="swal-file-encry" style="font-size:12px;">Encrypt file</label>
       </div>
@@ -193,9 +197,12 @@ class Message {
         )?.checked;
         return { encrypt: encryptFile };
       },
+      preDeny() {
+        encryptFile = null;
+      },
     });
 
-    return result.value?.encrypt ?? null;
+    return result.value?.encrypt;
   }
 }
 

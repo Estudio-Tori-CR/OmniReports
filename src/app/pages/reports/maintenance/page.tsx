@@ -145,6 +145,50 @@ const Maintenance = () => {
     });
   };
 
+  const onEditParameter = async (name: string, queryIndex: number) => {
+    const query = report.querys[queryIndex];
+    const currentParam = query.parameters.find((p) => p.name === name);
+    if (!currentParam) return;
+
+    const result = await message.ShowParametersUser(
+      {
+        icon: "question",
+        title: "Edit parameter",
+      },
+      {
+        paramLabel: currentParam.label,
+        paramName: currentParam.name,
+        paramType: currentParam.type,
+      },
+    );
+
+    if (!result) return;
+
+    setReport((prev) => {
+      return {
+        ...prev,
+        querys: prev.querys.map((item, i) =>
+          i === queryIndex
+            ? {
+                ...item,
+                query: item.query.replace(`@${name}`, `@${result?.paramName}`),
+                parameters: item.parameters.map((p) =>
+                  p.name === name
+                    ? {
+                        ...p,
+                        name: result?.paramName,
+                        label: result?.paramLabel,
+                        type: result?.paramType,
+                      }
+                    : p,
+                ),
+              }
+            : item,
+        ),
+      };
+    });
+  };
+
   const onDeleteParameter = (name: string, queryIndex: number) => {
     setReport((prev) => {
       const q = prev.querys[queryIndex];
@@ -173,38 +217,42 @@ const Maintenance = () => {
       icon: "question",
       title: "Export Report",
     });
-    debugger;
-    let exportData: ExportReport = {
-      report: report,
-      instances: [],
-      isEncrypted: isEncrypted,
-    };
 
-    report.querys.forEach((x) => {
-      if (
-        !(exportData.instances as Instance[]).some(
-          (y) => y._id?.toString() === x.instance,
-        )
-      ) {
-        (exportData.instances as Instance[]).push(
-          instances?.find((y) => y._id?.toString() === x.instance) as Instance,
-        );
+    if (isEncrypted !== null && isEncrypted !== undefined) {
+      let exportData: ExportReport = {
+        report: report,
+        instances: [],
+        isEncrypted: isEncrypted,
+      };
+
+      report.querys.forEach((x) => {
+        if (
+          !(exportData.instances as Instance[]).some(
+            (y) => y._id?.toString() === x.instance,
+          )
+        ) {
+          (exportData.instances as Instance[]).push(
+            instances?.find(
+              (y) => y._id?.toString() === x.instance,
+            ) as Instance,
+          );
+        }
+      });
+
+      if (isEncrypted) {
+        exportData = (await client.Export(exportData)).body as ExportReport;
       }
-    });
-    debugger;
-    if (isEncrypted) {
-      exportData = (await client.Export(exportData)).body as ExportReport;
+      const jsonString = JSON.stringify(exportData, null, 2);
+      const blob = new Blob([jsonString], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = report.name;
+      a.click();
+
+      URL.revokeObjectURL(url);
     }
-    const jsonString = JSON.stringify(exportData, null, 2);
-    const blob = new Blob([jsonString], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = report.name;
-    a.click();
-
-    URL.revokeObjectURL(url);
   };
 
   return (
@@ -309,6 +357,15 @@ const Maintenance = () => {
                                 callback={() =>
                                   onDeleteParameter(row[0], index)
                                 }
+                              />
+                            );
+                          },
+                          (row: string[]) => {
+                            return (
+                              <PersonalButton
+                                text="Edit"
+                                isPrimary={true}
+                                callback={() => onEditParameter(row[0], index)}
                               />
                             );
                           },
