@@ -280,13 +280,36 @@ class MainBll {
     return response;
   }
 
+  public async ExportReport(report: ExportReport) {
+    const response = new BaseResponse<ExportReport>();
+    debugger;
+    const encript = new Encript();
+    report.instances = encript.encrypt(JSON.stringify(report.instances));
+    report.report = encript.encrypt(JSON.stringify(report.report));
+    response.isSuccess = true;
+    response.message = "Success";
+    response.body = report;
+
+    return response;
+  }
+
   public async ImportReport(report: ExportReport) {
     const response = new BaseResponse<null>();
+    debugger;
+    const encrypt = new Encript();
+    if (report.isEncrypted) {
+      report.instances = JSON.parse(
+        encrypt.decrypt(JSON.stringify(report.instances)),
+      );
+      report.report = JSON.parse(
+        encrypt.decrypt(JSON.stringify(report.report)),
+      );
+    }
     try {
       if (report.instances && report.report) {
         const instances = await this.GetInstances(null, true);
         for (let i = 0; i < report.instances.length; i++) {
-          const element = report.instances[i];
+          const element = report.instances[i] as Instance;
           if (
             !instances.body?.some(
               (x) =>
@@ -298,15 +321,15 @@ class MainBll {
             const tmpId = element._id;
             element._id = undefined;
             const id = await this.InserInstance(element);
-            report.report.querys.forEach((y) => {
+            (report.report as DBReport).querys.forEach((y) => {
               if (y.instance === tmpId) {
                 y.instance = id.body as string;
               }
             });
           }
         }
-        report.report._id = undefined;
-        await this.InserReport(report.report);
+        (report.report as DBReport)._id = undefined;
+        await this.InserReport(report.report as DBReport);
         response.isSuccess = true;
         response.message = "Success";
       } else {

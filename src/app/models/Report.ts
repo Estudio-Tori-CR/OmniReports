@@ -60,8 +60,9 @@ export type ResultToExcel = {
 };
 
 export type ExportReport = {
-  report: DBReport;
-  instances: Instance[] | null | undefined;
+  report: DBReport | string;
+  instances: Instance[] | null | undefined | string;
+  isEncrypted: boolean;
 };
 
 const ParametersSchema = new Schema<DbParameters>(

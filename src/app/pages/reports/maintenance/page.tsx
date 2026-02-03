@@ -168,25 +168,33 @@ const Maintenance = () => {
     });
   };
 
-  const onExport = () => {
-    const exportData: ExportReport = {
+  const onExport = async () => {
+    const isEncrypted: boolean = await message.ShowExportFile({
+      icon: "question",
+      title: "Export Report",
+    });
+    debugger;
+    let exportData: ExportReport = {
       report: report,
       instances: [],
+      isEncrypted: isEncrypted,
     };
 
     report.querys.forEach((x) => {
-      console.log(
-        exportData.instances?.some((y) => y._id?.toString() === x.instance),
-      );
       if (
-        !exportData.instances?.some((y) => y._id?.toString() === x.instance)
+        !(exportData.instances as Instance[]).some(
+          (y) => y._id?.toString() === x.instance,
+        )
       ) {
-        exportData.instances?.push(
+        (exportData.instances as Instance[]).push(
           instances?.find((y) => y._id?.toString() === x.instance) as Instance,
         );
       }
     });
-
+    debugger;
+    if (isEncrypted) {
+      exportData = (await client.Export(exportData)).body as ExportReport;
+    }
     const jsonString = JSON.stringify(exportData, null, 2);
     const blob = new Blob([jsonString], { type: "application/json" });
     const url = URL.createObjectURL(blob);

@@ -161,6 +161,42 @@ class Message {
 
     return (result.value ?? null) as string | null;
   }
+
+  async ShowExportFile(opts: ToastOptions) {
+    let encryptFile: boolean | undefined | null = null;
+
+    const result = await Swal.fire({
+      title: opts.title,
+      showCancelButton: true,
+      confirmButtonText: "Load",
+      cancelButtonText: "Cancel",
+      focusConfirm: false,
+
+      // HTML puro
+      html: `
+      <div style="display:flex; flex-direction:column; gap:10px; text-align:left;">
+        <input type="checkbox" id="swal-file-encry" />
+        <label for="swal-file-encry" style="font-size:12px;">Encrypt file</label>
+      </div>
+    `,
+
+      didOpen: () => {
+        document.body.classList.remove("swal2-height-auto");
+        encryptFile = (
+          document.getElementById("swal-file-encry") as HTMLInputElement | null
+        )?.checked;
+      },
+
+      preConfirm: async () => {
+        encryptFile = (
+          document.getElementById("swal-file-encry") as HTMLInputElement | null
+        )?.checked;
+        return { encrypt: encryptFile };
+      },
+    });
+
+    return result.value?.encrypt ?? null;
+  }
 }
 
 export default Message;

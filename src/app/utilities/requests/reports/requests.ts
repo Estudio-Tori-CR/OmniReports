@@ -69,6 +69,15 @@ class ReportsReq {
     return result;
   }
 
+  public async Export(body: ExportReport): Promise<BaseResponse<ExportReport>> {
+    const result = await this.client.Post<ExportReport, ExportReport>(
+      `reports/export`,
+      body,
+    );
+
+    return result;
+  }
+
   public async Import(body: ExportReport): Promise<BaseResponse<null>> {
     const result = await this.client.Post<ExportReport, null>(
       `reports/import`,

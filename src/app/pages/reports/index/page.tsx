@@ -52,11 +52,12 @@ const Index = () => {
     if (!fileText) {
       return;
     }
-    const jsonData = JSON.parse(fileText as string);
+    const jsonData = JSON.parse(fileText);
 
     const response = await client.Import({
       instances: jsonData.instances,
       report: jsonData.report,
+      isEncrypted: jsonData.isEncrypted || false,
     });
 
     if (response.isSuccess) {
