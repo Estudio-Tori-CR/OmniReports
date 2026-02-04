@@ -12,7 +12,7 @@ export const POST = withRoles(["ADMIN"], async (req: Request) => {
   try {
     const bll: MainBll = new MainBll();
     const body: User = Object.assign(new UserModel(), await req.json());
-    response = await bll.InserUser(body);
+    response = await bll.InsertUser(body);
   } catch (err) {
     response.isSuccess = false;
     response.message = "Unexpected error";

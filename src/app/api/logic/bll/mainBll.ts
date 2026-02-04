@@ -64,11 +64,18 @@ class MainBll {
     return response;
   }
 
-  public async InserUser(body: User) {
+  public async InsertUser(body: User) {
+    const response = new BaseResponse<null>();
+    const existingUser = await this.dal.ValidateEmail(body.email);
+    if (existingUser) {
+      response.isSuccess = false;
+      response.message = "User already exists";
+      return response;
+    }
+
     const { hash, password } = new Miselanius().GenerateRandomPassword();
     body.password = hash;
-    const result = await this.dal.InserUser(body);
-    const response = new BaseResponse<null>();
+    const result = await this.dal.InsertUser(body);
     if (result) {
       try {
         const mail = new Mail();
@@ -108,7 +115,6 @@ class MainBll {
   }
 
   public async ValidatePassword(currentPassword: string, userId: string) {
-    debugger;
     currentPassword = new Encript().Hash(currentPassword);
     const result = await this.dal.ValidatePassword(currentPassword, userId);
     const response = new BaseResponse<User>();
@@ -130,6 +136,16 @@ class MainBll {
     const response = new BaseResponse<null>();
 
     if (result) {
+      try {
+        const mail = new Mail();
+        await mail.SendMail({
+          to: body.email,
+          subject: "Password has been changed in OmniReports",
+          html: `<p>Hello ${body.firstName} ${body.lastName},</p><p>Your password has been changed successfully.</p>`,
+        });
+      } catch (err) {
+        this.log.log(`Error sending email to ${body.email}: ${err}`, "error");
+      }
       response.isSuccess = true;
       response.message = "Success";
     } else {
@@ -140,9 +156,9 @@ class MainBll {
     return response;
   }
 
-  public async InserInstance(body: Instance) {
+  public async InsertInstance(body: Instance) {
     body.connectionString = new Encript().encrypt(body.connectionString);
-    const result = await this.dal.InserInstance(body);
+    const result = await this.dal.InsertInstance(body);
     const response = new BaseResponse<string>();
     if (result) {
       response.body = result;
@@ -211,13 +227,14 @@ class MainBll {
     return response;
   }
 
-  public async InserReport(body: DBReport) {
+  public async InsertReport(body: DBReport) {
     body.querys.map((x) => {
       x.query = new Encript().encrypt(x.query);
     });
-    const result = await this.dal.InserReport(body);
-    const response = new BaseResponse<null>();
+    const result = await this.dal.InsertReport(body);
+    const response = new BaseResponse<string>();
     if (result) {
+      response.body = result.toString();
       response.isSuccess = true;
       response.message = "Success";
     } else {
@@ -316,11 +333,15 @@ class MainBll {
                 x.connectionString === element.connectionString &&
                 x.name === element.name &&
                 x.type === element.type,
-            )
+            ) ||
+            instances.body === undefined ||
+            instances.body.length === 0 ||
+            instances.body === null
           ) {
+            debugger;
             const tmpId = element._id;
             element._id = undefined;
-            const id = await this.InserInstance(element);
+            const id = await this.InsertInstance(element);
             (report.report as DBReport).querys.forEach((y) => {
               if (y.instance === tmpId) {
                 y.instance = id.body as string;
@@ -329,7 +350,7 @@ class MainBll {
           }
         }
         (report.report as DBReport)._id = undefined;
-        await this.InserReport(report.report as DBReport);
+        await this.InsertReport(report.report as DBReport);
         response.isSuccess = true;
         response.message = "Success";
       } else {
@@ -347,10 +368,35 @@ class MainBll {
 
   public async InserLog(body: Log) {
     try {
-      await this.dal.InserLog(body);
+      await this.dal.InsertLog(body);
     } catch (err) {
       this.log.log(`Error inserting log: ${err}`, "error");
     }
+  }
+
+  public async AddReportToUser(reportsId: string, usersId: string[]) {
+    const response = new BaseResponse<null>();
+    try {
+      for (const userId of usersId) {
+        const user = await this.dal.GetUser(userId);
+        if (user) {
+          const userReports = user.reports || [];
+          if (!userReports.includes(reportsId)) {
+            userReports.push(reportsId);
+          }
+
+          await this.dal.UpdateUser(userId, { ...user, reports: userReports });
+        }
+      }
+      response.isSuccess = true;
+      response.message = "Success";
+    } catch (err) {
+      this.log.log(`Error adding report to user: ${err}`, "error");
+      response.isSuccess = false;
+      response.message = "Unexpected error adding report to user";
+    }
+
+    return response;
   }
 }
 

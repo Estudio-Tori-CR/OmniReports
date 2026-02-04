@@ -81,6 +81,19 @@ class UsersReq {
 
     return result;
   }
+
+  public async AddReport(
+    reportId: string,
+    usersId: string[],
+  ): Promise<BaseResponse<string>> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = await this.client.Post<any, string>(`users/addReport`, {
+      reportId,
+      usersId,
+    });
+
+    return result;
+  }
 }
 
 export default UsersReq;

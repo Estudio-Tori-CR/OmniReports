@@ -12,7 +12,7 @@ class Logs {
 
   private saveLogInDb(message: string, level: string): void {
     // Simulate saving log to a database
-    this.dal.InserLog(new Log({ message: message, type: level }));
+    this.dal.InsertLog(new Log({ message: message, type: level }));
   }
 
   private saveLogInFile(message: string, level: string): void {

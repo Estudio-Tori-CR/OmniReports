@@ -12,7 +12,6 @@ export const PUT = withRoles(
   async (req: Request) => {
     let response: BaseResponse<null> = new BaseResponse<null>();
     try {
-      debugger;
       const bll: MainBll = new MainBll();
       const body: User = Object.assign(new UserModel(), await req.json());
       const { searchParams } = new URL(req.url);

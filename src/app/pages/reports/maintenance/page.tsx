@@ -16,6 +16,9 @@ import ReportsReq from "@/app/utilities/requests/reports/requests";
 import ActionGuard from "../../components/ActionGuard";
 import SortTable from "../../components/table";
 import { Instance } from "@/app/models/Instance";
+import UsersReq from "@/app/utilities/requests/users/requests";
+import { User } from "@/app/models/User";
+import PersonalMultiSelect from "../../components/multiSelect";
 
 const Maintenance = () => {
   const router = useRouter();
@@ -26,9 +29,12 @@ const Maintenance = () => {
     isActive: true,
   });
   const [options, setOptions] = useState<SelectOptions[]>([]);
+  const [optionsUser, setOptionsUser] = useState<SelectOptions[]>([]);
   const [instances, setInstances] = useState<Instance[]>([]);
+  const [usersForReport, setUsersForReport] = useState<string[]>([]);
 
   const clientInstances = new IntancesReq();
+  const clientUsers = new UsersReq();
   const client = new ReportsReq();
   const message = new Message();
   const reportId = searchParams.get("reportId") ?? "";
@@ -46,6 +52,28 @@ const Maintenance = () => {
 
           setOptions(options);
         });
+      }
+    });
+
+    clientUsers.GetAll("").then((response) => {
+      if (response.isSuccess && response.body) {
+        const optionsTmp = [...optionsUser];
+        response.body.forEach((x) => {
+          optionsTmp.push({
+            text: `${x.firstName} ${x.lastName}`,
+            value: x._id?.toString() as string,
+          });
+
+          response.body?.forEach((user) => {
+            if (user.reports.includes(reportId)) {
+              setUsersForReport((prev) => [
+                ...prev,
+                user._id?.toString() as string,
+              ]);
+            }
+          });
+        });
+        setOptionsUser(optionsTmp);
       }
     });
 
@@ -91,6 +119,16 @@ const Maintenance = () => {
     } else {
       response = await client.Insert(report);
     }
+    if (response.isSuccess) {
+      await clientUsers.AddReport(
+        //body have the id of the new report
+        reportId !== "" && reportId !== undefined
+          ? reportId
+          : (response.body as string),
+        usersForReport,
+      );
+    }
+
     const icon = response.isSuccess ? "success" : "error";
     await message.Toast({
       icon,
@@ -283,6 +321,13 @@ const Maintenance = () => {
                   />
                 </div>
               </div>
+              <PersonalMultiSelect
+                options={optionsUser}
+                labelText="Users"
+                value={usersForReport}
+                isRequered={true}
+                onChange={(value) => setUsersForReport(value)}
+              />
               <div id="querys-container">
                 {report.querys.map((q, index) => (
                   <div

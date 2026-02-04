@@ -12,7 +12,7 @@ export const POST = withRoles(["ADMIN", "DEVELOPER"], async (req: Request) => {
   try {
     const bll: MainBll = new MainBll();
     const body: Instance = Object.assign(new InstanceModel(), await req.json());
-    response = await bll.InserInstance(body);
+    response = await bll.InsertInstance(body);
   } catch (err) {
     console.error(err);
     response.isSuccess = false;

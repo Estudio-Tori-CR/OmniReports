@@ -26,12 +26,20 @@ class MainDal {
     return result[0];
   }
 
+  public async ValidateEmail(email: string | null) {
+    if (!email) return null;
+    const result = await this.connection.find<User>(UserModel, {
+      email: email,
+    });
+    return result[0];
+  }
+
   public async GetUsers(filter: string | null) {
     const result = await this.connection.find<User>(UserModel);
     return result;
   }
 
-  public async InserUser(body: User) {
+  public async InsertUser(body: User) {
     const result = await this.connection.insert<User>(UserModel, body);
     return result;
   }
@@ -54,7 +62,7 @@ class MainDal {
     return result[0];
   }
 
-  public async InserInstance(body: Instance) {
+  public async InsertInstance(body: Instance) {
     const result = await this.connection.insert<Instance>(InstanceModel, body);
     return result;
   }
@@ -81,7 +89,7 @@ class MainDal {
     return result[0];
   }
 
-  public async InserReport(body: DBReport) {
+  public async InsertReport(body: DBReport) {
     const result = await this.connection.insert<DBReport>(ReportModel, body);
     return result;
   }
@@ -108,7 +116,7 @@ class MainDal {
     return result[0];
   }
 
-  public async InserLog(body: Log) {
+  public async InsertLog(body: Log) {
     const result = await this.connection.insert<Log>(LogModel, body);
     return result;
   }
