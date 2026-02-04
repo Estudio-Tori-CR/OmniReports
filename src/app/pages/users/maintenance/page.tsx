@@ -35,6 +35,15 @@ const Maintenance = () => {
     client.GetOne(userID).then((response) => {
       if (response.isSuccess && response.body) {
         setUser(response.body);
+      } else {
+        setUser({
+          firstName: "",
+          lastName: "",
+          email: "",
+          roles: "",
+          reports: [],
+          isActive: true,
+        });
       }
     });
   }, [userID]);

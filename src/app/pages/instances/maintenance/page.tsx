@@ -32,6 +32,13 @@ const Maintenance = () => {
     client.GetOne(instanceId).then((response) => {
       if (response.isSuccess && response.body) {
         setInstance(response.body as InstanceInt);
+      } else {
+        setInstance({
+          name: "",
+          connectionString: "",
+          type: "",
+          isActive: true,
+        });
       }
     });
   }, [instanceId]);

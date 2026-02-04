@@ -8,7 +8,7 @@ import Logs from "../../utilities/Logs";
 const log: Logs = new Logs();
 
 export const POST = withRoles(["ADMIN", "DEVELOPER"], async (req: Request) => {
-  let response: BaseResponse<null> = new BaseResponse<null>();
+  let response: BaseResponse<string> = new BaseResponse<string>();
   try {
     const bll: MainBll = new MainBll();
     const body: DBReport = Object.assign(new ReportModel(), await req.json());

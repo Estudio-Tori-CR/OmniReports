@@ -97,6 +97,12 @@ const Maintenance = () => {
         });
 
         setReport(tmpReport);
+      } else {
+        setReport({
+          name: "",
+          querys: [],
+          isActive: true,
+        });
       }
     });
   }, []);
