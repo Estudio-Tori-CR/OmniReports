@@ -10,24 +10,28 @@ import ReportsReq from "@/app/utilities/requests/reports/requests";
 import ActionGuard from "../../components/ActionGuard";
 import PersonalButton from "../../components/button";
 import Message from "../../components/popups";
+import { useAppSelector } from "@/app/GlobalState/GlobalState";
 
 const Index = () => {
   const router = useRouter();
   const [reports, setReports] = useState<DBReport[]>([]);
   // we set in true for the fist render
   const [fileImported, setFileImported] = useState(true);
+  const { role, _id } = useAppSelector((s) => s.user);
 
   const client = new ReportsReq();
   const message = new Message();
 
   useEffect(() => {
     if (fileImported) {
-      client.GetAll("").then((response) => {
-        if (response.isSuccess && response.body) {
-          setReports(response.body);
-          setFileImported(false);
-        }
-      });
+      client
+        .GetAll(role.includes("ADMIN") ? "" : role, _id as string)
+        .then((response) => {
+          if (response.isSuccess && response.body) {
+            setReports(response.body);
+            setFileImported(false);
+          }
+        });
     }
   }, [fileImported]);
 

@@ -17,12 +17,13 @@ import ActionGuard from "../../components/ActionGuard";
 import SortTable from "../../components/table";
 import { Instance } from "@/app/models/Instance";
 import UsersReq from "@/app/utilities/requests/users/requests";
-import { User } from "@/app/models/User";
 import PersonalMultiSelect from "../../components/multiSelect";
+import { useAppSelector } from "@/app/GlobalState/GlobalState";
 
 const Maintenance = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { role, _id } = useAppSelector((s) => s.user);
   const [report, setReport] = useState<ReportInt>({
     name: "",
     querys: [],
@@ -55,27 +56,29 @@ const Maintenance = () => {
       }
     });
 
-    clientUsers.GetAll("").then((response) => {
-      if (response.isSuccess && response.body) {
-        const optionsTmp = [...optionsUser];
-        response.body.forEach((x) => {
-          optionsTmp.push({
-            text: `${x.firstName} ${x.lastName}`,
-            value: x._id?.toString() as string,
-          });
+    if (role.includes("ADMIN")) {
+      clientUsers.GetAll("").then((response) => {
+        if (response.isSuccess && response.body) {
+          const optionsTmp = [...optionsUser];
+          response.body.forEach((x) => {
+            optionsTmp.push({
+              text: `${x.firstName} ${x.lastName}`,
+              value: x._id?.toString() as string,
+            });
 
-          response.body?.forEach((user) => {
-            if (user.reports.includes(reportId)) {
-              setUsersForReport((prev) => [
-                ...prev,
-                user._id?.toString() as string,
-              ]);
-            }
+            response.body?.forEach((user) => {
+              if (user.reports.includes(reportId)) {
+                setUsersForReport((prev) => [
+                  ...prev,
+                  user._id?.toString() as string,
+                ]);
+              }
+            });
           });
-        });
-        setOptionsUser(optionsTmp);
-      }
-    });
+          setOptionsUser(optionsTmp);
+        }
+      });
+    }
 
     client.GetOne(reportId).then((response) => {
       if (response.isSuccess && response.body) {
@@ -125,13 +128,19 @@ const Maintenance = () => {
     } else {
       response = await client.Insert(report);
     }
+
     if (response.isSuccess) {
+      const usersTmp = [...usersForReport];
+      if (!usersTmp.includes(_id)) {
+        usersTmp.push(_id);
+      }
+
       await clientUsers.AddReport(
         //body have the id of the new report
         reportId !== "" && reportId !== undefined
           ? reportId
           : (response.body as string),
-        usersForReport,
+        usersTmp,
       );
     }
 
@@ -327,13 +336,15 @@ const Maintenance = () => {
                   />
                 </div>
               </div>
-              <PersonalMultiSelect
-                options={optionsUser}
-                labelText="Users"
-                value={usersForReport}
-                isRequered={true}
-                onChange={(value) => setUsersForReport(value)}
-              />
+
+              <ActionGuard allowed={["ADMIN"]}>
+                <PersonalMultiSelect
+                  options={optionsUser}
+                  labelText="Users"
+                  value={usersForReport}
+                  onChange={(value) => setUsersForReport(value)}
+                />
+              </ActionGuard>
               <div id="querys-container">
                 {report.querys.map((q, index) => (
                   <div

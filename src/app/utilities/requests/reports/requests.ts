@@ -36,8 +36,13 @@ class ReportsReq {
     return result;
   }
 
-  public async GetAll(filter: string): Promise<BaseResponse<DBReport[]>> {
-    const result = await this.client.Get<DBReport[]>("reports/");
+  public async GetAll(
+    filter: string[] | string,
+    userId: string,
+  ): Promise<BaseResponse<DBReport[]>> {
+    const result = await this.client.Get<DBReport[]>(
+      "reports/?filter=" + encodeURIComponent(JSON.stringify(filter)) + "&userId=" + userId,
+    );
 
     return result;
   }

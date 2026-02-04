@@ -16,11 +16,18 @@ export const PUT = withRoles(
       const body: User = Object.assign(new UserModel(), await req.json());
       const { searchParams } = new URL(req.url);
       const userId = searchParams.get("userId");
-      response = await bll.ChangePassword(userId as string, body);
+
+      // Fallback por headers si estás detrás de proxy
+      const xff = req.headers.get("x-forwarded-for");
+      const realIp = req.headers.get("x-real-ip");
+
+      const clientIp = (xff ? xff.split(",")[0].trim() : null) ?? realIp ?? "unknown";
+
+      response = await bll.ChangePassword(userId as string, body, clientIp);
     } catch (err) {
       response.isSuccess = false;
       response.message = "Unexpected error";
-    log.log(err as string, "error");
+      log.log(err as string, "error");
     }
 
     return NextResponse.json(response);
