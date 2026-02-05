@@ -231,7 +231,6 @@ const PersonalMultiSelect: React.FC<Props> = ({
             <li key={value}>
               <span className={style.selectedText}>{text}</span>
               <button
-                className={style.deleteIcon}
                 type="button"
                 onClick={() => removeValue(value)}
                 disabled={disable}

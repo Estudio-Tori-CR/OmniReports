@@ -102,9 +102,9 @@
 .selectedItemsContainer button {
   margin-left: 5px;
   border: none;
-  background-color: transparent;
+  background-color: var(--red);
   color: var(--white);
-  border-radius: 50%;
+  border-radius: 0.1rem;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -116,7 +116,7 @@
 }
 
 .selectedItemsContainer button:hover {
-  background-color: var(--red);
+  background-color: var(--dark-red);
 }
 
 .visuallyHidden {
@@ -128,8 +128,4 @@
   overflow: hidden;
   clip: rect(0 0 0 0);
   clip: rect(0, 0, 0, 0);
-}
-
-.deleteIcon {
-  background: transparent;
 }
