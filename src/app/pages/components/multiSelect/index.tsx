@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useId, useMemo, useRef, useState } from "react";
 import style from "./style.module.css";
-import { MdDelete } from "react-icons/md";
+import { FaRegTrashAlt } from "react-icons/fa";
 
 export interface MultiSelectOption {
   text: string;
@@ -236,7 +236,7 @@ const PersonalMultiSelect: React.FC<Props> = ({
                 onClick={() => removeValue(value)}
                 disabled={disable}
               >
-                <MdDelete />
+                <FaRegTrashAlt />
               </button>
             </li>
           );
