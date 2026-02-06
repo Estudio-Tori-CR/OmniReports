@@ -12,7 +12,6 @@ const log: Logs = new Logs();
 export const POST = withRoles(["ADMIN", "DEVELOPER"], async (req: Request) => {
   let response: BaseResponse<null> = new BaseResponse<null>();
   try {
-    debugger;
     const bll: MainBll = new MainBll();
     const body: DirectoryReports = Object.assign(
       new DirectoryReportsModel(),
@@ -22,7 +21,8 @@ export const POST = withRoles(["ADMIN", "DEVELOPER"], async (req: Request) => {
   } catch (err) {
     console.error(err);
     response.isSuccess = false;
-    response.message = "Unexpected error";
+    response.message =
+      "An unexpected error occurred while creating the directory.";
     log.log(err as string, "error");
   }
 
@@ -39,7 +39,8 @@ export const PUT = withRoles(["ADMIN", "DEVELOPER"], async (req: Request) => {
     // response = await bll.UpdateReport(directoryId as string, body);
   } catch (err) {
     response.isSuccess = false;
-    response.message = "Unexpected error";
+    response.message =
+      "An unexpected error occurred while updating the directory.";
     log.log(err as string, "error");
   }
 

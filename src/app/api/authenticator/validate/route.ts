@@ -50,7 +50,8 @@ export const POST = async (req: Request) => {
     }
   } catch (err) {
     response.isSuccess = false;
-    response.message = "Unexpected error";
+    response.message =
+      "An unexpected error occurred while validating the verification code.";
     log.log(err as string, "error");
   }
 

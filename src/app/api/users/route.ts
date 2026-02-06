@@ -14,7 +14,7 @@ export const GET = withRoles(["ADMIN"], async (req: Request) => {
     response = await bll.GetUsers(null);
   } catch (err) {
     response.isSuccess = false;
-    response.message = "Unexpected error";
+    response.message = "An unexpected error occurred while loading users.";
     log.log(err as string, "error");
   }
 

@@ -34,7 +34,7 @@ export default function Home() {
   };
 
   const LogIn = async () => {
-    const usersReq = new UsersReq();
+    const usersReq = new UsersReq(router);
     usersReq.LogIn(username, password).then((response) => {
       if (response.isSuccess && response.body) {
         dispatch(

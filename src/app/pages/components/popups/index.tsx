@@ -96,15 +96,15 @@ class Message {
       },
       preConfirm: () => {
         if (!finalValue.paramName?.trim()) {
-          Swal.showValidationMessage("Name is required");
+          Swal.showValidationMessage("Parameter name is required.");
           return false;
         }
         if (!finalValue.paramLabel?.trim()) {
-          Swal.showValidationMessage("Label is required");
+          Swal.showValidationMessage("Parameter label is required.");
           return false;
         }
         if (!finalValue.paramType) {
-          Swal.showValidationMessage("Type is required");
+          Swal.showValidationMessage("Parameter type is required.");
           return false;
         }
         return finalValue;
@@ -161,7 +161,7 @@ class Message {
 
       preConfirm: async () => {
         if (!selectedFile) {
-          Swal.showValidationMessage("You must select a file");
+          Swal.showValidationMessage("Please select a file to continue.");
           return false;
         }
         const text = await readFileAsText(selectedFile);
@@ -262,12 +262,14 @@ class Message {
         const name = (rawName ?? "").trim();
 
         if (!name) {
-          Swal.showValidationMessage("Directory name is required");
+          Swal.showValidationMessage("Directory name is required.");
           return false;
         }
 
         if (name.includes("/") || name.includes("\\")) {
-          Swal.showValidationMessage("Directory name cannot contain / or \\");
+          Swal.showValidationMessage(
+            "Directory name cannot contain '/' or '\\'.",
+          );
           return false;
         }
 

@@ -2,24 +2,24 @@ import { NextResponse } from "next/server";
 import { withRoles } from "../../middleware";
 import BaseResponse from "@/app/models/baseResponse";
 import MainBll from "../../logic/bll/mainBll";
-import { DBReport } from "@/app/models/Report";
 import Logs from "../../utilities/Logs";
+import { DirectoryReports } from "@/app/models/directory";
 
 const log: Logs = new Logs();
 
 export const GET = withRoles(
   ["ADMIN", "DEVELOPER", "REPORTS"],
   async (req: Request) => {
-    let response: BaseResponse<DBReport> = new BaseResponse<DBReport>();
+    let response: BaseResponse<DirectoryReports[]> = new BaseResponse<
+      DirectoryReports[]
+    >();
     try {
-      const { searchParams } = new URL(req.url);
-      const reportId = searchParams.get("reportId");
       const bll: MainBll = new MainBll();
-      response = await bll.GetReport(reportId as string);
+      response = await bll.GetDirectories();
     } catch (err) {
       response.isSuccess = false;
       response.message =
-        "An unexpected error occurred while loading report details.";
+        "An unexpected error occurred while loading directories.";
       log.log(err as string, "error");
     }
 

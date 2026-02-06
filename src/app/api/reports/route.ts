@@ -19,7 +19,7 @@ export const GET = withRoles(
       response = await bll.GetReports(filter ? JSON.parse(filter) : null, userId as string);
     } catch (err) {
       response.isSuccess = false;
-      response.message = "Unexpected error";
+      response.message = "An unexpected error occurred while loading reports.";
       log.log(err as string, "error");
     }
 

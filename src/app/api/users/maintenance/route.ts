@@ -15,7 +15,7 @@ export const POST = withRoles(["ADMIN"], async (req: Request) => {
     response = await bll.InsertUser(body);
   } catch (err) {
     response.isSuccess = false;
-    response.message = "Unexpected error";
+    response.message = "An unexpected error occurred while creating the user.";
     log.log(err as string, "error");
   }
 
@@ -32,7 +32,7 @@ export const PUT = withRoles(["ADMIN"], async (req: Request) => {
     response = await bll.UpdateUser(userId as string, body);
   } catch (err) {
     response.isSuccess = false;
-    response.message = "Unexpected error";
+    response.message = "An unexpected error occurred while updating the user.";
     log.log(err as string, "error");
   }
 

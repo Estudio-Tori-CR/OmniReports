@@ -18,7 +18,8 @@ export const GET = withRoles(
       response = await bll.GetUser(userId as string);
     } catch (err) {
       response.isSuccess = false;
-      response.message = "Unexpected error";
+      response.message =
+        "An unexpected error occurred while loading user details.";
       log.log(err as string, "error");
     }
 

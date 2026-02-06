@@ -180,6 +180,13 @@ class MainDal {
     );
     return result;
   }
+
+  public async GetDirectories() {
+    const result = await this.connection.find<DirectoryReports>(
+      DirectoryReportsModel,
+    );
+    return result;
+  }
 }
 
 export default MainDal;

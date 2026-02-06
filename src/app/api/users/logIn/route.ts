@@ -14,7 +14,7 @@ export const POST = async (req: Request) => {
     response = await bll.LogIn(email, password);
   } catch (err) {
     response.isSuccess = false;
-    response.message = "Unexpected error";
+    response.message = "An unexpected error occurred while signing in.";
     log.log(err as string, "error");
   }
 

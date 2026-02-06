@@ -48,7 +48,8 @@ export const POST = async (req: Request) => {
     }
   } catch (err) {
     response.isSuccess = false;
-    response.message = "Unexpected error";
+    response.message =
+      "An unexpected error occurred while creating the session token.";
     log.log(err as string, "error");
   }
 

@@ -104,7 +104,8 @@ class ReportsBll {
 
       if (querysToExecute.length === 0) {
         response.isSuccess = false;
-        response.message = "Please fill in the parameters";
+        response.message =
+          "Please complete all required parameters before running the report.";
         response.body = null as any;
         return response;
       }
@@ -127,24 +128,28 @@ class ReportsBll {
       } catch (execErr) {
         this.log.log(`Error executing queries: ${execErr}`, "error");
         response.isSuccess = false;
-        response.message = "Error executing queries";
+        response.message =
+          "Failed to run one or more report queries. Please review the parameters and data source settings.";
         return response;
       }
 
       try {
         const bytes = await this.ExportToExcel(results);
         response.isSuccess = true;
+        response.message = "Report executed successfully.";
         response.body = Buffer.from(bytes).toString("base64");
       } catch (excelErr) {
         this.log.log(`Error exporting to Excel: ${excelErr}`, "error");
         response.isSuccess = false;
-        response.message = "Error exporting to Excel";
+        response.message =
+          "The report ran successfully, but exporting the file failed.";
         throw excelErr;
       }
       return response;
     } catch (err) {
       response.isSuccess = false;
-      response.message = "Unexpected error";
+      response.message =
+        "An unexpected error occurred while executing the report.";
       this.log.log(`Unexpected error in ExecuteOne: ${err}`, "error");
       return response;
     }

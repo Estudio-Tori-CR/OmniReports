@@ -28,11 +28,11 @@ class MainBll {
     const response = new BaseResponse<User>();
     if (result) {
       response.isSuccess = true;
-      response.message = "Success";
+      response.message = "Sign-in completed successfully.";
       response.body = result;
     } else {
       response.isSuccess = false;
-      response.message = "Invalid Credentials";
+      response.message = "Invalid email or password.";
     }
 
     return response;
@@ -44,11 +44,11 @@ class MainBll {
     response.isSuccess = true;
     if (result) {
       response.isSuccess = true;
-      response.message = "Success";
+      response.message = "User details loaded successfully.";
       response.body = result;
     } else if (userId !== "") {
       response.isSuccess = false;
-      response.message = "Information Not Found";
+      response.message = "User not found.";
     }
 
     return response;
@@ -59,11 +59,11 @@ class MainBll {
     const response = new BaseResponse<User[]>();
     if (result) {
       response.isSuccess = true;
-      response.message = "Success";
+      response.message = "Users loaded successfully.";
       response.body = result;
     } else {
       response.isSuccess = false;
-      response.message = "Information Not Found";
+      response.message = "No users were found.";
     }
 
     return response;
@@ -74,7 +74,7 @@ class MainBll {
     const existingUser = await this.dal.ValidateEmail(body.email);
     if (existingUser) {
       response.isSuccess = false;
-      response.message = "User already exists";
+      response.message = "User already exists.";
       return response;
     }
 
@@ -84,6 +84,8 @@ class MainBll {
     body.password = hash;
     const result = await this.dal.InsertUser(body);
     if (result) {
+      response.isSuccess = true;
+      response.message = "User created successfully.";
       try {
         const mail = new Mail();
         await mail.SendMail({
@@ -194,14 +196,12 @@ class MainBll {
         });
       } catch (err) {
         this.log.log(`Error sending email to ${body.email}: ${err}`, "error");
-        response.isSuccess = false;
-        response.message = "User created, but failed to send email.";
+        response.message =
+          "User created successfully, but we could not send the welcome email.";
       }
-      response.isSuccess = true;
-      response.message = "Success";
     } else {
       response.isSuccess = false;
-      response.message = "Unexpected Error";
+      response.message = "An unexpected error occurred while creating the user.";
     }
 
     return response;
@@ -213,10 +213,10 @@ class MainBll {
 
     if (result) {
       response.isSuccess = true;
-      response.message = "Success";
+      response.message = "User updated successfully.";
     } else {
       response.isSuccess = false;
-      response.message = "Error Updating User";
+      response.message = "Failed to update user.";
     }
 
     return response;
@@ -228,11 +228,11 @@ class MainBll {
     const response = new BaseResponse<User>();
     if (result) {
       response.isSuccess = true;
-      response.message = "Success";
+      response.message = "Current password validated successfully.";
       response.body = result;
     } else {
       response.isSuccess = false;
-      response.message = "Your current password is incorrect";
+      response.message = "The current password is incorrect.";
     }
 
     return response;
@@ -355,10 +355,10 @@ class MainBll {
         this.log.log(`Error sending email to ${body.email}: ${err}`, "error");
       }
       response.isSuccess = true;
-      response.message = "Success";
+      response.message = "Password changed successfully.";
     } else {
       response.isSuccess = false;
-      response.message = "Error Changing Password";
+      response.message = "Failed to change password.";
     }
 
     return response;
@@ -371,10 +371,10 @@ class MainBll {
     if (result) {
       response.body = result;
       response.isSuccess = true;
-      response.message = "Success";
+      response.message = "Instance created successfully.";
     } else {
       response.isSuccess = false;
-      response.message = "Error Inserting Instance";
+      response.message = "Failed to create instance.";
     }
 
     return response;
@@ -387,10 +387,10 @@ class MainBll {
 
     if (result) {
       response.isSuccess = true;
-      response.message = "Success";
+      response.message = "Instance updated successfully.";
     } else {
       response.isSuccess = false;
-      response.message = "Error Updating Instance";
+      response.message = "Failed to update instance.";
     }
 
     return response;
@@ -409,11 +409,11 @@ class MainBll {
     const response = new BaseResponse<Instance[]>();
     if (result) {
       response.isSuccess = true;
-      response.message = "Success";
+      response.message = "Instances loaded successfully.";
       response.body = result;
     } else {
       response.isSuccess = false;
-      response.message = "Information Not Found";
+      response.message = "No instances were found.";
     }
 
     return response;
@@ -425,11 +425,11 @@ class MainBll {
     response.isSuccess = true;
     if (result) {
       result.connectionString = new Encript().decrypt(result.connectionString);
-      response.message = "Success";
+      response.message = "Instance loaded successfully.";
       response.body = result;
     } else if (instanceId !== "") {
       response.isSuccess = false;
-      response.message = "Information Not Found";
+      response.message = "Instance not found.";
     }
 
     return response;
@@ -441,7 +441,8 @@ class MainBll {
     for (const item of body.querys) {
       if (miselanius.CheckInvalidSql(item.query)) {
         response.isSuccess = false;
-        response.message = "The query contains invalid SQL statements.";
+        response.message =
+          "The query contains unsafe SQL statements and cannot be saved.";
         return response;
       }
     }
@@ -453,10 +454,10 @@ class MainBll {
     if (result) {
       response.body = result.toString();
       response.isSuccess = true;
-      response.message = "Success";
+      response.message = "Report created successfully.";
     } else {
       response.isSuccess = false;
-      response.message = "Error Inserting Report";
+      response.message = "Failed to create report.";
     }
 
     return response;
@@ -468,7 +469,8 @@ class MainBll {
     for (const item of body.querys) {
       if (miselanius.CheckInvalidSql(item.query)) {
         response.isSuccess = false;
-        response.message = "The query contains invalid SQL statements.";
+        response.message =
+          "The query contains unsafe SQL statements and cannot be saved.";
         return response;
       }
     }
@@ -480,10 +482,10 @@ class MainBll {
 
     if (result) {
       response.isSuccess = true;
-      response.message = "Success";
+      response.message = "Report updated successfully.";
     } else {
       response.isSuccess = false;
-      response.message = "Error Updating Report";
+      response.message = "Failed to update report.";
     }
 
     return response;
@@ -495,7 +497,7 @@ class MainBll {
 
     if (result) {
       response.isSuccess = true;
-      response.message = "Success";
+      response.message = "Reports loaded successfully.";
       response.body = [];
 
       if (filter?.includes("ADMIN") || filter === "") {
@@ -511,7 +513,7 @@ class MainBll {
       }
     } else {
       response.isSuccess = false;
-      response.message = "Information Not Found";
+      response.message = "No reports were found.";
     }
 
     return response;
@@ -526,11 +528,11 @@ class MainBll {
     response.isSuccess = true;
     if (result) {
       response.isSuccess = true;
-      response.message = "Success";
+      response.message = "Report loaded successfully.";
       response.body = result;
     } else if (reportId !== "") {
       response.isSuccess = false;
-      response.message = "Information Not Found";
+      response.message = "Report not found.";
     }
 
     return response;
@@ -543,7 +545,7 @@ class MainBll {
     report.instances = encript.encrypt(JSON.stringify(report.instances));
     report.report = encript.encrypt(JSON.stringify(report.report));
     response.isSuccess = true;
-    response.message = "Success";
+    response.message = "Report exported successfully.";
     response.body = report;
 
     return response;
@@ -567,7 +569,8 @@ class MainBll {
           const miselanius = new Miselanius();
           if (miselanius.CheckInvalidSql(item.query)) {
             response.isSuccess = false;
-            response.message = "The query contains invalid SQL statements.";
+            response.message =
+              "The import contains unsafe SQL statements and cannot be processed.";
             return response;
           }
         }
@@ -600,15 +603,16 @@ class MainBll {
         (report.report as DBReport)._id = undefined;
         await this.InsertReport(report.report as DBReport);
         response.isSuccess = true;
-        response.message = "Success";
+        response.message = "Report imported successfully.";
       } else {
         response.isSuccess = false;
-        response.message = "Invalid Information";
+        response.message = "The import file content is invalid.";
       }
     } catch (err) {
       this.log.log(`Error importing report: ${err}`, "error");
       response.isSuccess = false;
-      response.message = "Unexpected error or the file is invalid";
+      response.message =
+        "Failed to import report. The file is invalid or corrupted.";
     }
 
     return response;
@@ -645,11 +649,11 @@ class MainBll {
         });
       }
       response.isSuccess = true;
-      response.message = "Success";
+      response.message = "Report access updated successfully.";
     } catch (err) {
       this.log.log(`Error adding report to user: ${err}`, "error");
       response.isSuccess = false;
-      response.message = "Unexpected error adding report to user";
+      response.message = "Failed to update report access for users.";
     }
 
     return response;
@@ -811,6 +815,7 @@ class MainBll {
         });
 
         response.isSuccess = true;
+        response.message = "Verification code sent successfully.";
         response.body = {
           expirationDate: expireDate,
           length: tokenLength,
@@ -818,12 +823,13 @@ class MainBll {
       } catch (err) {
         this.log.log(`Error sending email with token: ${err}`, "error");
         response.isSuccess = false;
-        response.message = "Unexpected error sending email with token";
+        response.message =
+          "Verification code generated, but the email could not be sent.";
       }
     } catch (err) {
       this.log.log(`Error sending token: ${err}`, "error");
       response.isSuccess = false;
-      response.message = "Unexpected error sending token";
+      response.message = "Failed to generate or send the verification code.";
     }
 
     return response;
@@ -856,19 +862,20 @@ class MainBll {
       const currentToken = await this.dal.ValidateAuthenticator(userId, token);
       if (!currentToken) {
         response.isSuccess = false;
-        response.message = "Invalid Token";
+        response.message = "The verification code is invalid or has expired.";
       } else {
         await this.ExpireAuthenticatorByUser(
           userId,
           currentToken?._id?.toString(),
         );
 
+        response.message = "Verification code validated successfully.";
         response.body = (await this.GetUser(userId)).body;
       }
     } catch (err) {
       this.log.log(`Error: ${err}`, "error");
       response.isSuccess = false;
-      response.message = "Unexpected error";
+      response.message = "Failed to validate the verification code.";
     }
 
     return response;
@@ -883,7 +890,22 @@ class MainBll {
         "Directory created successfully. It will appear once it contains reports.";
     } else {
       response.isSuccess = false;
-      response.message = "Error Inserting Directory";
+      response.message = "Failed to create directory.";
+    }
+
+    return response;
+  }
+
+  public async GetDirectories() {
+    const response = new BaseResponse<DirectoryReports[]>();
+    const result = await this.dal.GetDirectories();
+    if (result) {
+      response.isSuccess = true;
+      response.message = "Directories loaded successfully.";
+      response.body = result;
+    } else {
+      response.isSuccess = false;
+      response.message = "Failed to load directories.";
     }
 
     return response;

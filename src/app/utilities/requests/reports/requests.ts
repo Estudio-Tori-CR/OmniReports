@@ -111,6 +111,13 @@ class ReportsReq {
 
     return result;
   }
+
+  public async GetDirectories(): Promise<BaseResponse<DirectoryReports[]>> {
+    const result =
+      await this.client.Get<DirectoryReports[]>("reports/directory");
+
+    return result;
+  }
 }
 
 export default ReportsReq;

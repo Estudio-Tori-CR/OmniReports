@@ -23,7 +23,8 @@ export const POST = async (req: Request) => {
     response = await bll.SendAuthenticator(userId, clientIp);
   } catch (err) {
     response.isSuccess = false;
-    response.message = "Unexpected error";
+    response.message =
+      "An unexpected error occurred while sending the verification code.";
     log.log(err as string, "error");
   }
 

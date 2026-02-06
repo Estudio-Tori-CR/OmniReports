@@ -26,7 +26,8 @@ export const PUT = withRoles(
       response = await bll.ChangePassword(userId as string, body, clientIp);
     } catch (err) {
       response.isSuccess = false;
-      response.message = "Unexpected error";
+      response.message =
+        "An unexpected error occurred while changing the password.";
       log.log(err as string, "error");
     }
 

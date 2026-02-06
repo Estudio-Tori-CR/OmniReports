@@ -21,7 +21,8 @@ export const POST = withRoles(
       response = await bll.ExecuteOne(body);
     } catch (err) {
       response.isSuccess = false;
-      response.message = "Unexpected error";
+      response.message =
+        "An unexpected error occurred while executing the report.";
       log.log(err as string, "error");
     }
 

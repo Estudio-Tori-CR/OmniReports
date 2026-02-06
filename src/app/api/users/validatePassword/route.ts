@@ -17,7 +17,8 @@ export const POST = withRoles(
       response = await bll.ValidatePassword(body.currentPassword, body.userId);
     } catch (err) {
       response.isSuccess = false;
-      response.message = "Unexpected error";
+      response.message =
+        "An unexpected error occurred while validating the current password.";
       log.log(err as string, "error");
     }
 

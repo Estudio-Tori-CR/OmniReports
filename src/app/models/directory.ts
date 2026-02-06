@@ -13,7 +13,7 @@ export class DirectoryReports {
 const directoryReportsSchema = new Schema<DirectoryReports>(
   {
     name: { type: String, required: true, trim: true },
-    path: { type: String, required: true, trim: true },
+    path: { type: String, required: true, trim: true, unique: true },
   },
   { timestamps: true },
 );

@@ -33,6 +33,9 @@ const Maintenance = () => {
     isActive: true,
   });
   const [options, setOptions] = useState<SelectOptions[]>([]);
+  const [optionsDirectories, setOptionsDirectorie] = useState<SelectOptions[]>(
+    [],
+  );
   const [optionsUser, setOptionsUser] = useState<MultiSelectOption[]>([]);
   const [instances, setInstances] = useState<Instance[]>([]);
   const [usersForReport, setUsersForReport] = useState<string[]>([]);
@@ -89,6 +92,22 @@ const Maintenance = () => {
           isActive: true,
         });
       }
+    });
+
+    client.GetDirectories().then((response) => {
+      const options: SelectOptions[] = [];
+
+      if (response.isSuccess && response.body) {
+        for (let i = 0; i < response.body.length; i++) {
+          const element = response.body[i];
+          options.push({
+            text: `${element.name} - ${element.path}`,
+            value: element.path,
+          });
+        }
+      }
+
+      setOptionsDirectorie(options);
     });
   }, []);
 
@@ -345,10 +364,10 @@ const Maintenance = () => {
                   />
                 </div>
               </div>
-              <PersonalInput
+              <PersonalSelect
                 labelText="Directory"
-                type="text"
-                isRequired={false}
+                options={optionsDirectories}
+                isRequered={false}
                 value={report?.directory}
                 onChange={(e) => setReport((r) => ({ ...r, directory: e }))}
               />

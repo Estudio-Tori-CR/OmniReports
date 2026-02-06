@@ -15,7 +15,7 @@ export const POST = withRoles(["ADMIN", "DEVELOPER"], async (req: Request) => {
     response = await bll.ExportReport(body);
   } catch (err) {
     response.isSuccess = false;
-    response.message = "Unexpected error";
+    response.message = "An unexpected error occurred while exporting the report.";
     log.log(err as string, "error");
   }
 

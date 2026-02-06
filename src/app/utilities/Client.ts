@@ -48,7 +48,10 @@ class Client {
       const respose = result.data as BaseResponse<T>;
 
       if (!respose.isSuccess) {
-        this.message.Toast({ icon: "error", title: respose.message });
+        this.message.Toast({
+          icon: "error",
+          title: respose.message || "Failed to load the requested information.",
+        });
       }
 
       return respose;
@@ -61,13 +64,13 @@ class Client {
         } else {
           this.message.Toast({
             icon: "error",
-            title: "Request error",
+            title: "Failed to load data. Please try again.",
           });
         }
       } else {
         this.message.Toast({
           icon: "error",
-          title: "Unexpected error",
+          title: "An unexpected error occurred while loading data.",
         });
       }
 
@@ -96,12 +99,16 @@ class Client {
           headers: await this.getAuthHeader(),
         });
         respose = result.data as BaseResponse<T1>;
-      } catch (err) {
+      } catch {
         respose.isSuccess = false;
+        respose.message = "Failed to save changes. Please try again.";
       }
 
       if (!respose.isSuccess) {
-        this.message.Toast({ icon: "error", title: respose.message });
+        this.message.Toast({
+          icon: "error",
+          title: respose.message || "Failed to save changes. Please try again.",
+        });
       }
 
       return respose;
@@ -114,13 +121,13 @@ class Client {
         } else {
           this.message.Toast({
             icon: "error",
-            title: "Request error",
+            title: "Failed to submit data. Please try again.",
           });
         }
       } else {
         this.message.Toast({
           icon: "error",
-          title: "Unexpected error",
+          title: "An unexpected error occurred while submitting data.",
         });
       }
 
@@ -149,12 +156,17 @@ class Client {
           headers: await this.getAuthHeader(),
         });
         respose = result.data as BaseResponse<T1>;
-      } catch (err) {
+      } catch {
         respose.isSuccess = false;
+        respose.message = "Failed to update information. Please try again.";
       }
 
       if (!respose.isSuccess) {
-        this.message.Toast({ icon: "error", title: respose.message });
+        this.message.Toast({
+          icon: "error",
+          title:
+            respose.message || "Failed to update information. Please try again.",
+        });
       }
 
       return respose;
@@ -167,13 +179,13 @@ class Client {
         } else {
           this.message.Toast({
             icon: "error",
-            title: "Request error",
+            title: "Failed to update data. Please try again.",
           });
         }
       } else {
         this.message.Toast({
           icon: "error",
-          title: "Unexpected error",
+          title: "An unexpected error occurred while updating data.",
         });
       }
 

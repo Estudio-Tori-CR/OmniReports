@@ -14,7 +14,8 @@ export const POST = withRoles(["ADMIN", "DEVELOPER"], async (req: Request) => {
     response = await bll.AddReportToUser(reportId, usersId);
   } catch (err) {
     response.isSuccess = false;
-    response.message = "Unexpected error";
+    response.message =
+      "An unexpected error occurred while updating report access.";
     log.log(err as string, "error");
   }
 

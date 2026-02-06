@@ -16,7 +16,7 @@ export const GET = withRoles(["ADMIN", "DEVELOPER"], async (req: Request) => {
     response = await bll.GetInstances(null, isExport);
   } catch (err) {
     response.isSuccess = false;
-    response.message = "Unexpected error";
+    response.message = "An unexpected error occurred while loading instances.";
     log.log(err as string, "error");
   }
 
