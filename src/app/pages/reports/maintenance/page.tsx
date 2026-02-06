@@ -136,7 +136,6 @@ const Maintenance = () => {
 
     if (response.isSuccess) {
       const usersTmp = [...usersForReport];
-      console.log(usersTmp);
       if (!usersTmp.includes(_id)) {
         usersTmp.push(_id);
       }

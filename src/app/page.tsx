@@ -1,5 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
+import type { SubmitEvent } from "react";
 import PersonalInput from "./pages/components/input";
 import PersonalButton from "./pages/components/button";
 import style from "./page.module.css";
@@ -27,7 +28,7 @@ export default function Home() {
     removeToken();
   }, []);
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = (e: SubmitEvent) => {
     e.preventDefault();
     LogIn();
   };
@@ -44,7 +45,7 @@ export default function Home() {
             role: [response.body.roles],
           }),
         );
-        router.replace("/pages/reports/index");
+        router.replace("/pages/authenticator");
       }
     });
   };
@@ -73,7 +74,6 @@ export default function Home() {
           />
           <PersonalButton
             text="Log In"
-            callback={LogIn}
             isPrimary={true}
             type="submit"
           />

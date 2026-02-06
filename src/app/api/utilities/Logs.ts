@@ -10,15 +10,16 @@ class Logs {
     this.dal = new MainDal();
   }
 
-  private saveLogInDb(message: string, level: string): void {
+  private async saveLogInDb(message: string, level: string): Promise<void> {
     // Simulate saving log to a database
-    this.dal.InsertLog(new Log({ message: message, type: level }));
+    await this.dal.InsertLog(new Log({ message: message, type: level }));
   }
 
   private saveLogInFile(message: string, level: string): void {
+    debugger;
     // Simulate saving log to a file
     const filePath = path.join(
-      process.cwd(),
+      process.env.LOG_PATH ?? "./logs",
       `logs-${new Date().toISOString().split("T")[0]}.txt`,
     );
     fs.writeFile(

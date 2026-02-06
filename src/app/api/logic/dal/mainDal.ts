@@ -3,6 +3,7 @@ import { ConnectionMongo } from "../connections/mongoDB/connection";
 import InstanceModel, { Instance } from "@/app/models/Instance";
 import ReportModel, { DBReport } from "@/app/models/Report";
 import LogModel, { Log } from "@/app/models/Log";
+import AuthenticatorModel, { Authenticator } from "@/app/models/authenticator";
 
 class MainDal {
   private connection: ConnectionMongo;
@@ -119,6 +120,54 @@ class MainDal {
   public async InsertLog(body: Log) {
     const result = await this.connection.insert<Log>(LogModel, body);
     return result;
+  }
+
+  public async InsertAuthenticator(body: Authenticator) {
+    const result = await this.connection.insert<Authenticator>(
+      AuthenticatorModel,
+      body,
+    );
+    return result;
+  }
+
+  public async UpdateAuthenticator(
+    authenticatorId: string,
+    body: Authenticator,
+  ) {
+    const result = await this.connection.update<Authenticator>(
+      AuthenticatorModel,
+      body,
+      {
+        _id: authenticatorId,
+      },
+    );
+    return result;
+  }
+
+  public async GetAuthenticatorByUser(userId: string | null) {
+    if (!userId) return null;
+    const result = await this.connection.find<Authenticator>(
+      AuthenticatorModel,
+      {
+        user: userId,
+        status: "S",
+      },
+    );
+    return result[0];
+  }
+
+  public async ValidateAuthenticator(userId: string | null, token: string) {
+    if (!userId) return null;
+    const result = await this.connection.find<Authenticator>(
+      AuthenticatorModel,
+      {
+        user: userId,
+        status: "S",
+        token: token,
+        expiredDate: { $gte: new Date(Date.now()) },
+      },
+    );
+    return result[0];
   }
 }
 

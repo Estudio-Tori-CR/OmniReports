@@ -8,6 +8,7 @@ import { DBReport, ExportReport } from "@/app/models/Report";
 import Mail from "../../utilities/Mail";
 import Logs from "../../utilities/Logs";
 import { Log } from "@/app/models/Log";
+import AuthenticatorModel, { Authenticator } from "@/app/models/authenticator";
 
 class MainBll {
   private dal: MainDal;
@@ -73,7 +74,7 @@ class MainBll {
       return response;
     }
 
-    const { hash, password } = new Miselanius().GenerateRandomPassword();
+    const { hash, password } = new Miselanius().GenerateRandomString();
     body.password = hash;
     const result = await this.dal.InsertUser(body);
     if (result) {
@@ -429,11 +430,20 @@ class MainBll {
   }
 
   public async InsertReport(body: DBReport) {
+    const response = new BaseResponse<string>();
+    const miselanius = new Miselanius();
+    for (const item of body.querys) {
+      if (miselanius.CheckInvalidSql(item.query)) {
+        response.isSuccess = false;
+        response.message = "The query contains invalid SQL statements.";
+        return response;
+      }
+    }
+
     body.querys.map((x) => {
       x.query = new Encript().encrypt(x.query);
     });
     const result = await this.dal.InsertReport(body);
-    const response = new BaseResponse<string>();
     if (result) {
       response.body = result.toString();
       response.isSuccess = true;
@@ -447,11 +457,20 @@ class MainBll {
   }
 
   public async UpdateReport(reportId: string, body: DBReport) {
+    const response = new BaseResponse<null>();
+    const miselanius = new Miselanius();
+    for (const item of body.querys) {
+      if (miselanius.CheckInvalidSql(item.query)) {
+        response.isSuccess = false;
+        response.message = "The query contains invalid SQL statements.";
+        return response;
+      }
+    }
+
     body.querys.map((x) => {
       x.query = new Encript().encrypt(x.query);
     });
     const result = await this.dal.UpdateReport(reportId, body);
-    const response = new BaseResponse<null>();
 
     if (result) {
       response.isSuccess = true;
@@ -538,6 +557,15 @@ class MainBll {
     }
     try {
       if (report.instances && report.report) {
+        for (const item of (report.report as DBReport).querys) {
+          const miselanius = new Miselanius();
+          if (miselanius.CheckInvalidSql(item.query)) {
+            response.isSuccess = false;
+            response.message = "The query contains invalid SQL statements.";
+            return response;
+          }
+        }
+
         const instances = await this.GetInstances(null, true);
         for (let i = 0; i < report.instances.length; i++) {
           const element = report.instances[i] as Instance;
@@ -616,6 +644,221 @@ class MainBll {
       this.log.log(`Error adding report to user: ${err}`, "error");
       response.isSuccess = false;
       response.message = "Unexpected error adding report to user";
+    }
+
+    return response;
+  }
+
+  public async SendAuthenticator(userId: string, ip: string) {
+    const response = new BaseResponse<Date>();
+    try {
+      const user = await this.dal.GetUser(userId);
+
+      const expireDate: Date = new Date(Date.now() + 15 * 60 * 1000);
+      const autheticator = new AuthenticatorModel({
+        expiredDate: expireDate,
+        token: new Miselanius().GenerateRandomString(
+          6,
+          "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
+        ).password,
+        user: userId,
+      });
+
+      await this.ExpireAuthenticatorByUser(userId);
+      await this.dal.InsertAuthenticator(autheticator);
+
+      try {
+        new Mail().SendMail({
+          subject: "Your OmniReports verification code",
+          to: user?.email as string,
+          html: `<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Your Verification Code - OmniReports</title>
+  </head>
+
+  <body style="margin:0; padding:0; background:#f5f7fb; font-family: Arial, Helvetica, sans-serif;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f7fb; padding:24px 0;">
+      <tr>
+        <td align="center">
+      <!-- MAIN CONTAINER -->
+      <table width="680" cellpadding="0" cellspacing="0"
+        style="background:#ffffff; border-radius:16px; overflow:hidden; box-shadow:0 8px 22px rgba(0,0,0,.08);">
+
+        <!-- HEADER -->
+        <tr>
+          <td style="padding:26px 28px; background:#071b2d;">
+            <table width="100%" cellpadding="0" cellspacing="0">
+              <tr>
+                <td align="left" valign="middle">
+                  <img
+                    src="${process.env.LOGO_URL ?? ""}"
+                    alt="OmniReports"
+                    style="height:56px; display:block;"
+                  />
+                </td>
+                <td align="right" valign="middle"
+                  style="color:#d7ecff; font-size:14px; font-weight:500;">
+                  Two-Factor Authentication
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- BODY -->
+        <tr>
+          <td style="padding:28px;">
+            <h2 style="margin:0 0 12px 0; font-size:22px; color:#0b2b4a;">
+              Your verification code 🔐
+            </h2>
+
+            <p style="margin:0 0 18px 0; font-size:15px; color:#2a2a2a; line-height:1.6;">
+              Hello <b>${user?.firstName} ${user?.lastName}</b>,  
+              use the verification code below to complete your sign-in to <b>OmniReports</b>.
+            </p>
+
+            <!-- TOKEN BOX -->
+            <table width="100%" cellpadding="0" cellspacing="0"
+              style="margin:20px 0; background:#f0f6ff; border:1px solid #d6e7ff; border-radius:14px;">
+              <tr>
+                <td align="center" style="padding:22px;">
+                  <p style="margin:0 0 8px 0; font-size:14px; color:#0b2b4a;">
+                    Your verification code
+                  </p>
+                  <p style="margin:0; font-size:30px; letter-spacing:6px; font-weight:bold; color:#071b2d;">
+                    ${autheticator.token}
+                  </p>
+                  <p style="margin:10px 0 0 0; font-size:13px; color:#4b5563;">
+                    This code will expire in <b>15 minutes</b>.
+                  </p>
+                </td>
+              </tr>
+            </table>
+
+            <!-- INFO BOX -->
+            <table width="100%" cellpadding="0" cellspacing="0"
+              style="background:#ffffff; border:1px solid #e5e7eb; border-radius:12px;">
+              <tr>
+                <td style="padding:16px;">
+                  <p style="margin:0 0 10px 0; font-size:14px; color:#0b2b4a;">
+                    <b>Request details</b>
+                  </p>
+                  <p style="margin:0; font-size:14px; color:#2a2a2a; line-height:1.8;">
+                    <b>Account:</b> ${user?.email}<br />
+                    <b>Date:</b> ${new Date().toLocaleDateString()}<br />
+                    <b>Time:</b> ${new Date().toLocaleTimeString()}<br />
+                    <b>IP Address:</b> ${ip}
+                  </p>
+                </td>
+              </tr>
+            </table>
+
+            <!-- WARNING -->
+            <table width="100%" cellpadding="0" cellspacing="0"
+              style="margin-top:22px; background:#fff7e6; border:1px solid #ffd27d; border-radius:12px;">
+              <tr>
+                <td style="padding:16px;">
+                  <p style="margin:0 0 8px 0; font-size:14px; color:#5a3a00;">
+                    <b>⚠ Didn’t request this code?</b>
+                  </p>
+                  <p style="margin:0; font-size:14px; color:#5a3a00; line-height:1.6;">
+                    If you did not request this verification code, please ignore this email or contact our support team immediately.
+                  </p>
+                </td>
+              </tr>
+            </table>
+
+            <p style="margin:22px 0 0 0; font-size:12.5px; color:#4b5563; line-height:1.6;">
+              This code is confidential. Do not share it with anyone.  
+              OmniReports staff will never ask you for this code.
+            </p>
+          </td>
+        </tr>
+
+        <!-- FOOTER -->
+        <tr>
+          <td style="padding:18px 26px; background:#0b2b4a; color:#b9d9ff; font-size:12px;">
+            <table width="100%" cellpadding="0" cellspacing="0">
+              <tr>
+                <td>
+                  © ${new Date().getFullYear()} <b>OmniReports</b>. All rights reserved.
+                </td>
+                <td align="right">
+                  Support: ${process.env.EMAIL_SUPPORT ?? ""}
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+  </body>
+</html>`,
+        });
+
+        response.isSuccess = true;
+        response.body = expireDate;
+      } catch (err) {
+        this.log.log(`Error sending email with token: ${err}`, "error");
+        response.isSuccess = false;
+        response.message = "Unexpected sending email with token";
+      }
+    } catch (err) {
+      this.log.log(`Error sending token: ${err}`, "error");
+      response.isSuccess = false;
+      response.message = "Unexpected error sending token";
+    }
+
+    return response;
+  }
+
+  public async ExpireAuthenticatorByUser(
+    userId: string,
+    tokenId: string | null = null,
+  ) {
+    let currentToken: Authenticator | null;
+    if (tokenId) {
+      currentToken = await this.dal.GetAuthenticatorByUser(userId);
+    } else {
+      currentToken = await this.dal.GetAuthenticatorByUser(userId);
+    }
+
+    if (currentToken) {
+      currentToken.status = "E";
+      await this.dal.UpdateAuthenticator(
+        currentToken._id as unknown as string,
+        currentToken,
+      );
+    }
+  }
+
+  public async ValidateAuthenticator(userId: string, token: string) {
+    const response = new BaseResponse<User>();
+    response.isSuccess = true;
+    try {
+      const currentToken = await this.dal.ValidateAuthenticator(userId, token);
+      if (!currentToken) {
+        response.isSuccess = false;
+        response.message = "Invalid Token";
+      } else {
+        await this.ExpireAuthenticatorByUser(
+          userId,
+          currentToken?._id?.toString(),
+        );
+
+        response.body = (await this.GetUser(userId)).body;
+      }
+    } catch (err) {
+      this.log.log(`Error: ${err}`, "error");
+      response.isSuccess = false;
+      response.message = "Unexpected error";
     }
 
     return response;

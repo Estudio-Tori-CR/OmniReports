@@ -1,15 +1,19 @@
 import Encript from "./Encript";
 
 export default class Miselanius {
-  public GenerateRandomPassword() {
-    const randomNumber = Math.floor(Math.random() * 100000);
-    const password = randomNumber.toString().padStart(5, "0");
+  public GenerateRandomString(
+    length: number = 8,
+    chars: string = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*",
+  ) {
+    const array = new Uint32Array(length);
+    crypto.getRandomValues(array);
+    const password = Array.from(array, (x) => chars[x % chars.length]).join("");
+
     return {
       hash: new Encript().Hash(password),
       password,
     };
   }
-
   private parseISO(iso: string) {
     const d = new Date(iso);
     if (isNaN(d.getTime())) throw new Error(`Invalid ISO date: ${iso}`);
@@ -57,7 +61,7 @@ export default class Miselanius {
 
     return `STR_TO_DATE('${yyyy}-${mm}-${dd}', '%Y-%m-%d')`;
   }
-
+  
   public toSqlServerDateTimeString(iso: string, includeHour: boolean = true) {
     const d = this.parseISO(iso);
     const yyyy = d.getFullYear();
@@ -72,5 +76,11 @@ export default class Miselanius {
     }
 
     return `'${yyyy}-${mm}-${dd}'`;
+  }
+
+  public CheckInvalidSql(sql: string) {
+    return /(UPDATE|INSERT|GRANT|CREATE|ALTER|DELETE|TRUNCATE|DROP)/i.test(
+      sql.toUpperCase(),
+    );
   }
 }
