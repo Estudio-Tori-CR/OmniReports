@@ -70,6 +70,7 @@ const Maintenance = () => {
         tmpReport._id = response.body._id?.toString();
         tmpReport.name = response.body.name;
         tmpReport.isActive = response.body.isActive;
+        tmpReport.directory = response.body.directory;
         response.body.querys.forEach((x) => {
           tmpReport.querys.push({
             instance: x.instance?.toString() as string,
@@ -344,6 +345,13 @@ const Maintenance = () => {
                   />
                 </div>
               </div>
+              <PersonalInput
+                labelText="Directory"
+                type="text"
+                isRequired={false}
+                value={report?.directory}
+                onChange={(e) => setReport((r) => ({ ...r, directory: e }))}
+              />
 
               <ActionGuard allowed={["ADMIN"]}>
                 <PersonalMultiSelect

@@ -4,6 +4,7 @@ import { DBReport, ExportReport, ReportInt } from "@/app/models/Report";
 import { ExecuteReport } from "@/app/models/executeReport";
 import Miselanius from "@/app/utilities/Miselanius";
 import { useRouter } from "next/navigation";
+import { DirectoryReports } from "@/app/models/directory";
 
 class ReportsReq {
   private client: Client;
@@ -94,6 +95,17 @@ class ReportsReq {
   public async Import(body: ExportReport): Promise<BaseResponse<null>> {
     const result = await this.client.Post<ExportReport, null>(
       `reports/import`,
+      body,
+    );
+
+    return result;
+  }
+
+  public async InsertDirectory(
+    body: DirectoryReports,
+  ): Promise<BaseResponse<null>> {
+    const result = await this.client.Post<DirectoryReports, null>(
+      `reports/directory/maintenance`,
       body,
     );
 

@@ -4,6 +4,9 @@ import InstanceModel, { Instance } from "@/app/models/Instance";
 import ReportModel, { DBReport } from "@/app/models/Report";
 import LogModel, { Log } from "@/app/models/Log";
 import AuthenticatorModel, { Authenticator } from "@/app/models/authenticator";
+import DirectoryReportsModel, {
+  DirectoryReports,
+} from "@/app/models/directory";
 
 class MainDal {
   private connection: ConnectionMongo;
@@ -168,6 +171,14 @@ class MainDal {
       },
     );
     return result[0];
+  }
+
+  public async InsertDirectory(body: DirectoryReports) {
+    const result = await this.connection.insert<DirectoryReports>(
+      DirectoryReportsModel,
+      body,
+    );
+    return result;
   }
 }
 

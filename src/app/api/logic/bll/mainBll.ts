@@ -12,6 +12,7 @@ import AuthenticatorModel, {
   Authenticator,
   AuthenticatorResp,
 } from "@/app/models/authenticator";
+import { DirectoryReports } from "@/app/models/directory";
 
 class MainBll {
   private dal: MainDal;
@@ -868,6 +869,21 @@ class MainBll {
       this.log.log(`Error: ${err}`, "error");
       response.isSuccess = false;
       response.message = "Unexpected error";
+    }
+
+    return response;
+  }
+
+  public async InsertDirectory(body: DirectoryReports) {
+    const response = new BaseResponse<null>();
+    const result = await this.dal.InsertDirectory(body);
+    if (result) {
+      response.isSuccess = true;
+      response.message =
+        "Directory created successfully. It will appear once it contains reports.";
+    } else {
+      response.isSuccess = false;
+      response.message = "Error Inserting Directory";
     }
 
     return response;

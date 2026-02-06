@@ -20,6 +20,11 @@ interface AlertOptions {
   callbackCancel?: (value: any) => Promise<void>;
 }
 
+type DirectoryFormValue = {
+  name: string;
+  path: string;
+};
+
 class Message {
   Toast = (opts: ToastOptions) => {
     withReactContent(Swal).fire({
@@ -204,6 +209,77 @@ class Message {
     });
 
     return result.value?.encrypt;
+  }
+
+  async ShowDirectoryForm(opts: ToastOptions, currentPath: string) {
+    const normalizePath = (value?: string | null) =>
+      (value ?? "")
+        .replace(/\\/g, "/")
+        .replace(/\/+/g, "/")
+        .replace(/^\/|\/$/g, "");
+
+    const normalizedCurrentPath = normalizePath(currentPath);
+
+    const result = await Swal.fire({
+      title: opts.title,
+      showCancelButton: true,
+      confirmButtonText: "Create",
+      cancelButtonText: "Cancel",
+      focusConfirm: false,
+      html: `
+      <div style="width:100%; text-align:left;">
+        <div style="width:100%; display:grid; margin-bottom:0.75rem;">
+          <label for="swal-directory-name" style="text-align:left; margin-bottom:0.5rem; font-size:14px;">
+            Directory name
+          </label>
+          <input
+            id="swal-directory-name"
+            type="text"
+            style="
+              width:100%;
+              min-height:2rem;
+              border:none;
+              border-radius:0.25rem;
+              padding:0.25rem;
+              background-color:#fff;
+              border:1px solid var(--gray, #d1d5db);
+              box-sizing:border-box;
+            "
+          />
+        </div>
+        <div style="font-size:12px; opacity:.8;">
+          Current path: /${normalizedCurrentPath}
+        </div>
+      </div>
+    `,
+      didOpen: () => {
+        document.body.classList.remove("swal2-height-auto");
+      },
+      preConfirm: () => {
+        const rawName = (
+          document.getElementById("swal-directory-name") as HTMLInputElement
+        )?.value;
+        const name = (rawName ?? "").trim();
+
+        if (!name) {
+          Swal.showValidationMessage("Directory name is required");
+          return false;
+        }
+
+        if (name.includes("/") || name.includes("\\")) {
+          Swal.showValidationMessage("Directory name cannot contain / or \\");
+          return false;
+        }
+
+        const path = normalizePath(
+          normalizedCurrentPath ? `${normalizedCurrentPath}/${name}` : name,
+        );
+
+        return { name, path };
+      },
+    });
+
+    return (result.value ?? null) as DirectoryFormValue | null;
   }
 }
 

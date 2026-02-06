@@ -26,20 +26,18 @@ body {
 }
 
 .inputsContainer {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  grid-column-gap: 0px;
+  display: inline-flex;
   margin: 2rem 0 2rem 0;
 }
 
 .tokenInput {
   border-radius: 0.2rem;
   border: 1px solid var(--gray);
-  width: 5rem;
-  height: 5rem;
+  width: 3rem;
+  height: 3rem;
   margin-right: 1rem;
   text-align: center;
-  font-size: 2rem;
+  font-size: 1rem;
 }
 
 .tokenInput:focus {
