@@ -34,31 +34,32 @@ class Message {
     });
   };
 
-  Alert = (opts: AlertOptions) => {
-    Swal.fire({
+  Alert = async (opts: AlertOptions) => {
+    const result = await Swal.fire({
       title: opts.title,
       text: opts.message,
       icon: opts.icon,
+      allowOutsideClick: false,
+      allowEscapeKey: false,
       showCancelButton: !!opts.showCancel,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
+      confirmButtonColor: "var(--primary-color)",
+      cancelButtonColor: "var(--red)",
       confirmButtonText: "Aceptar",
       cancelButtonText: "Cancelar",
       didOpen: () => {
         document.body.classList.remove("swal2-height-auto");
       },
-    } as SweetAlertOptions).then(async (result) => {
-      if (result.isConfirmed && opts.callback) await opts.callback(null);
-      if (result.isDismissed && opts.callbackCancel)
-        await opts.callbackCancel(null);
-    });
+    } as SweetAlertOptions);
+
+    if (result.isConfirmed && opts.callback) await opts.callback(null);
+    if (result.isDismissed && opts.callbackCancel)
+      await opts.callbackCancel(null);
   };
 
   async ShowParametersUser(
     opts: ToastOptions,
     form: ParamertersFromValue | null = null,
   ) {
-
     const initialValue: ParamertersFromValue = form ?? {
       paramName: "",
       paramType: "",

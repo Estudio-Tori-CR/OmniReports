@@ -1,9 +1,14 @@
 import BaseResponse from "@/app/models/baseResponse";
 import Client from "../../Client";
 import type { User, UserInt } from "../../../models/User";
+import { useRouter } from "next/navigation";
 
 class UsersReq {
-  client = new Client();
+  private client: Client;
+
+  constructor(router: ReturnType<typeof useRouter>) {
+    this.client = new Client(router);
+  }
 
   public async LogIn(
     email: string,

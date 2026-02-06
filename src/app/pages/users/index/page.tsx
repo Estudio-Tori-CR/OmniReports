@@ -26,7 +26,7 @@ const Index = () => {
   const [usersTable, setUsersTable] = useState<userTable[]>([]);
   const [users, setUsers] = useState<User[]>([]);
 
-  const client = new UsersReq();
+  const client = new UsersReq(router);
 
   useEffect(() => {
     client.GetAll("").then((response) => {

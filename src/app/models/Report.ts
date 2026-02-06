@@ -18,6 +18,7 @@ export class DBReport {
   _id?: Types.ObjectId | undefined | string;
   name!: string;
   querys!: DbQuerys[];
+  directory!: string;
   createdAt?: Date;
   updatedAt?: Date;
   isActive: boolean = false;
@@ -44,6 +45,7 @@ export type ReportInt = {
   _id?: string;
   name: string;
   querys: QueryInt[];
+  directory: string;
   isActive: boolean;
 };
 
@@ -92,6 +94,7 @@ const ReportSchema = new Schema<DBReport>(
   {
     name: { type: String, required: true, trim: true },
     querys: { type: [QuerySchema], required: true, default: [] },
+    directory: { type: String, required: false, default: "" },
     isActive: { type: Boolean, default: true },
   },
   { timestamps: true },

@@ -24,7 +24,7 @@ const Maintenance = () => {
     isActive: true,
   });
 
-  const client = new IntancesReq();
+  const client = new IntancesReq(router);
   const message = new Message();
   const instanceId = searchParams.get("instanceId") ?? "";
 

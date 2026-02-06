@@ -28,7 +28,7 @@ const Maintenance = () => {
     isActive: true,
   });
 
-  const client = new UsersReq();
+  const client = new UsersReq(router);
   const message = new Message();
 
   useEffect(() => {

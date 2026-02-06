@@ -13,7 +13,7 @@ const Index = () => {
   const router = useRouter();
   const [instances, setInstances] = useState<Instance[]>([]);
 
-  const client = new IntancesReq();
+  const client = new IntancesReq(router);
 
   useEffect(() => {
     client.GetAll("").then((response) => {

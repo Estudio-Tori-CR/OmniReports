@@ -3,7 +3,6 @@ import style from "./page.module.css";
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import AppShell from "../../components/sidebar";
-import IntancesReq from "@/app/utilities/requests/instances/requests";
 import PersonalInput from "../../components/input";
 import PersonalButton from "../../components/button";
 import RoleGuard from "../../components/RolGuard";
@@ -17,17 +16,19 @@ import {
 } from "@/app/models/executeReport";
 
 const Maintenance = () => {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const [report, setReport] = useState<ReportInt>({
     name: "",
     querys: [],
+    directory: "",
     isActive: true,
   });
   const [executeReport, setExecuteReport] = useState<ExecuteReport>(
     new ExecuteReport(),
   );
 
-  const client = new ReportsReq();
+  const client = new ReportsReq(router);
   const message = new Message();
   const reportId = searchParams.get("reportId") ?? "";
 
@@ -39,6 +40,7 @@ const Maintenance = () => {
         const tmpReport: ReportInt = {
           name: "",
           querys: [],
+          directory: "",
           isActive: false,
         };
         tmpReport._id = response.body._id?.toString();

@@ -16,7 +16,7 @@ export default function Authenticator() {
   const [token, setToken] = useState<string>("");
   const [seconds, setSeconds] = useState<number>(30);
 
-  const client = new AuthenticatorReq();
+  const client = new AuthenticatorReq(router);
 
   const sendAuthenticator = () => {
     client.Send(_id).then((response) => {

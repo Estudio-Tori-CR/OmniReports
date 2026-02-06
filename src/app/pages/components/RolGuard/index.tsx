@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useAppSelector } from "@/app/GlobalState/GlobalState";
 import type { Role } from "@/app/interfaces/Roles";
+import Message from "../popups";
 
 export default function RoleGuard({
   allowed,
@@ -18,7 +19,15 @@ export default function RoleGuard({
 
   useEffect(() => {
     const ok = role.some((r: Role) => allowed.includes(r as Role));
-    if (!ok) router.replace(`/403?next=${path}`);
+    if (!ok) {
+      router.replace(`/?next=${path}`);
+      new Message().Alert({
+        icon: "warning",
+        title: "Invalid Navigation",
+        message:
+          "You do not have access to this page. Please sign in with an authorized account.",
+      });
+    }
   }, [role, allowed, router, path]);
 
   const ok = (role as Role[]).some((r) => allowed.includes(r));

@@ -25,7 +25,7 @@ const Profile = () => {
     isActive: true,
   });
 
-  const client = new UsersReq();
+  const client = new UsersReq(route);
 
   useEffect(() => {
     client.GetOne(currentUser._id).then((response) => {

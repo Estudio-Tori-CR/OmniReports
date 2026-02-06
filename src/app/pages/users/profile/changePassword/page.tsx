@@ -9,6 +9,7 @@ import UsersReq from "@/app/utilities/requests/users/requests";
 import RoleGuard from "../../../components/RolGuard";
 import { useAppSelector } from "@/app/GlobalState/GlobalState";
 import Message from "@/app/pages/components/popups";
+import { useRouter } from "next/navigation";
 
 type ChangePasswordType = {
   currentPassword: string;
@@ -17,6 +18,7 @@ type ChangePasswordType = {
 };
 
 const ChangePassword = () => {
+  const router = useRouter();
   const currentUser = useAppSelector((state) => state.user);
   const [password, setPassword] = useState<ChangePasswordType>({
     currentPassword: "",
@@ -24,7 +26,7 @@ const ChangePassword = () => {
     verifyPassword: "",
   });
 
-  const client = new UsersReq();
+  const client = new UsersReq(router);
   const message = new Message();
 
   const onSubmit = async (e: SubmitEvent) => {

@@ -29,6 +29,7 @@ const Maintenance = () => {
   const [report, setReport] = useState<ReportInt>({
     name: "",
     querys: [],
+    directory: "",
     isActive: true,
   });
   const [options, setOptions] = useState<SelectOptions[]>([]);
@@ -36,9 +37,9 @@ const Maintenance = () => {
   const [instances, setInstances] = useState<Instance[]>([]);
   const [usersForReport, setUsersForReport] = useState<string[]>([]);
 
-  const clientInstances = new IntancesReq();
-  const clientUsers = new UsersReq();
-  const client = new ReportsReq();
+  const clientInstances = new IntancesReq(router);
+  const clientUsers = new UsersReq(router);
+  const client = new ReportsReq(router);
   const message = new Message();
   const reportId = searchParams.get("reportId") ?? "";
 
@@ -63,6 +64,7 @@ const Maintenance = () => {
         const tmpReport: ReportInt = {
           name: "",
           querys: [],
+          directory: "",
           isActive: false,
         };
         tmpReport._id = response.body._id?.toString();
@@ -82,6 +84,7 @@ const Maintenance = () => {
         setReport({
           name: "",
           querys: [],
+          directory: "",
           isActive: true,
         });
       }

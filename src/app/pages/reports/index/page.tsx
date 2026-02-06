@@ -19,7 +19,7 @@ const Index = () => {
   const [fileImported, setFileImported] = useState(true);
   const { role, _id } = useAppSelector((s) => s.user);
 
-  const client = new ReportsReq();
+  const client = new ReportsReq(router);
   const message = new Message();
 
   useEffect(() => {

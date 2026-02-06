@@ -1,9 +1,14 @@
 import BaseResponse from "@/app/models/baseResponse";
 import Client from "../../Client";
 import { Instance, InstanceInt } from "@/app/models/Instance";
+import { useRouter } from "next/navigation";
 
 class IntancesReq {
-  client = new Client();
+  private client: Client;
+
+  constructor(router: ReturnType<typeof useRouter>) {
+    this.client = new Client(router);
+  }
 
   public async Insert(body: InstanceInt): Promise<BaseResponse<null>> {
     const result = await this.client.Post<InstanceInt, null>(
