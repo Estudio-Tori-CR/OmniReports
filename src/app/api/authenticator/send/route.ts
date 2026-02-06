@@ -2,11 +2,13 @@ import BaseResponse from "@/app/models/baseResponse";
 import { NextResponse } from "next/server";
 import Logs from "../../utilities/Logs";
 import MainBll from "../../logic/bll/mainBll";
+import { AuthenticatorResp } from "@/app/models/authenticator";
 
 const log: Logs = new Logs();
 
 export const POST = async (req: Request) => {
-  let response: BaseResponse<Date> = new BaseResponse<Date>();
+  let response: BaseResponse<AuthenticatorResp> =
+    new BaseResponse<AuthenticatorResp>();
   try {
     const bll: MainBll = new MainBll();
     const { userId } = await req.json();

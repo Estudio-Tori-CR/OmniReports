@@ -45,3 +45,19 @@ body {
 .tokenInput:focus {
   outline: none;
 }
+
+.sendAgainContainer {
+  width: 100%;
+  display: flex;
+  flex-direction: row-reverse;
+}
+
+.waitToSend {
+  color: var(--gray);
+}
+
+.sendAgain {
+  text-decoration: underline;
+  cursor: pointer;
+  color: var(--black);
+}

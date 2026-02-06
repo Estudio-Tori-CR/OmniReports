@@ -12,14 +12,32 @@ export default function Authenticator() {
   const router = useRouter();
   const { _id } = useAppSelector((s) => s.user);
 
-  const [length, setLength] = useState<number[]>([0, 1, 2, 3, 4, 5]);
+  const [length, setLength] = useState<number[]>([]);
   const [token, setToken] = useState<string>("");
+  const [seconds, setSeconds] = useState<number>(30);
 
   const client = new AuthenticatorReq();
 
   const sendAuthenticator = () => {
     client.Send(_id).then((response) => {
-      console.log(response);
+      if (response.isSuccess && response.body) {
+        const copy = [];
+        for (let i = 0; i < response.body.length; i++) {
+          copy.push(i);
+        }
+
+        setSeconds(30);
+        const timer = setInterval(() => {
+          setSeconds((prev) => {
+            if (prev <= 1) {
+              clearInterval(timer);
+              return 0;
+            }
+            return prev - 1;
+          });
+        }, 1000);
+        setLength(copy);
+      }
     });
   };
 
@@ -97,6 +115,20 @@ export default function Authenticator() {
                 />
               );
             })}
+          </div>
+          <div className={style.sendAgainContainer}>
+            {seconds > 0 && (
+              <p className={style.waitToSend}>{seconds} to send again</p>
+            )}
+            {seconds === 0 && (
+              <a
+                role="button"
+                onClick={sendAuthenticator}
+                className={style.sendAgain}
+              >
+                Send Again
+              </a>
+            )}
           </div>
           <PersonalButton text="Validate" type="submit" />
         </form>

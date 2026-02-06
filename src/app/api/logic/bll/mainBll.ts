@@ -8,7 +8,10 @@ import { DBReport, ExportReport } from "@/app/models/Report";
 import Mail from "../../utilities/Mail";
 import Logs from "../../utilities/Logs";
 import { Log } from "@/app/models/Log";
-import AuthenticatorModel, { Authenticator } from "@/app/models/authenticator";
+import AuthenticatorModel, {
+  Authenticator,
+  AuthenticatorResp,
+} from "@/app/models/authenticator";
 
 class MainBll {
   private dal: MainDal;
@@ -74,7 +77,9 @@ class MainBll {
       return response;
     }
 
-    const { hash, password } = new Miselanius().GenerateRandomString();
+    const { hash, password } = new Miselanius().GenerateRandomString(
+      parseInt(process.env.PASSWORD_LENGTH ?? "8"),
+    );
     body.password = hash;
     const result = await this.dal.InsertUser(body);
     if (result) {
@@ -650,15 +655,16 @@ class MainBll {
   }
 
   public async SendAuthenticator(userId: string, ip: string) {
-    const response = new BaseResponse<Date>();
+    const response = new BaseResponse<AuthenticatorResp>();
     try {
       const user = await this.dal.GetUser(userId);
+      const tokenLength = parseInt(process.env.TOKEN_LENGTH ?? "6");
 
       const expireDate: Date = new Date(Date.now() + 15 * 60 * 1000);
       const autheticator = new AuthenticatorModel({
         expiredDate: expireDate,
         token: new Miselanius().GenerateRandomString(
-          6,
+          tokenLength,
           "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
         ).password,
         user: userId,
@@ -804,11 +810,14 @@ class MainBll {
         });
 
         response.isSuccess = true;
-        response.body = expireDate;
+        response.body = {
+          expirationDate: expireDate,
+          length: tokenLength,
+        };
       } catch (err) {
         this.log.log(`Error sending email with token: ${err}`, "error");
         response.isSuccess = false;
-        response.message = "Unexpected sending email with token";
+        response.message = "Unexpected error sending email with token";
       }
     } catch (err) {
       this.log.log(`Error sending token: ${err}`, "error");

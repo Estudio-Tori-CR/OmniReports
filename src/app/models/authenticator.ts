@@ -12,6 +12,11 @@ export class Authenticator {
   }
 }
 
+export type AuthenticatorResp = {
+  length: number;
+  expirationDate: Date;
+};
+
 const authenticatorSchema = new Schema<Authenticator>(
   {
     token: { type: String, required: true, trim: true },
