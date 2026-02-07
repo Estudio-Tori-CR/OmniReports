@@ -11,7 +11,7 @@ body {
 
 .loginInputsContainer {
   height: max-content;
-  width: 50vh;
+  width: 30%;
   background-color: var(--white);
   place-self: center;
   text-align: center;
@@ -23,4 +23,10 @@ body {
 
 .loginInputsContainer > div > label {
   color: var(--black) !important;
+}
+
+@media (max-width: 1024px) {
+  .loginInputsContainer{
+    width: 90%;
+  }
 }

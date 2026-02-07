@@ -11,7 +11,7 @@ body {
 
 .loginInputsContainer {
   height: max-content;
-  width: 50vh;
+  width: 30%;
   background-color: var(--white);
   place-self: center;
   text-align: center;
@@ -26,7 +26,10 @@ body {
 }
 
 .inputsContainer {
-  display: inline-flex;
+  display: grid;
+  grid-template-columns: repeat(var(--token-columns-desktop), minmax(0, 3rem));
+  justify-content: center;
+  gap: 1rem;
   margin: 2rem 0 2rem 0;
 }
 
@@ -35,7 +38,6 @@ body {
   border: 1px solid var(--gray);
   width: 3rem;
   height: 3rem;
-  margin-right: 1rem;
   text-align: center;
   font-size: 1rem;
 }
@@ -58,4 +60,14 @@ body {
   text-decoration: underline;
   cursor: pointer;
   color: var(--black);
+}
+
+@media (max-width: 1024px) {
+  .inputsContainer {
+    grid-template-columns: repeat(var(--token-columns-mobile), minmax(0, 3rem));
+  }
+
+  .loginInputsContainer{
+    width: 90%;
+  }
 }

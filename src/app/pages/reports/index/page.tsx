@@ -147,6 +147,7 @@ const Index = () => {
         title: "Create a new directory",
       },
       currentPath,
+      "",
     );
 
     if (result?.name && result.path) {
@@ -161,6 +162,30 @@ const Index = () => {
           title: response.message,
         });
       }
+    }
+  };
+
+  const onEditDirectory = async (name: string, path: string) => {
+    const result = await message.ShowDirectoryForm(
+      {
+        icon: "success",
+        title: "Update a directory",
+      },
+      currentPath,
+      name,
+    );
+
+    if (result?.name && result.path) {
+      const response = await client.UpdateDirectory(result.name, path, name);
+
+      if (response.isSuccess) {
+        setFileImported(true);
+      }
+
+      await message.Toast({
+        icon: response.isSuccess ? "success" : "error",
+        title: response.message,
+      });
     }
   };
 
@@ -215,6 +240,17 @@ const Index = () => {
                         <p>{x}</p>
                       </div>
                     </div>
+                    <ActionGuard allowed={["ADMIN", "DEVELOPER"]}>
+                      <button
+                        type="button"
+                        className={style.button}
+                        onClick={() =>
+                          onEditDirectory(x, `${currentPath}/${x}`)
+                        }
+                      >
+                        Rename
+                      </button>
+                    </ActionGuard>
                   </div>
                 );
               })}

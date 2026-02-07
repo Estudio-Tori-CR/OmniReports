@@ -112,6 +112,24 @@ class ReportsReq {
     return result;
   }
 
+  public async UpdateDirectory(
+    newName: string,
+    path: string,
+    oldName: string,
+  ): Promise<BaseResponse<null>> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = await this.client.Put<any, null>(
+      `reports/directory/maintenance`,
+      {
+        newName,
+        path,
+        oldName,
+      },
+    );
+
+    return result;
+  }
+
   public async GetDirectories(): Promise<BaseResponse<DirectoryReports[]>> {
     const result =
       await this.client.Get<DirectoryReports[]>("reports/directory");

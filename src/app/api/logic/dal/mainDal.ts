@@ -181,9 +181,49 @@ class MainDal {
     return result;
   }
 
+  public async UpdateDirectory(directoryId: string, body: DirectoryReports) {
+    const result = await this.connection.update<DirectoryReports>(
+      DirectoryReportsModel,
+      body,
+      {
+        _id: directoryId,
+      },
+    );
+    return result;
+  }
+
   public async GetDirectories() {
     const result = await this.connection.find<DirectoryReports>(
       DirectoryReportsModel,
+    );
+    return result;
+  }
+
+  public async GetDirectoriesByPath(name: string, path: string) {
+    const result = await this.connection.find<DirectoryReports>(
+      DirectoryReportsModel,
+      {
+        name,
+        path,
+      },
+    );
+
+    return result[0];
+  }
+
+  public async GetReportsByDirectory(directory: string) {
+    const result = await this.connection.find<DBReport>(ReportModel, {
+      directory: { $regex: directory, $options: 'i' },
+    });
+    return result;
+  }
+
+  public async GetSubdirectoriesByPath(parentPath: string) {
+    const result = await this.connection.find<DirectoryReports>(
+      DirectoryReportsModel,
+      {
+        path: { $regex: `^${parentPath}/`, $options: 'i' },
+      },
     );
     return result;
   }

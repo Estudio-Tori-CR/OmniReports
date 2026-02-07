@@ -32,11 +32,9 @@ export const POST = withRoles(["ADMIN", "DEVELOPER"], async (req: Request) => {
 export const PUT = withRoles(["ADMIN", "DEVELOPER"], async (req: Request) => {
   let response: BaseResponse<null> = new BaseResponse<null>();
   try {
-    // const bll: MainBll = new MainBll();
-    // const body: DirectoryReports = Object.assign(new ReportModel(), await req.json());
-    // const { searchParams } = new URL(req.url);
-    // const directoryId = searchParams.get("directoryId");
-    // response = await bll.UpdateReport(directoryId as string, body);
+    const bll: MainBll = new MainBll();
+    const { newName, path, oldName } = await req.json();
+    response = await bll.UpdateDirectory(newName, path, oldName);
   } catch (err) {
     response.isSuccess = false;
     response.message =

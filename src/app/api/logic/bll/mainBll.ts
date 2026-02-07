@@ -201,7 +201,8 @@ class MainBll {
       }
     } else {
       response.isSuccess = false;
-      response.message = "An unexpected error occurred while creating the user.";
+      response.message =
+        "An unexpected error occurred while creating the user.";
     }
 
     return response;
@@ -906,6 +907,47 @@ class MainBll {
     } else {
       response.isSuccess = false;
       response.message = "Failed to load directories.";
+    }
+
+    return response;
+  }
+
+  public async UpdateDirectory(newName: string, path: string, oldName: string) {
+    const response = new BaseResponse<null>();
+    if (path.at(0) === "/") {
+      path = path.substring(1, path.length);
+    }
+    const result = await this.dal.GetDirectoriesByPath(oldName, path);
+    if (result) {
+      result.name = newName;
+      result.path = result.path.replace(oldName, newName);
+      try {
+        await this.dal.UpdateDirectory(result._id as unknown as string, result);
+        const reports = await this.dal.GetReportsByDirectory(path);
+
+        if (reports) {
+          for (const report of reports) {
+            report.directory = report.directory.replace(oldName, newName);
+            this.UpdateReport(report._id?.toString() as string, report);
+          }
+        }
+
+        const subDirectories = await this.dal.GetSubdirectoriesByPath(path);
+
+        for (const directory of subDirectories) {
+          directory.path = directory.path.replace(oldName, newName);
+          await this.dal.UpdateDirectory(
+            directory._id as unknown as string,
+            directory,
+          );
+        }
+
+        response.isSuccess = true;
+        response.message = "Directory updated successfully.";
+      } catch (err) {}
+    } else {
+      response.isSuccess = false;
+      response.message = "Failed to update directory.";
     }
 
     return response;

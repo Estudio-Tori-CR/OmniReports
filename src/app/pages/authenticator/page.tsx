@@ -3,6 +3,7 @@ import { useRouter } from "next/navigation";
 import style from "./page.module.css";
 import { useEffect, useState } from "react";
 import type { SubmitEvent } from "react";
+import type { CSSProperties } from "react";
 import PersonalButton from "../components/button";
 import AuthenticatorReq from "@/app/utilities/requests/authenticator/requests";
 import { useAppSelector } from "@/app/GlobalState/GlobalState";
@@ -75,6 +76,12 @@ export default function Authenticator() {
     }
   };
 
+  const tokenLength = length.length;
+  const inputsContainerStyle = {
+    "--token-columns-desktop": String(Math.max(tokenLength, 1)),
+    "--token-columns-mobile": String(Math.max(Math.ceil(tokenLength / 2), 1)),
+  } as CSSProperties;
+
   return (
     <div className={style.loginContainer}>
       <div className={style.loginInputsContainer}>
@@ -86,7 +93,7 @@ export default function Authenticator() {
         />
         <form onSubmit={onSubmit}>
           <h2>Validate your token</h2>
-          <div className={style.inputsContainer}>
+          <div className={style.inputsContainer} style={inputsContainerStyle}>
             {length.map((x) => {
               return (
                 <input

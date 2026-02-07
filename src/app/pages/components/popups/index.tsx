@@ -211,7 +211,11 @@ class Message {
     return result.value?.encrypt;
   }
 
-  async ShowDirectoryForm(opts: ToastOptions, currentPath: string) {
+  async ShowDirectoryForm(
+    opts: ToastOptions,
+    currentPath: string,
+    currentName: string,
+  ) {
     const normalizePath = (value?: string | null) =>
       (value ?? "")
         .replace(/\\/g, "/")
@@ -223,7 +227,9 @@ class Message {
     const result = await Swal.fire({
       title: opts.title,
       showCancelButton: true,
-      confirmButtonText: "Create",
+      allowEscapeKey: false,
+      allowOutsideClick: false,
+      confirmButtonText: currentName ? "Update" : "Create",
       cancelButtonText: "Cancel",
       focusConfirm: false,
       html: `
@@ -235,6 +241,7 @@ class Message {
           <input
             id="swal-directory-name"
             type="text"
+            value="${currentName}"
             style="
               width:100%;
               min-height:2rem;
