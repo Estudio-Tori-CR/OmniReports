@@ -23,6 +23,7 @@ export default function Home() {
         email: "",
         fullName: "",
         role: [],
+        lastPathReports: "",
       }),
     );
     removeToken();
@@ -43,6 +44,7 @@ export default function Home() {
             email: response.body.email,
             fullName: `${response.body.firstName} ${response.body.lastName}`,
             role: [response.body.roles],
+            lastPathReports: "",
           }),
         );
         router.replace("/pages/authenticator");
@@ -72,11 +74,7 @@ export default function Home() {
             value={password}
             onChange={setPassword}
           />
-          <PersonalButton
-            text="Log In"
-            isPrimary={true}
-            type="submit"
-          />
+          <PersonalButton text="Log In" isPrimary={true} type="submit" />
         </form>
       </div>
     </div>

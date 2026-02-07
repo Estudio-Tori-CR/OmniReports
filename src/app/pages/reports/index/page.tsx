@@ -10,14 +10,21 @@ import ReportsReq from "@/app/utilities/requests/reports/requests";
 import ActionGuard from "../../components/ActionGuard";
 import PersonalButton from "../../components/button";
 import Message from "../../components/popups";
-import { useAppSelector } from "@/app/GlobalState/GlobalState";
+import {
+  useAppSelector,
+  useAppDispatch,
+  setLastPath,
+} from "@/app/GlobalState/GlobalState";
 import { GoFileDirectory } from "react-icons/go";
 import { MdOutlineSubdirectoryArrowLeft } from "react-icons/md";
 
 const Index = () => {
   const router = useRouter();
   const [reports, setReports] = useState<DBReport[]>([]);
-  const [currentPath, setCurrentPath] = useState("");
+  const lastPath = useAppSelector((s) => s.user.lastPathReports);
+  const dispatch = useAppDispatch();
+
+  const [currentPath, setCurrentPath] = useState(lastPath ?? "");
   // we set in true for the fist render
   const [fileImported, setFileImported] = useState(true);
   const { role, _id } = useAppSelector((s) => s.user);
@@ -89,16 +96,18 @@ const Index = () => {
   }, [client, fileImported, role, _id]);
 
   const goToDirectory = (directoryName: string) => {
-    setCurrentPath((previousPath) =>
-      previousPath ? `${previousPath}/${directoryName}` : directoryName,
-    );
+    const newPath = currentPath
+      ? `${currentPath}/${directoryName}`
+      : directoryName;
+    setCurrentPath(newPath);
+    dispatch(setLastPath(newPath));
   };
 
   const goToParentDirectory = () => {
-    setCurrentPath((previousPath) => {
-      const pathParts = normalizePath(previousPath).split("/").filter(Boolean);
-      return pathParts.slice(0, -1).join("/");
-    });
+    const pathParts = normalizePath(currentPath).split("/").filter(Boolean);
+    const newPath = pathParts.slice(0, -1).join("/");
+    setCurrentPath(newPath);
+    dispatch(setLastPath(newPath));
   };
 
   const handleRightClick = (e: React.MouseEvent<HTMLDivElement>) => {

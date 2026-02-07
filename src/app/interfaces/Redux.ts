@@ -5,6 +5,7 @@ interface UserState {
   fullName: string;
   email: string;
   role: Array<Role>;
+  lastPathReports: string
 }
 
 export type { UserState };

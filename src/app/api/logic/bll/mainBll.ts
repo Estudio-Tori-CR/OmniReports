@@ -91,108 +91,16 @@ class MainBll {
         await mail.SendMail({
           to: body.email,
           subject: "Welcome to OmniReports",
-          html: `<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Welcome to OmniReports</title>
-  </head>
-
-  <body style="margin:0; padding:0; background:#f5f7fb; font-family: Arial, Helvetica, sans-serif;">
-    <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f7fb; padding:24px 0;">
-      <tr>
-        <td align="center">
-          <table width="680" cellpadding="0" cellspacing="0"
-            style="background:#ffffff; border-radius:16px; overflow:hidden; box-shadow: 0 8px 22px rgba(0,0,0,.08);">
-
-            <!-- HEADER -->
-            <tr>
-              <td style="padding:26px 28px; background: linear-gradient(90deg,#071b2d,#0b2b4a);">
-                <table width="100%" cellpadding="0" cellspacing="0">
-                  <tr>
-                    <td align="left" style="vertical-align: middle;">
-                      <img
-                        src="${process.env.LOGO_URL ?? ""}"
-                        alt="OmniReports"
-                        style="height:56px; display:block;"
-                      />
-                    </td>
-                    <td align="right" style="color:#d7ecff; font-size:14px;">
-                      Welcome to <b>OmniReports</b>
-                    </td>
-                  </tr>
-                </table>
-              </td>
-            </tr>
-
-            <!-- BODY -->
-            <tr>
-              <td style="padding:28px;">
-                <h2 style="margin:0 0 12px 0; font-size:22px; color:#0b2b4a;">
-                  Hello ${body.firstName} ${body.lastName}! 👋
-                </h2>
-
-                <p style="margin:0 0 18px 0; font-size:15px; color:#2a2a2a; line-height:1.6;">
-                  Your <b>OmniReports</b> account has been successfully created. Below you will find your temporary credentials.
-                </p>
-
-                <!-- Credentials box -->
-                <div style="background:#f0f6ff; border:1px solid #d6e7ff; padding:16px; border-radius:12px;">
-                  <p style="margin:0 0 10px 0; font-size:14px; color:#0b2b4a;">
-                    <b>Login details</b>
-                  </p>
-
-                  <p style="margin:0; font-size:14px; color:#2a2a2a; line-height:1.8;">
-                    <b>Username:</b> ${body.email} <br />
-                    <b>Temporary password:</b>
-                    <span style="font-family: Consolas, monospace; font-size:14px; background:#ffffff; padding:3px 8px; border-radius:8px; border:1px solid #cfe3ff;">
-                      ${password}
-                    </span>
-                  </p>
-                </div>
-
-                <p style="margin:18px 0 0 0; font-size:14px; color:#2a2a2a; line-height:1.6;">
-                  For your security, you must change this temporary password during your first login.
-                </p>
-
-                <!-- CTA -->
-                <div style="margin-top:22px; text-align:center;">
-                  <a href="${process.env.URL_LOGIN ?? ""}"
-                    style="display:inline-block; background:#0c7de8; color:#ffffff; text-decoration:none; padding:12px 18px; border-radius:12px; font-weight:bold; font-size:14px;">
-                    Sign in
-                  </a>
-                </div>
-
-                <p style="margin:22px 0 0 0; font-size:12.5px; color:#4b5563; line-height:1.6;">
-                  If you did not request this account, please ignore this email or contact us immediately.
-                </p>
-              </td>
-            </tr>
-
-            <!-- FOOTER -->
-            <tr>
-              <td style="padding:18px 26px; background:#0b2b4a; color:#b9d9ff; font-size:12px;">
-                <table width="100%" cellpadding="0" cellspacing="0">
-                  <tr>
-                    <td>
-                      © ${new Date().getFullYear()} <b>OmniReports</b>. All rights reserved.
-                    </td>
-                    <td align="right">
-                      Support: ${process.env.EMAIL_SUPPORT ?? ""}
-                    </td>
-                  </tr>
-                </table>
-              </td>
-            </tr>
-
-          </table>
-        </td>
-      </tr>
-    </table>
-  </body>
-</html>
-`,
+          templateName: "welcome",
+          templateData: {
+            firstName: body.firstName,
+            lastName: body.lastName,
+            email: body.email,
+            password,
+            URL_LOGIN: process.env.URL_LOGIN ?? "",
+            LOGO_URL: process.env.LOGO_URL ?? "",
+            EMAIL_SUPPORT: process.env.EMAIL_SUPPORT ?? "",
+          },
         });
       } catch (err) {
         this.log.log(`Error sending email to ${body.email}: ${err}`, "error");
@@ -251,106 +159,17 @@ class MainBll {
         await mail.SendMail({
           to: body.email,
           subject: "Password has been changed in OmniReports",
-          html: `<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Password Change Completed - OmniReports</title>
-  </head>
-
-  <body style="margin:0; padding:0; background:#f5f7fb; font-family: Arial, Helvetica, sans-serif;">
-    <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f7fb; padding:24px 0;">
-      <tr>
-        <td align="center">
-          <table width="680" cellpadding="0" cellspacing="0"
-            style="background:#ffffff; border-radius:16px; overflow:hidden; box-shadow: 0 8px 22px rgba(0,0,0,.08);">
-
-            <!-- HEADER -->
-            <tr>
-              <td style="padding:26px 28px; background: linear-gradient(90deg,#071b2d,#0b2b4a);">
-                <table width="100%" cellpadding="0" cellspacing="0">
-                  <tr>
-                    <td align="left" style="vertical-align: middle;">
-                      <img
-                        src="${process.env.LOGO_URL ?? ""}"
-                        alt="OmniReports"
-                        style="height:56px; display:block;"
-                      />
-                    </td>
-                    <td align="right" style="color:#d7ecff; font-size:14px;">
-                      Security alert
-                    </td>
-                  </tr>
-                </table>
-              </td>
-            </tr>
-
-            <!-- BODY -->
-            <tr>
-              <td style="padding:28px;">
-                <h2 style="margin:0 0 12px 0; font-size:22px; color:#0b2b4a;">
-                  Password changed successfully ✅
-                </h2>
-
-                <p style="margin:0 0 18px 0; font-size:15px; color:#2a2a2a; line-height:1.6;">
-                  Hello <b>${user?.firstName} ${user?.lastName}</b>, this is a confirmation that the password for your <b>OmniReports</b> account has been changed successfully.
-                </p>
-
-                <!-- Info box -->
-                <div style="background:#f0f6ff; border:1px solid #d6e7ff; padding:16px; border-radius:12px;">
-                  <p style="margin:0 0 10px 0; font-size:14px; color:#0b2b4a;">
-                    <b>Event details</b>
-                  </p>
-
-                  <p style="margin:0; font-size:14px; color:#2a2a2a; line-height:1.8;">
-                    <b>Account:</b> ${body.email}<br />
-                    <b>Date:</b> ${new Date().toLocaleDateString()}<br />
-                    <b>Time:</b> ${new Date().toLocaleTimeString()}<br />
-                    <b>IP Address:</b> ${ip}
-                  </p>
-                </div>
-
-                <!-- Security warning -->
-                <div style="margin-top:22px; padding:16px; border-radius:12px; background:#fff7e6; border:1px solid #ffd27d;">
-                  <p style="margin:0 0 8px 0; font-size:14px; color:#5a3a00;">
-                    <b>⚠ If you did not make this change</b>
-                  </p>
-
-                  <p style="margin:0; font-size:14px; color:#5a3a00; line-height:1.6;">
-                    If you did not request this change, please contact our support team immediately to secure your account.
-                  </p>
-                </div>
-
-                <p style="margin:22px 0 0 0; font-size:12.5px; color:#4b5563; line-height:1.6;">
-                  This email is for notification purposes only. Please do not reply to this message.
-                </p>
-              </td>
-            </tr>
-
-            <!-- FOOTER -->
-            <tr>
-              <td style="padding:18px 26px; background:#0b2b4a; color:#b9d9ff; font-size:12px;">
-                <table width="100%" cellpadding="0" cellspacing="0">
-                  <tr>
-                    <td>
-                      © ${new Date().getFullYear()} <b>OmniReports</b>. All rights reserved.
-                    </td>
-                    <td align="right">
-                      Support: ${process.env.EMAIL_SUPPORT ?? ""}
-                    </td>
-                  </tr>
-                </table>
-              </td>
-            </tr>
-
-          </table>
-        </td>
-      </tr>
-    </table>
-  </body>
-</html>
-`,
+          templateName: "password_changed",
+          templateData: {
+            firstName: user?.firstName ?? "",
+            lastName: user?.lastName ?? "",
+            email: body.email,
+            ip,
+            DATE: new Date().toLocaleDateString(),
+            TIME: new Date().toLocaleTimeString(),
+            LOGO_URL: process.env.LOGO_URL ?? "",
+            EMAIL_SUPPORT: process.env.EMAIL_SUPPORT ?? "",
+          },
         });
       } catch (err) {
         this.log.log(`Error sending email to ${body.email}: ${err}`, "error");
@@ -680,139 +499,20 @@ class MainBll {
       await this.dal.InsertAuthenticator(autheticator);
 
       try {
-        new Mail().SendMail({
+        await new Mail().SendMail({
           subject: "Your OmniReports verification code",
           to: user?.email as string,
-          html: `<!DOCTYPE html>
-
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Your Verification Code - OmniReports</title>
-  </head>
-
-  <body style="margin:0; padding:0; background:#f5f7fb; font-family: Arial, Helvetica, sans-serif;">
-    <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f7fb; padding:24px 0;">
-      <tr>
-        <td align="center">
-      <!-- MAIN CONTAINER -->
-      <table width="680" cellpadding="0" cellspacing="0"
-        style="background:#ffffff; border-radius:16px; overflow:hidden; box-shadow:0 8px 22px rgba(0,0,0,.08);">
-
-        <!-- HEADER -->
-        <tr>
-          <td style="padding:26px 28px; background:#071b2d;">
-            <table width="100%" cellpadding="0" cellspacing="0">
-              <tr>
-                <td align="left" valign="middle">
-                  <img
-                    src="${process.env.LOGO_URL ?? ""}"
-                    alt="OmniReports"
-                    style="height:56px; display:block;"
-                  />
-                </td>
-                <td align="right" valign="middle"
-                  style="color:#d7ecff; font-size:14px; font-weight:500;">
-                  Two-Factor Authentication
-                </td>
-              </tr>
-            </table>
-          </td>
-        </tr>
-
-        <!-- BODY -->
-        <tr>
-          <td style="padding:28px;">
-            <h2 style="margin:0 0 12px 0; font-size:22px; color:#0b2b4a;">
-              Your verification code 🔐
-            </h2>
-
-            <p style="margin:0 0 18px 0; font-size:15px; color:#2a2a2a; line-height:1.6;">
-              Hello <b>${user?.firstName} ${user?.lastName}</b>,  
-              use the verification code below to complete your sign-in to <b>OmniReports</b>.
-            </p>
-
-            <!-- TOKEN BOX -->
-            <table width="100%" cellpadding="0" cellspacing="0"
-              style="margin:20px 0; background:#f0f6ff; border:1px solid #d6e7ff; border-radius:14px;">
-              <tr>
-                <td align="center" style="padding:22px;">
-                  <p style="margin:0 0 8px 0; font-size:14px; color:#0b2b4a;">
-                    Your verification code
-                  </p>
-                  <p style="margin:0; font-size:30px; letter-spacing:6px; font-weight:bold; color:#071b2d;">
-                    ${autheticator.token}
-                  </p>
-                  <p style="margin:10px 0 0 0; font-size:13px; color:#4b5563;">
-                    This code will expire in <b>15 minutes</b>.
-                  </p>
-                </td>
-              </tr>
-            </table>
-
-            <!-- INFO BOX -->
-            <table width="100%" cellpadding="0" cellspacing="0"
-              style="background:#ffffff; border:1px solid #e5e7eb; border-radius:12px;">
-              <tr>
-                <td style="padding:16px;">
-                  <p style="margin:0 0 10px 0; font-size:14px; color:#0b2b4a;">
-                    <b>Request details</b>
-                  </p>
-                  <p style="margin:0; font-size:14px; color:#2a2a2a; line-height:1.8;">
-                    <b>Account:</b> ${user?.email}<br />
-                    <b>Date:</b> ${new Date().toLocaleDateString()}<br />
-                    <b>Time:</b> ${new Date().toLocaleTimeString()}<br />
-                    <b>IP Address:</b> ${ip}
-                  </p>
-                </td>
-              </tr>
-            </table>
-
-            <!-- WARNING -->
-            <table width="100%" cellpadding="0" cellspacing="0"
-              style="margin-top:22px; background:#fff7e6; border:1px solid #ffd27d; border-radius:12px;">
-              <tr>
-                <td style="padding:16px;">
-                  <p style="margin:0 0 8px 0; font-size:14px; color:#5a3a00;">
-                    <b>⚠ Didn’t request this code?</b>
-                  </p>
-                  <p style="margin:0; font-size:14px; color:#5a3a00; line-height:1.6;">
-                    If you did not request this verification code, please ignore this email or contact our support team immediately.
-                  </p>
-                </td>
-              </tr>
-            </table>
-
-            <p style="margin:22px 0 0 0; font-size:12.5px; color:#4b5563; line-height:1.6;">
-              This code is confidential. Do not share it with anyone.  
-              OmniReports staff will never ask you for this code.
-            </p>
-          </td>
-        </tr>
-
-        <!-- FOOTER -->
-        <tr>
-          <td style="padding:18px 26px; background:#0b2b4a; color:#b9d9ff; font-size:12px;">
-            <table width="100%" cellpadding="0" cellspacing="0">
-              <tr>
-                <td>
-                  © ${new Date().getFullYear()} <b>OmniReports</b>. All rights reserved.
-                </td>
-                <td align="right">
-                  Support: ${process.env.EMAIL_SUPPORT ?? ""}
-                </td>
-              </tr>
-            </table>
-          </td>
-        </tr>
-
-      </table>
-    </td>
-  </tr>
-</table>
-  </body>
-</html>`,
+          templateName: "authenticator",
+          templateData: {
+            firstName: user?.firstName ?? "",
+            lastName: user?.lastName ?? "",
+            token: autheticator.token,
+            ip,
+            DATE: new Date().toLocaleDateString(),
+            TIME: new Date().toLocaleTimeString(),
+            LOGO_URL: process.env.LOGO_URL ?? "",
+            EMAIL_SUPPORT: process.env.EMAIL_SUPPORT ?? "",
+          },
         });
 
         response.isSuccess = true;

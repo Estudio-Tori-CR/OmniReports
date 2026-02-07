@@ -26,6 +26,7 @@ const initialState: UserState = {
   fullName: "",
   email: "",
   role: [],
+  lastPathReports:""
 };
 
 // ===================== Slice =====================
@@ -35,10 +36,12 @@ export const userSlice = createSlice({
   reducers: {
     setUser: (state, action: PayloadAction<UserState>) => action.payload,
     clearUser: () => initialState,
+    setLastPath: (state, action: PayloadAction<string>) => {
+      state.lastPathReports = action.payload;
+    },
   },
 });
-
-export const { setUser, clearUser } = userSlice.actions;
+export const { setUser, clearUser, setLastPath } = userSlice.actions;
 
 // ===================== Persist config =====================
 const persistConfig = { key: "root", storage };
