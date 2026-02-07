@@ -44,14 +44,12 @@ class Mail {
   }
 
   private async loadTemplate(name: string) {
-    debugger;
     // Allow overriding templates location (useful for prod builds)
     const basePath = process.env.EMAIL_TEMPLATES_PATH
       ? path.resolve(process.env.EMAIL_TEMPLATES_PATH)
       : path.join(process.cwd(), "src", "app", "api", "utilities", "templates");
 
     const filePath = path.join(basePath, `${name}.html`);
-    console.log(filePath);
     try {
       const content = await fs.readFile(filePath, { encoding: "utf8" });
       return content;
@@ -79,7 +77,6 @@ class Mail {
     templateData,
   }: SendMailArgs) {
     try {
-      debugger;
       const transporter = this.getTransporter();
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const from = (transporter as any).defaultFrom;

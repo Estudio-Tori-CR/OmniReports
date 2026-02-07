@@ -87,6 +87,18 @@ class UsersReq {
     return result;
   }
 
+  public async GeneratePassword(
+    userId: string | undefined,
+  ): Promise<BaseResponse<null>> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = await this.client.Put<any, null>(
+      `users/generatePassword?userId=${userId}`,
+      {},
+    );
+
+    return result;
+  }
+
   public async AddReport(
     reportId: string,
     usersId: string[],

@@ -10,6 +10,7 @@ import PersonalButton from "../../components/button";
 import RoleGuard from "../../components/RolGuard";
 import { useRouter } from "next/navigation";
 import { useAppSelector } from "@/app/GlobalState/GlobalState";
+import Message from "../../components/popups";
 
 interface userTable {
   firstName: string;
@@ -95,6 +96,22 @@ const Index = () => {
     router.replace(`/pages/users/maintenance?userID=${user._id}`);
   };
 
+  const generatePassword = async (data: string[]) => {
+    debugger;
+    const email = data[0];
+    if (!email) return;
+
+    const user = users.find((x) => x.email === email);
+    if (!user?._id) return;
+
+    const response = await client.GeneratePassword(user._id.toString());
+
+    await new Message().Toast({
+      icon: response.isSuccess ? "success" : "error",
+      title: response.message,
+    });
+  };
+
   return (
     <RoleGuard allowed={["ADMIN"]}>
       <AppShell>
@@ -145,6 +162,17 @@ const Index = () => {
                           />
                         );
                       }
+                    }
+                  },
+                  (row: any) => {
+                    if (row[0] !== currentUser.email) {
+                      return (
+                        <PersonalButton
+                          text="Generate Password"
+                          isPrimary={true}
+                          callback={() => generatePassword(row)}
+                        />
+                      );
                     }
                   },
                 ] as unknown as any

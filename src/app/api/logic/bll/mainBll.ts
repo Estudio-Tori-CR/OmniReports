@@ -658,6 +658,77 @@ class MainBll {
 
     return response;
   }
+
+  public async GeneratePassword(userId: string, ip: string) {
+    const response = new BaseResponse<null>();
+
+    const userResp = await this.GetUser(userId);
+    if (!userResp.isSuccess || !userResp.body) {
+      this.log.log(`GeneratePassword: user not found: ${userId}`, "error");
+      response.isSuccess = false;
+      response.message = "User not found.";
+      return response;
+    }
+
+    try {
+      const { hash, password } = new Miselanius().GenerateRandomString(
+        parseInt(process.env.PASSWORD_LENGTH ?? "8"),
+      );
+
+      const user = userResp.body;
+      user.password = hash;
+
+      const updated = await this.dal.UpdateUser(userId, user);
+      if (!updated) {
+        this.log.log(
+          `GeneratePassword: failed to update password for user ${userId}`,
+          "error",
+        );
+        response.isSuccess = false;
+        response.message = "Failed to update user password.";
+        return response;
+      }
+
+      try {
+        await new Mail().SendMail({
+          to: user.email,
+          subject: "Temporary password generated - OmniReports",
+          templateName: "password_changed_admin",
+          templateData: {
+            firstName: user?.firstName ?? "",
+            lastName: user?.lastName ?? "",
+            email: user.email,
+            ip,
+            DATE: new Date().toLocaleDateString(),
+            TIME: new Date().toLocaleTimeString(),
+            LOGO_URL: process.env.LOGO_URL ?? "",
+            EMAIL_SUPPORT: process.env.EMAIL_SUPPORT ?? "",
+            TEMP_PASSWORD: password,
+          },
+        });
+      } catch (err) {
+        this.log.log(
+          `GeneratePassword: password updated but failed to send email to ${user.email}: ${err}`,
+          "error",
+        );
+        response.isSuccess = true;
+        response.message =
+          "Temporary password generated, but email notification failed.";
+        return response;
+      }
+      response.isSuccess = true;
+      response.message = "Temporary password generated and emailed to user.";
+      return response;
+    } catch (err) {
+      this.log.log(
+        `GeneratePassword: unexpected error for user ${userId}: ${err}`,
+        "error",
+      );
+      response.isSuccess = false;
+      response.message = "Error generating temporary password.";
+      return response;
+    }
+  }
 }
 
 export default MainBll;
