@@ -926,9 +926,15 @@ class MainBll {
         const reports = await this.dal.GetReportsByDirectory(path);
 
         if (reports) {
+          const encrypt = new Encript();
           for (const report of reports) {
+            // decrypt queries before updating so UpdateReport doesn't double-encrypt
+            report.querys = report.querys.map((q) => ({
+              ...q,
+              query: encrypt.decrypt(q.query),
+            }));
             report.directory = report.directory.replace(oldName, newName);
-            this.UpdateReport(report._id?.toString() as string, report);
+            await this.UpdateReport(report._id?.toString() as string, report);
           }
         }
 

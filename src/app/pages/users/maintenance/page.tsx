@@ -13,6 +13,7 @@ import RoleGuard from "../../components/RolGuard";
 import Message from "../../components/popups";
 import BaseResponse from "@/app/models/baseResponse";
 import { useRouter } from "next/navigation";
+import GoBack from "../../components/goBack";
 
 const Maintenance = () => {
   const router = useRouter();
@@ -113,6 +114,7 @@ const Maintenance = () => {
               />
               <div className="rightButtonsContainer">
                 <PersonalButton text="Submit" type="submit" />
+                <GoBack url="/pages/users/index" />
               </div>
             </form>
           </div>

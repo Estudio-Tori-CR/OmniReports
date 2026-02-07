@@ -13,6 +13,7 @@ import { InstanceInt } from "@/app/models/Instance";
 import BaseResponse from "@/app/models/baseResponse";
 import Message from "../../components/popups";
 import ActionGuard from "../../components/ActionGuard";
+import GoBack from "../../components/goBack";
 
 const Maintenance = () => {
   const router = useRouter();
@@ -129,6 +130,7 @@ const Maintenance = () => {
                   </ActionGuard>
                 )}
                 <PersonalButton text="Submit" type="submit" />
+                <GoBack url="/pages/instances/index" />
               </div>
             </form>
           </div>

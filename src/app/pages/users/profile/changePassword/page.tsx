@@ -10,6 +10,7 @@ import RoleGuard from "../../../components/RolGuard";
 import { useAppSelector } from "@/app/GlobalState/GlobalState";
 import Message from "@/app/pages/components/popups";
 import { useRouter } from "next/navigation";
+import GoBack from "@/app/pages/components/goBack";
 
 type ChangePasswordType = {
   currentPassword: string;
@@ -87,6 +88,7 @@ const ChangePassword = () => {
               />
               <div className="rightButtonsContainer">
                 <PersonalButton text="Submit" type="submit" />
+                <GoBack url="/pages/users/profile" />
               </div>
             </form>
           </div>

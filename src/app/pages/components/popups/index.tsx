@@ -89,6 +89,8 @@ class Message {
       showCancelButton: true,
       confirmButtonText: "Add",
       cancelButtonText: "Cancel",
+      confirmButtonColor: "var(--primary-color)",
+      cancelButtonColor: "var(--red)",
       focusConfirm: false,
       html: <Wrapper />,
       didOpen: () => {
@@ -131,6 +133,8 @@ class Message {
       showCancelButton: true,
       confirmButtonText: "Load",
       cancelButtonText: "Cancel",
+      confirmButtonColor: "var(--primary-color)",
+      cancelButtonColor: "var(--red)",
       focusConfirm: false,
 
       // HTML puro
@@ -180,6 +184,8 @@ class Message {
       showCancelButton: true,
       confirmButtonText: "Export",
       cancelButtonText: "Cancel",
+      confirmButtonColor: "var(--primary-color)",
+      cancelButtonColor: "var(--red)",
       focusConfirm: false,
 
       // HTML puro
@@ -231,6 +237,8 @@ class Message {
       allowOutsideClick: false,
       confirmButtonText: currentName ? "Update" : "Create",
       cancelButtonText: "Cancel",
+      confirmButtonColor: "var(--primary-color)",
+      cancelButtonColor: "var(--red)",
       focusConfirm: false,
       html: `
       <div style="width:100%; text-align:left;">

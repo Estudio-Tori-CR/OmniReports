@@ -14,6 +14,7 @@ import {
   ParametersReport,
   QueryParams,
 } from "@/app/models/executeReport";
+import GoBack from "../../components/goBack";
 
 const Maintenance = () => {
   const router = useRouter();
@@ -170,6 +171,7 @@ const Maintenance = () => {
                   type="button"
                   callback={onExport}
                 />
+                <GoBack url="/pages/reports/index" />
               </div>
             </form>
           </div>

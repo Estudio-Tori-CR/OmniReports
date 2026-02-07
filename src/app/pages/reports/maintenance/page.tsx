@@ -21,6 +21,7 @@ import { useAppSelector } from "@/app/GlobalState/GlobalState";
 import PersonalMultiSelect, {
   MultiSelectOption,
 } from "../../components/multiSelect";
+import GoBack from "../../components/goBack";
 
 const Maintenance = () => {
   const router = useRouter();
@@ -515,6 +516,7 @@ const Maintenance = () => {
                     />
                   </ActionGuard>
                 )}
+                <GoBack url="/pages/reports/index" />
               </div>
             </form>
           </div>
