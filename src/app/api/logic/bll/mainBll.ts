@@ -290,7 +290,6 @@ class MainBll {
   }
 
   public async UpdateReport(reportId: string, body: DBReport) {
-    debugger;
     const response = new BaseResponse<null>();
     const sqlScan = new SqlScan();
     for (const item of body.querys) {
@@ -397,9 +396,15 @@ class MainBll {
     }
     try {
       if (report.instances && report.report) {
+        const sqlScan = new SqlScan();
         for (const item of (report.report as DBReport).querys) {
-          const miselanius = new Miselanius();
-          if (miselanius.CheckInvalidSql(item.query)) {
+          const instance = (await this.GetInstance(item.instance as string))
+            .body;
+          const isValid: boolean = sqlScan.validateReadOnlySql(
+            item.query,
+            instance?.type as string,
+          ).ok;
+          if (!isValid) {
             response.isSuccess = false;
             response.message =
               "The import contains unsafe SQL statements and cannot be processed.";
