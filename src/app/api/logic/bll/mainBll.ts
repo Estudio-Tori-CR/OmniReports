@@ -13,6 +13,7 @@ import AuthenticatorModel, {
   AuthenticatorResp,
 } from "@/app/models/authenticator";
 import { DirectoryReports } from "@/app/models/directory";
+import SqlScan from "../../utilities/SqlScan";
 
 class MainBll {
   private dal: MainDal;
@@ -257,9 +258,14 @@ class MainBll {
 
   public async InsertReport(body: DBReport) {
     const response = new BaseResponse<string>();
-    const miselanius = new Miselanius();
+    const sqlScan = new SqlScan();
     for (const item of body.querys) {
-      if (miselanius.CheckInvalidSql(item.query)) {
+      const instance = (await this.GetInstance(item.instance as string)).body;
+      const isValid: boolean = sqlScan.validateReadOnlySql(
+        item.query,
+        instance?.type as string,
+      ).ok;
+      if (!isValid) {
         response.isSuccess = false;
         response.message =
           "The query contains unsafe SQL statements and cannot be saved.";
@@ -284,10 +290,16 @@ class MainBll {
   }
 
   public async UpdateReport(reportId: string, body: DBReport) {
+    debugger;
     const response = new BaseResponse<null>();
-    const miselanius = new Miselanius();
+    const sqlScan = new SqlScan();
     for (const item of body.querys) {
-      if (miselanius.CheckInvalidSql(item.query)) {
+      const instance = (await this.GetInstance(item.instance as string)).body;
+      const isValid: boolean = sqlScan.validateReadOnlySql(
+        item.query,
+        instance?.type as string,
+      ).ok;
+      if (!isValid) {
         response.isSuccess = false;
         response.message =
           "The query contains unsafe SQL statements and cannot be saved.";
