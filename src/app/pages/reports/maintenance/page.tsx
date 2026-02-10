@@ -413,6 +413,7 @@ const Maintenance = () => {
                       labelText={`Sheet Name ${index + 1}`}
                       type="text"
                       value={q.sheetName}
+                      isRequired={true}
                       onChange={(value) => {
                         setReport((prev) => {
                           const copy = { ...prev };
@@ -429,6 +430,7 @@ const Maintenance = () => {
                       labelText={`Query ${index + 1}`}
                       type="textarea"
                       value={q.query}
+                      isRequired={true}
                       onChange={(value) => {
                         setReport((prev) => {
                           const copy = { ...prev };
