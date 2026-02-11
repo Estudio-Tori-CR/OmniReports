@@ -35,6 +35,8 @@ export default function ParamertersFrom({ value, setValue }: Props) {
     },
   ];
 
+  const isRequired = value.isRequired ? true : false;
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
       <PersonalInput
@@ -62,7 +64,7 @@ export default function ParamertersFrom({ value, setValue }: Props) {
         <input
           type="checkbox"
           id="swal-file-encry"
-          checked={value.isRequired}
+          checked={isRequired}
           onChange={(e) =>
             setValue((p) => ({ ...p, isRequired: e.target.checked }))
           }

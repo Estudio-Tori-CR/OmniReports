@@ -265,6 +265,7 @@ const Maintenance = () => {
                         name: result?.paramName,
                         label: result?.paramLabel,
                         type: result?.paramType,
+                        isRequired: result.isRequired,
                       }
                     : p,
                 ),
