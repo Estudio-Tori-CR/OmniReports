@@ -21,6 +21,10 @@ export default function Authenticator() {
 
   const sendAuthenticator = () => {
     client.Send(_id).then((response) => {
+      new Message().Toast({
+        icon: response.isSuccess ? "success" : "error",
+        title: response.message,
+      });
       if (response.isSuccess && response.body) {
         const copy = [];
         for (let i = 0; i < response.body.length; i++) {
@@ -56,6 +60,14 @@ export default function Authenticator() {
           icon: "error",
           title: response.message,
         });
+
+        const inputs = document.querySelectorAll<HTMLInputElement>(
+          '[id^="token_input_"]',
+        );
+        for (let i = 0; i < inputs.length; i++) {
+          const element = inputs[i];
+          element.value = "";
+        }
       }
     });
   };
@@ -76,6 +88,25 @@ export default function Authenticator() {
     }
   };
 
+  const onPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
+
+    const pasted = e.clipboardData.getData("text").replace(/\s+/g, "");
+
+    for (let i = 0; i < pasted.length; i++) {
+      const element = pasted[i];
+      const input = document.getElementById(
+        `token_input_${i}`,
+      ) as HTMLInputElement | null;
+      if (input) {
+        input.value = element;
+
+        if(i === pasted.length -1){
+          input.focus();
+        }
+      }
+    }
+  };
   const tokenLength = length.length;
   const inputsContainerStyle = {
     "--token-columns-desktop": String(Math.max(tokenLength, 1)),
@@ -112,6 +143,7 @@ export default function Authenticator() {
                     }
                     setToken(copy.join(""));
                   }}
+                  onPaste={onPaste}
                   onKeyUp={(e: React.KeyboardEvent<HTMLInputElement>) => {
                     changeFocus(
                       e,
