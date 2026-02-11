@@ -5,6 +5,7 @@ export class DbParameters {
   name!: string;
   label!: string;
   type!: string;
+  isRequired!: boolean;
 }
 
 export class DbQuerys {
@@ -32,6 +33,7 @@ export type ParametersInt = {
   name: string;
   label: string;
   type: string;
+  isRequired: boolean
 };
 
 export type QueryInt = {
@@ -72,6 +74,7 @@ const ParametersSchema = new Schema<DbParameters>(
     name: { type: String },
     label: { type: String },
     type: { type: String },
+    isRequired: { type: Boolean },
   },
   { _id: false },
 );

@@ -3,6 +3,7 @@ class ParametersReport {
     this._type = "";
     this._name = "";
     this._value = "";
+    this._isRequired = false;
   }
 
   private _type: string;
@@ -29,11 +30,20 @@ class ParametersReport {
     this._value = v;
   }
 
+  private _isRequired: boolean;
+  public get isRequired(): boolean {
+    return this._isRequired;
+  }
+  public set isRequired(v: boolean) {
+    this._isRequired = v;
+  }
+
   toJSON() {
     return {
       type: this.type,
       name: this.name,
       value: this.value,
+      isRequired: this.isRequired,
     };
   }
 }
@@ -58,7 +68,7 @@ class QueryParams {
   public set parameters(v: ParametersReport[]) {
     this._parameters = v;
   }
-  
+
   toJSON() {
     return {
       sheetName: this.sheetName,

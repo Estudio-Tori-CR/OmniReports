@@ -212,6 +212,7 @@ const Maintenance = () => {
         name: paramName,
         label: result.paramLabel,
         type: result.paramType,
+        isRequired: result.isRequired,
       };
 
       return {
@@ -243,6 +244,7 @@ const Maintenance = () => {
         paramLabel: currentParam.label,
         paramName: currentParam.name,
         paramType: currentParam.type,
+        isRequired: currentParam.isRequired,
       },
     );
 
@@ -444,9 +446,18 @@ const Maintenance = () => {
                       }}
                     />
                     <SortTable
-                      rows={report.querys[index].parameters}
+                      rows={report.querys[index].parameters.map((x) => {
+                        return {
+                          name: x.name,
+                          label: x.label,
+                          type: x.type,
+                          isRequired: x.isRequired ? "Yes" : "No",
+                        };
+                      })}
                       columnsNames={
-                        ["Name", "Label", "Type"] as unknown as null | undefined
+                        ["Name", "Label", "Type", "Is Required"] as unknown as
+                          | null
+                          | undefined
                       }
                       buttons={
                         [

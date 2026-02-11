@@ -69,6 +69,7 @@ class Message {
       paramName: "",
       paramType: "",
       paramLabel: "",
+      isRequired: false
     };
 
     let finalValue: ParamertersFromValue = initialValue;

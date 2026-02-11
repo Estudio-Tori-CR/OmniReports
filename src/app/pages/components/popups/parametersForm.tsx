@@ -7,6 +7,7 @@ export interface ParamertersFromValue {
   paramName: string;
   paramLabel: string;
   paramType: string;
+  isRequired: boolean;
 }
 
 interface Props {
@@ -57,6 +58,19 @@ export default function ParamertersFrom({ value, setValue }: Props) {
         isRequered={true}
         onChange={(e) => setValue((p) => ({ ...p, paramType: e }))}
       />
+      <div style={{ display: "flex", gap: "10px", textAlign: "center" }}>
+        <input
+          type="checkbox"
+          id="swal-file-encry"
+          checked={value.isRequired}
+          onChange={(e) =>
+            setValue((p) => ({ ...p, isRequired: e.target.checked }))
+          }
+        />
+        <label htmlFor="swal-file-encry" style={{ fontSize: "12px" }}>
+          Is Required
+        </label>
+      </div>
     </div>
   );
 }

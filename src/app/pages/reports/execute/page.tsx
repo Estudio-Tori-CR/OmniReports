@@ -66,6 +66,7 @@ const Maintenance = () => {
               const param = new ParametersReport();
               param.name = y.name;
               param.type = y.type;
+              param.isRequired = y.isRequired;
 
               return param;
             });
@@ -155,6 +156,7 @@ const Maintenance = () => {
                             labelText={x.label}
                             type={x.type}
                             key={x.name}
+                            isRequired={x.isRequired}
                             onChange={(e) => {
                               onSetParameter(e, x.name, x.type, q.sheetName);
                             }}

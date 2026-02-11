@@ -37,12 +37,13 @@ class ReportsBll {
         const params = execute.queryParams.filter(
           (p) => p.sheetName === q.sheetName,
         );
-
+debugger;
         for (const element of params) {
           if (
             !element.parameters.some(
               (x) =>
-                x.value === null || x.value === "" || x.value === undefined,
+                x.isRequired &&
+                (x.value === null || x.value === "" || x.value === undefined),
             )
           ) {
             let queryToExecute = q.query;
