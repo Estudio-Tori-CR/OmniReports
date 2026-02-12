@@ -37,21 +37,27 @@ class ReportsBll {
         const params = execute.queryParams.filter(
           (p) => p.sheetName === q.sheetName,
         );
-debugger;
+        debugger;
         for (const element of params) {
           if (
-            !element.parameters.some(
+            element.parameters.some(
               (x) =>
                 x.isRequired &&
                 (x.value === null || x.value === "" || x.value === undefined),
             )
           ) {
-            let queryToExecute = q.query;
-            const instance = await mainDal.GetInstance(q.instance as string);
+            response.isSuccess = false;
+            response.message =
+              "Please complete all required parameters before running the report.";
+            response.body = null as any;
+            return response;
+          }
+          let queryToExecute = q.query;
+          const instance = await mainDal.GetInstance(q.instance as string);
 
-            for (const param of element.parameters) {
-              let value = param.value.toString();
-
+          for (const param of element.parameters) {
+            let value = param.value.toString();
+            if (value !== null && value !== "" && value !== undefined) {
               switch (param.type) {
                 case "text":
                   value = `'${value}'`;
@@ -84,31 +90,22 @@ debugger;
                   }
                   break;
               }
-
-              queryToExecute = queryToExecute.replaceAll(
-                `@${param.name}`,
-                value,
-              );
+            } else {
+              value = "NULL";
             }
 
-            querysToExecute.push({
-              connectionString: new Encript().decrypt(
-                instance?.connectionString ?? "",
-              ),
-              instanceType: instance?.type as string,
-              query: queryToExecute,
-              sheetName: element.sheetName,
-            });
+            queryToExecute = queryToExecute.replaceAll(`@${param.name}`, value);
           }
-        }
-      }
 
-      if (querysToExecute.length === 0) {
-        response.isSuccess = false;
-        response.message =
-          "Please complete all required parameters before running the report.";
-        response.body = null as any;
-        return response;
+          querysToExecute.push({
+            connectionString: new Encript().decrypt(
+              instance?.connectionString ?? "",
+            ),
+            instanceType: instance?.type as string,
+            query: queryToExecute,
+            sheetName: element.sheetName,
+          });
+        }
       }
 
       const results: ResultToExcel[] = [];
