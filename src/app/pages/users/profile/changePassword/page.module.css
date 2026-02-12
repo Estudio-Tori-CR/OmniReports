@@ -1,0 +1,12 @@
+.newPassword {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.passwordLevelContainer {
+  height: max-content;
+  padding: 0.3rem;
+  margin-bottom: 0.3rem;
+  border-radius: 5px;
+}
