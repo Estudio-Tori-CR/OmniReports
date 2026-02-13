@@ -4,6 +4,8 @@ import "./style.css";
 const Loader = () => {
   let span: Element;
   const show = () => {
+    if (document.getElementById("loader")) return;
+
     const container = document.createElement("div");
     container.classList.add("loadingContainer");
     container.id = "loader";

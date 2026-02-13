@@ -92,7 +92,7 @@ export default function Authenticator() {
     e.preventDefault();
 
     const pasted = e.clipboardData.getData("text").replace(/\s+/g, "");
-
+    setToken(pasted);
     for (let i = 0; i < pasted.length; i++) {
       const element = pasted[i];
       const input = document.getElementById(
@@ -101,7 +101,7 @@ export default function Authenticator() {
       if (input) {
         input.value = element;
 
-        if(i === pasted.length -1){
+        if (i === pasted.length - 1) {
           input.focus();
         }
       }
