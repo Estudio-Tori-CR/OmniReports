@@ -154,9 +154,12 @@ const Maintenance = () => {
                         return (
                           <PersonalInput
                             labelText={x.label}
-                            type={x.type}
+                            type={x.type.includes("list") ? "text" : x.type}
                             key={x.name}
                             isRequired={x.isRequired}
+                            placeholder={
+                              x.type.includes("list") ? "value,value,value" : ""
+                            }
                             onChange={(e) => {
                               onSetParameter(e, x.name, x.type, q.sheetName);
                             }}
