@@ -33,6 +33,14 @@ export default function ParamertersFrom({ value, setValue }: Props) {
       text: "Datetime",
       value: "datetime-local",
     },
+    {
+      text: "List Integer",
+      value: "integer-list",
+    },
+    {
+      text: "List Varchar",
+      value: "text-list",
+    },
   ];
 
   const isRequired = value.isRequired ? true : false;

@@ -20,6 +20,7 @@ import {
 import { RiLogoutBoxLine } from "react-icons/ri";
 import { Role } from "@/app/interfaces/Roles";
 import { useAppSelector } from "@/app/GlobalState/GlobalState";
+import Loader from "../loading";
 
 type Props = {
   children: ReactNode;
@@ -71,6 +72,11 @@ export default function AppShell({ children }: Props) {
     }
   };
 
+  const navigate = (route: string) => {
+    Loader().show();
+    router.push(route);
+  };
+
   return (
     <div style={{ display: "flex", height: "100vh" }}>
       <Sidebar
@@ -89,7 +95,7 @@ export default function AppShell({ children }: Props) {
           ></MenuItem>
           <MenuItem
             icon={<FaHome />}
-            onClick={() => router.push("/pages/reports/index")}
+            onClick={() => navigate("/pages/reports/index")}
           >
             Home
           </MenuItem>
@@ -98,14 +104,14 @@ export default function AppShell({ children }: Props) {
             <SubMenu icon={<FaChartBar />} label="Reports">
               {canSee(
                 "ReportList",
-                <MenuItem onClick={() => router.push("/pages/reports/index")}>
+                <MenuItem onClick={() => navigate("/pages/reports/index")}>
                   List
                 </MenuItem>,
               )}
               {canSee(
                 "ReportMaintenance",
                 <MenuItem
-                  onClick={() => router.push("/pages/reports/maintenance")}
+                  onClick={() => navigate("/pages/reports/maintenance")}
                 >
                   Create
                 </MenuItem>,
@@ -117,14 +123,14 @@ export default function AppShell({ children }: Props) {
             <SubMenu icon={<FaDatabase />} label="Intances">
               {canSee(
                 "InstancesList",
-                <MenuItem onClick={() => router.push("/pages/instances/index")}>
+                <MenuItem onClick={() => navigate("/pages/instances/index")}>
                   List
                 </MenuItem>,
               )}
               {canSee(
                 "InstancesMaintenance",
                 <MenuItem
-                  onClick={() => router.push("/pages/instances/maintenance")}
+                  onClick={() => navigate("/pages/instances/maintenance")}
                 >
                   Create
                 </MenuItem>,
@@ -134,24 +140,21 @@ export default function AppShell({ children }: Props) {
           {canSee(
             "Users",
             <SubMenu icon={<FaUsers />} label="Usuarios">
-              <MenuItem onClick={() => router.push("/pages/users/index")}>
+              <MenuItem onClick={() => navigate("/pages/users/index")}>
                 List
               </MenuItem>
-              <MenuItem onClick={() => router.push("/pages/users/maintenance")}>
+              <MenuItem onClick={() => navigate("/pages/users/maintenance")}>
                 Create
               </MenuItem>
             </SubMenu>,
           )}
           <MenuItem
             icon={<FaUser />}
-            onClick={() => router.push("/pages/users/profile")}
+            onClick={() => navigate("/pages/users/profile")}
           >
             Profile
           </MenuItem>
-          <MenuItem
-            icon={<RiLogoutBoxLine />}
-            onClick={() => router.replace("/")}
-          >
+          <MenuItem icon={<RiLogoutBoxLine />} onClick={() => navigate("/")}>
             Log Out
           </MenuItem>
         </Menu>

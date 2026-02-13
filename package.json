@@ -1,6 +1,6 @@
 {
   "name": "omni_reports",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.11.2",
-    "axios": "^1.13.3",
+    "axios": "^1.13.5",
     "exceljs": "^4.4.0",
     "jose": "^6.1.3",
     "js-cookie": "^3.0.5",

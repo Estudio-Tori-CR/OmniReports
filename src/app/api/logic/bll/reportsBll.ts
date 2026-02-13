@@ -37,7 +37,7 @@ class ReportsBll {
         const params = execute.queryParams.filter(
           (p) => p.sheetName === q.sheetName,
         );
-        debugger;
+
         for (const element of params) {
           if (
             element.parameters.some(
@@ -62,7 +62,6 @@ class ReportsBll {
                 case "text":
                   value = `'${value}'`;
                   break;
-
                 case "datetime-local":
                   switch (instance?.type) {
                     case "OracleDB":
@@ -87,6 +86,23 @@ class ReportsBll {
                     case "SQLServer":
                       value = utilities.toSqlServerDateTimeString(value, false);
                       break;
+                  }
+                  break;
+                default:
+                  if (param.type === "text-list") {
+                    value = value
+                      .split(",")
+                      .map((x) => {
+                        return `'${x}'`;
+                      })
+                      .join(",");
+                  } else if (param.type === "integer-list") {
+                    value = value
+                      .split(",")
+                      .map((x) => {
+                        return x;
+                      })
+                      .join(",");
                   }
                   break;
               }

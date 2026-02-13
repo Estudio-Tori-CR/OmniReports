@@ -69,7 +69,7 @@ class Message {
       paramName: "",
       paramType: "",
       paramLabel: "",
-      isRequired: false
+      isRequired: false,
     };
 
     let finalValue: ParamertersFromValue = initialValue;
@@ -88,7 +88,7 @@ class Message {
     const result = await withReactContent(Swal).fire({
       title: opts.title,
       showCancelButton: true,
-      confirmButtonText: "Add",
+      confirmButtonText: initialValue.paramName ? "Update" : "Add",
       cancelButtonText: "Cancel",
       confirmButtonColor: "var(--primary-color)",
       cancelButtonColor: "var(--red)",
