@@ -107,24 +107,75 @@ label {
 .square {
   text-align: center;
   border: 1px solid var(--gray);
-  border-radius: 0.3rem;
-  min-height: 8rem;
+  border-radius: 0.6rem;
+  min-height: 9rem;
   padding: 1rem;
+  position: relative;
   display: grid;
   gap: 0.5rem;
   justify-content: center;
+  transition: 0.2s ease;
+  background: white;
 }
 
 .square:hover {
   border-color: var(--primary-color);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
   cursor: pointer;
 }
 
-.square > svg,
-.square > div > svg {
+.square svg {
   width: 80px;
   height: 80px;
   justify-self: center;
+}
+
+/* CONTEXT MENU */
+.menuTrigger {
+  position: absolute;
+  top: 0.35rem;
+  right: 0.55rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+  line-height: 0.9;
+  cursor: pointer;
+  user-select: none;
+  z-index: 2;
+  display: none;
+}
+
+.square:hover > .menuTrigger {
+  display: block;
+}
+
+.contextMenu {
+  position: fixed;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+  border: 1px solid #eee;
+  min-width: 160px;
+  z-index: 9999;
+  padding: 6px 0;
+}
+
+.contextMenu div {
+  padding: 10px 14px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.15s;
+}
+
+.contextMenu div:hover {
+  background: #f5f7fb;
+}
+
+.contextMenu .danger {
+  color: #d32f2f;
+}
+
+.contextMenu .danger:hover {
+  background: #ffeaea;
 }
 
 input:focus {
