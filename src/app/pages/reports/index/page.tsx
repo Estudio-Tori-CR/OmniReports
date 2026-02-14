@@ -5,7 +5,7 @@ import AppShell from "../../components/sidebar";
 import RoleGuard from "../../components/RolGuard";
 import { useRouter } from "next/navigation";
 import { TbReportAnalytics } from "react-icons/tb";
-import { DBReport } from "@/app/models/Report";
+import { DBReport, ReportInt } from "@/app/models/Report";
 import ReportsReq from "@/app/utilities/requests/reports/requests";
 import ActionGuard from "../../components/ActionGuard";
 import PersonalButton from "../../components/button";
@@ -17,6 +17,158 @@ import {
 } from "@/app/GlobalState/GlobalState";
 import { GoFileDirectory } from "react-icons/go";
 import { MdOutlineSubdirectoryArrowLeft } from "react-icons/md";
+import { FaHome } from "react-icons/fa";
+
+type DirectoryCardProps = {
+  x: string;
+  currentPath: string;
+  goToDirectory: (directoryName: string) => void;
+  onEdit: (name: string, path: string) => Promise<void>;
+  canEdit: boolean;
+};
+
+const DirectoryCard = ({
+  x,
+  currentPath,
+  goToDirectory,
+  onEdit: onEditDirectory,
+  canEdit,
+}: DirectoryCardProps) => {
+  const [menu, setMenu] = useState<{
+    visible: boolean;
+    x: number;
+    y: number;
+  }>({ visible: false, x: 0, y: 0 });
+
+  const onEdit = () => onEditDirectory(x, `${currentPath}/${x}`);
+
+  const handleMenuOpen = (e: React.MouseEvent<HTMLSpanElement>) => {
+    e.stopPropagation();
+    const rect = e.currentTarget.getBoundingClientRect();
+
+    setMenu({
+      visible: true,
+      x: rect.left,
+      y: rect.bottom + 4,
+    });
+  };
+
+  const closeMenu = () => {
+    setMenu((prev) => ({ ...prev, visible: false }));
+  };
+
+  useEffect(() => {
+    window.addEventListener("click", closeMenu);
+    return () => window.removeEventListener("click", closeMenu);
+  }, []);
+
+  return (
+    <>
+      <div
+        className={`${style.reportCard} square`}
+        role="button"
+        onClick={() => goToDirectory(x)}
+      >
+        <div>
+          <GoFileDirectory />
+          <div className={style.reportName}>
+            <p>{x}</p>
+          </div>
+        </div>
+        <span
+          role="button"
+          onClick={handleMenuOpen}
+          className={style.menuTrigger}
+        >
+          ...
+        </span>
+      </div>
+
+      {menu.visible && (
+        <div className="contextMenu" style={{ top: menu.y, left: menu.x }}>
+          <div onClick={() => goToDirectory(x)}>Open</div>
+          {canEdit && <div onClick={onEdit}>Edit</div>}
+        </div>
+      )}
+    </>
+  );
+};
+
+type ReportCardProps = {
+  name: string;
+  canEdit: boolean;
+  onOpenReport: () => void;
+  onEditReport: () => void;
+  onDeleteReport?: () => void;
+};
+
+const ReportCard = ({
+  name,
+  canEdit,
+  onOpenReport,
+  onEditReport,
+  onDeleteReport,
+}: ReportCardProps) => {
+  const [menu, setMenu] = useState<{
+    visible: boolean;
+    x: number;
+    y: number;
+  }>({ visible: false, x: 0, y: 0 });
+
+  const handleMenuOpen = (e: React.MouseEvent<HTMLSpanElement>) => {
+    e.stopPropagation();
+    const rect = e.currentTarget.getBoundingClientRect();
+
+    setMenu({
+      visible: true,
+      x: rect.left,
+      y: rect.bottom + 4,
+    });
+  };
+
+  const closeMenu = () => {
+    setMenu((prev) => ({ ...prev, visible: false }));
+  };
+
+  useEffect(() => {
+    window.addEventListener("click", closeMenu);
+    return () => window.removeEventListener("click", closeMenu);
+  }, []);
+
+  return (
+    <>
+      <div
+        className={`${style.reportCard} square`}
+        role="button"
+        onClick={onOpenReport}
+      >
+        <div>
+          <TbReportAnalytics />
+          <div className={style.reportName}>
+            <p>{name}</p>
+          </div>
+        </div>
+        <span
+          role="button"
+          onClick={handleMenuOpen}
+          className={style.menuTrigger}
+        >
+          ...
+        </span>
+      </div>
+
+      {menu.visible && (
+        <div className="contextMenu" style={{ top: menu.y, left: menu.x }}>
+          <div onClick={onOpenReport}>Open</div>
+          {canEdit && <div onClick={onEditReport}>Edit</div>}
+          {canEdit && onDeleteReport && (
+            <div onClick={onDeleteReport}>Delete</div>
+          )}
+        </div>
+      )}
+    </>
+  );
+};
 
 const Index = () => {
   const router = useRouter();
@@ -28,6 +180,7 @@ const Index = () => {
   // we set in true for the fist render
   const [fileImported, setFileImported] = useState(true);
   const { role, _id } = useAppSelector((s) => s.user);
+  const canEdit = role.includes("ADMIN") || role.includes("DEVELOPER");
 
   const client = useMemo(() => new ReportsReq(router), [router]);
   const message = new Message();
@@ -110,16 +263,9 @@ const Index = () => {
     dispatch(setLastPath(newPath));
   };
 
-  const handleRightClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    e.preventDefault();
-
-    const parent = e.currentTarget;
-    const button = parent.querySelector(".edit-button");
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    button?.classList.contains("show")
-      ? button?.classList.remove("show")
-      : button?.classList.add("show");
+  const goToHome = () => {
+    setCurrentPath("");
+    dispatch(setLastPath(""));
   };
 
   const onImport = async () => {
@@ -198,6 +344,29 @@ const Index = () => {
     }
   };
 
+  const onDeleteReport = async (reportId: string) => {
+    debugger;
+    const responseReport = await client.GetOne(reportId);
+    if (responseReport.isSuccess && responseReport.body) {
+      responseReport.body.isActive = false;
+      const response = await client.Update(
+        reportId,
+        responseReport.body as ReportInt,
+      );
+
+      await message.Toast({
+        icon: response.isSuccess ? "success" : "error",
+        title: response.message,
+      });
+
+      if (response.isSuccess) {
+        setReports((prev) =>
+          prev.filter((report) => report._id?.toString() !== reportId),
+        );
+      }
+    }
+  };
+
   return (
     <RoleGuard allowed={["ADMIN", "DEVELOPER", "REPORTS"]}>
       <AppShell>
@@ -218,7 +387,11 @@ const Index = () => {
                 </ActionGuard>
               </div>
               <p style={{ width: "100%", marginBottom: "0.5rem" }}>
-                Current path: <strong>{currentPathLabel}</strong>
+                Current path
+                <span onClick={goToHome} className={style.home}>
+                  <FaHome />
+                </span>
+                : <strong>{currentPathLabel}</strong>
               </p>
             </div>
             {currentPath !== "" && (
@@ -236,62 +409,34 @@ const Index = () => {
             <div className="squares-container">
               {directories.map((x) => {
                 return (
-                  <div className="square" key={`${currentPath}/${x}`}>
-                    <div
-                      role="button"
-                      onContextMenu={handleRightClick}
-                      onClick={() => {
-                        goToDirectory(x);
-                      }}
-                    >
-                      <GoFileDirectory />
-                      <div className={style.reportName}>
-                        <p>{x}</p>
-                      </div>
-                    </div>
-                    <ActionGuard allowed={["ADMIN", "DEVELOPER"]}>
-                      <button
-                        type="button"
-                        className={style.button}
-                        onClick={() =>
-                          onEditDirectory(x, `${currentPath}/${x}`)
-                        }
-                      >
-                        Rename
-                      </button>
-                    </ActionGuard>
-                  </div>
+                  <DirectoryCard
+                    key={`${currentPath}/${x}`}
+                    x={x}
+                    currentPath={currentPath}
+                    goToDirectory={goToDirectory}
+                    onEdit={onEditDirectory}
+                    canEdit={canEdit}
+                  />
                 );
               })}
               {currentReports.map((x) => {
                 return (
-                  <div className="square" key={x._id?.toString()}>
-                    <div
-                      role="button"
-                      onContextMenu={handleRightClick}
-                      onClick={() => {
-                        router.push(`/pages/reports/execute?reportId=${x._id}`);
-                      }}
-                    >
-                      <TbReportAnalytics />
-                      <div className={style.reportName}>
-                        <p>{x.name}</p>
-                      </div>
-                    </div>
-                    <ActionGuard allowed={["ADMIN", "DEVELOPER"]}>
-                      <button
-                        type="button"
-                        className={style.button}
-                        onClick={() => {
-                          router.push(
-                            `/pages/reports/maintenance?reportId=${x._id}`,
-                          );
-                        }}
-                      >
-                        Edit
-                      </button>
-                    </ActionGuard>
-                  </div>
+                  <ReportCard
+                    key={x._id?.toString()}
+                    name={x.name}
+                    canEdit={canEdit}
+                    onOpenReport={() => {
+                      router.push(`/pages/reports/execute?reportId=${x._id}`);
+                    }}
+                    onEditReport={() => {
+                      router.push(
+                        `/pages/reports/maintenance?reportId=${x._id}`,
+                      );
+                    }}
+                    onDeleteReport={() => {
+                      onDeleteReport(x._id as string);
+                    }}
+                  />
                 );
               })}
             </div>

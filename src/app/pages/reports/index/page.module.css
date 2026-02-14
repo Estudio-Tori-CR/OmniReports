@@ -14,3 +14,33 @@
 .button:hover {
   cursor: pointer;
 }
+
+.reportCard {
+  position: relative;
+}
+
+.menuTrigger {
+  position: absolute;
+  top: 0.35rem;
+  right: 0.55rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+  line-height: 0.9;
+  cursor: pointer;
+  user-select: none;
+  z-index: 2;
+  display: none;
+}
+
+.reportCard:hover > .menuTrigger {
+  display: block;
+}
+
+.home {
+  margin-left: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.home:hover {
+  cursor: pointer;
+}
