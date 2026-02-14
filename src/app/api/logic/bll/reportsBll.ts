@@ -24,10 +24,10 @@ class ReportsBll {
     const response = new BaseResponse<string>();
     const mainDal = new MainDal();
     const utilities = new Miselanius();
+    const encript = new Encript();
+    const report = await mainDal.GetReport(execute.id);
 
     try {
-      const encript = new Encript();
-      const report = await mainDal.GetReport(execute.id);
       report?.querys.forEach((q) => {
         q.query = encript.decrypt(q.query);
       });
@@ -96,13 +96,6 @@ class ReportsBll {
                         return `'${x}'`;
                       })
                       .join(",");
-                  } else if (param.type === "integer-list") {
-                    value = value
-                      .split(",")
-                      .map((x) => {
-                        return x;
-                      })
-                      .join(",");
                   }
                   break;
               }
@@ -164,7 +157,10 @@ class ReportsBll {
       response.isSuccess = false;
       response.message =
         "An unexpected error occurred while executing the report.";
-      this.log.log(`Unexpected error in ExecuteOne: ${err}`, "error");
+      this.log.log(
+        `Unexpected error in ExecuteOne: ${err}, report: ${report?.name}, parameters: ${JSON.stringify(execute.queryParams)}`,
+        "error",
+      );
       return response;
     }
   }
