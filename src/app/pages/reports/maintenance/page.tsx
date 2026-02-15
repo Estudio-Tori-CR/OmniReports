@@ -183,20 +183,6 @@ const Maintenance = () => {
     }
   };
 
-  const onDelete = async () => {
-    const tmpReport = { ...report };
-    tmpReport.isActive = false;
-    const response = await client.Update(reportId, tmpReport);
-
-    await message.Toast({
-      icon: response.isSuccess ? "success" : "error",
-      title: response.message,
-    });
-    if (response.isSuccess) {
-      router.replace(`/pages/reports/index`);
-    }
-  };
-
   const onAddParameter = async (queryIndex: number) => {
     const result = await message.ShowParametersUser({
       icon: "question",
@@ -297,49 +283,6 @@ const Maintenance = () => {
         ),
       };
     });
-  };
-
-  const onExport = async () => {
-    const isEncrypted: boolean = await message.ShowExportFile({
-      icon: "question",
-      title: "Export Report",
-    });
-
-    if (isEncrypted !== null && isEncrypted !== undefined) {
-      let exportData: ExportReport = {
-        report: report,
-        instances: [],
-        isEncrypted: isEncrypted,
-      };
-
-      report.querys.forEach((x) => {
-        if (
-          !(exportData.instances as Instance[]).some(
-            (y) => y._id?.toString() === x.instance,
-          )
-        ) {
-          (exportData.instances as Instance[]).push(
-            instances?.find(
-              (y) => y._id?.toString() === x.instance,
-            ) as Instance,
-          );
-        }
-      });
-
-      if (isEncrypted) {
-        exportData = (await client.Export(exportData)).body as ExportReport;
-      }
-      const jsonString = JSON.stringify(exportData, null, 2);
-      const blob = new Blob([jsonString], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = report.name;
-      a.click();
-
-      URL.revokeObjectURL(url);
-    }
   };
 
   return (
@@ -488,6 +431,13 @@ const Maintenance = () => {
                     />
                     <div className="rightButtonsContainer">
                       <PersonalButton
+                        text="Add Parameter"
+                        type="button"
+                        callback={() => {
+                          onAddParameter(index);
+                        }}
+                      />
+                      <PersonalButton
                         text="Remove"
                         type="button"
                         className="redButton"
@@ -498,38 +448,12 @@ const Maintenance = () => {
                           }));
                         }}
                       />
-                      <PersonalButton
-                        text="Add Parameter"
-                        type="button"
-                        callback={() => {
-                          onAddParameter(index);
-                        }}
-                      />
                     </div>
                   </div>
                 ))}
               </div>
               <div className="rightButtonsContainer">
-                {reportId && (
-                  <ActionGuard allowed={["ADMIN"]}>
-                    <PersonalButton
-                      text="Delete"
-                      type="button"
-                      className="redButton"
-                      callback={onDelete}
-                    />
-                  </ActionGuard>
-                )}
                 <PersonalButton text="Save All" type="submit" />
-                {reportId && (
-                  <ActionGuard allowed={["ADMIN"]}>
-                    <PersonalButton
-                      text="Export"
-                      type="button"
-                      callback={onExport}
-                    />
-                  </ActionGuard>
-                )}
                 <GoBack url="/pages/reports/index" />
               </div>
             </form>

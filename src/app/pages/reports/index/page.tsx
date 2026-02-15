@@ -5,7 +5,7 @@ import AppShell from "../../components/sidebar";
 import RoleGuard from "../../components/RolGuard";
 import { useRouter } from "next/navigation";
 import { TbReportAnalytics } from "react-icons/tb";
-import { DBReport, ReportInt } from "@/app/models/Report";
+import { DBReport, ExportReport, ReportInt } from "@/app/models/Report";
 import ReportsReq from "@/app/utilities/requests/reports/requests";
 import ActionGuard from "../../components/ActionGuard";
 import PersonalButton from "../../components/button";
@@ -16,8 +16,15 @@ import {
   setLastPath,
 } from "@/app/GlobalState/GlobalState";
 import { GoFileDirectory } from "react-icons/go";
-import { MdOutlineSubdirectoryArrowLeft } from "react-icons/md";
-import { FaHome } from "react-icons/fa";
+import {
+  MdDeleteOutline,
+  MdOpenInNew,
+  MdOutlineSubdirectoryArrowLeft,
+} from "react-icons/md";
+import { FaHome, FaRegEdit } from "react-icons/fa";
+import { Instance } from "@/app/models/Instance";
+import IntancesReq from "@/app/utilities/requests/instances/requests";
+import { PiExport } from "react-icons/pi";
 
 type DirectoryCardProps = {
   x: string;
@@ -86,8 +93,20 @@ const DirectoryCard = ({
 
       {menu.visible && (
         <div className="contextMenu" style={{ top: menu.y, left: menu.x }}>
-          <div onClick={() => goToDirectory(x)}>Open</div>
-          {canEdit && <div onClick={onEdit}>Edit</div>}
+          <div onClick={() => goToDirectory(x)}>
+            <span>
+              <MdOpenInNew />
+            </span>
+            Open
+          </div>
+          {canEdit && (
+            <div onClick={onEdit}>
+              <span>
+                <FaRegEdit />
+              </span>
+              Rename
+            </div>
+          )}
         </div>
       )}
     </>
@@ -100,6 +119,7 @@ type ReportCardProps = {
   onOpenReport: () => void;
   onEditReport: () => void;
   onDeleteReport?: () => void;
+  onExport?: () => void;
 };
 
 const ReportCard = ({
@@ -108,6 +128,7 @@ const ReportCard = ({
   onOpenReport,
   onEditReport,
   onDeleteReport,
+  onExport,
 }: ReportCardProps) => {
   const [menu, setMenu] = useState<{
     visible: boolean;
@@ -159,10 +180,35 @@ const ReportCard = ({
 
       {menu.visible && (
         <div className="contextMenu" style={{ top: menu.y, left: menu.x }}>
-          <div onClick={onOpenReport}>Open</div>
-          {canEdit && <div onClick={onEditReport}>Edit</div>}
+          <div onClick={onOpenReport}>
+            <span>
+              <MdOpenInNew />
+            </span>
+            Open
+          </div>
+          {canEdit && (
+            <div onClick={onEditReport}>
+              <span>
+                <FaRegEdit />
+              </span>
+              Edit
+            </div>
+          )}
+          {canEdit && onExport && (
+            <div onClick={onExport}>
+              <span>
+                <PiExport />
+              </span>
+              Export
+            </div>
+          )}
           {canEdit && onDeleteReport && (
-            <div onClick={onDeleteReport}>Delete</div>
+            <div onClick={onDeleteReport} style={{ color: "var(--red)" }}>
+              <span>
+                <MdDeleteOutline />
+              </span>
+              Delete
+            </div>
           )}
         </div>
       )}
@@ -345,7 +391,6 @@ const Index = () => {
   };
 
   const onDeleteReport = async (reportId: string) => {
-    debugger;
     const responseReport = await client.GetOne(reportId);
     if (responseReport.isSuccess && responseReport.body) {
       responseReport.body.isActive = false;
@@ -367,6 +412,52 @@ const Index = () => {
     }
   };
 
+  const onExportReport = async (reportId: string) => {
+    const responseReport = await client.GetOne(reportId);
+    if (responseReport.isSuccess && responseReport.body) {
+      const isEncrypted: boolean = await message.ShowExportFile({
+        icon: "question",
+        title: "Export Report",
+      });
+      const instances = (await new IntancesReq(router).GetAll("", true)).body;
+      if (isEncrypted !== null && isEncrypted !== undefined) {
+        let exportData: ExportReport = {
+          report: responseReport.body,
+          instances: [],
+          isEncrypted: isEncrypted,
+        };
+
+        responseReport.body.querys.forEach((x) => {
+          if (
+            !(exportData.instances as Instance[]).some(
+              (y) => y._id?.toString() === x.instance,
+            )
+          ) {
+            (exportData.instances as Instance[]).push(
+              instances?.find(
+                (y) => y._id?.toString() === x.instance,
+              ) as Instance,
+            );
+          }
+        });
+
+        if (isEncrypted) {
+          exportData = (await client.Export(exportData)).body as ExportReport;
+        }
+        const jsonString = JSON.stringify(exportData, null, 2);
+        const blob = new Blob([jsonString], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = responseReport.body.name;
+        a.click();
+
+        URL.revokeObjectURL(url);
+      }
+    }
+  };
+
   return (
     <RoleGuard allowed={["ADMIN", "DEVELOPER", "REPORTS"]}>
       <AppShell>
@@ -378,9 +469,14 @@ const Index = () => {
                 <p style={{ width: "100%" }}>List of reports</p>
                 <ActionGuard allowed={["ADMIN", "DEVELOPER"]}>
                   <div className="rightButtonsContainer">
-                    <PersonalButton text="Import" callback={onImport} />
+                    <PersonalButton
+                      text="Import"
+                      callback={onImport}
+                      className={style.importButton}
+                    />
                     <PersonalButton
                       text="Create Directory"
+                      className={style.createButton}
                       callback={onCreateDirectory}
                     />
                   </div>
@@ -435,6 +531,9 @@ const Index = () => {
                     }}
                     onDeleteReport={() => {
                       onDeleteReport(x._id as string);
+                    }}
+                    onExport={() => {
+                      onExportReport(x._id as string);
                     }}
                   />
                 );
