@@ -111,6 +111,7 @@ class ReportsBll {
           }
 
           querysToExecute.push({
+            title: q.title ?? "",
             connectionString: new Encript().decrypt(
               instance?.connectionString ?? "",
             ),
@@ -184,11 +185,13 @@ class ReportsBll {
             }
 
             results.push({
+              title: element.title,
               results: resultWithSubQuery,
               sheetName: element.sheetName,
             });
           } else {
             results.push({
+              title: element.title,
               results: mainRows,
               sheetName: element.sheetName,
             });
@@ -263,6 +266,25 @@ class ReportsBll {
       }
     };
 
+    const writeTitleRow = (
+      sheet: ExcelJS.Worksheet,
+      title: string | undefined,
+      totalColumns: number,
+      rowNumber: number,
+    ): number => {
+      const titleText = title?.trim() ?? "";
+      if (!titleText) return rowNumber;
+
+      const mergeTo = Math.max(1, totalColumns);
+      sheet.getCell(rowNumber, 1).value = titleText;
+      sheet.getCell(rowNumber, 1).font = { bold: true, size: 14 };
+      sheet.getCell(rowNumber, 1).alignment = { horizontal: "center" };
+      if (mergeTo > 1) {
+        sheet.mergeCells(rowNumber, 1, rowNumber, mergeTo);
+      }
+      return rowNumber + 1;
+    };
+
     for (const element of sheets) {
       const sheet = workbook.addWorksheet(element.sheetName);
       const rows = element.results ?? [];
@@ -274,20 +296,27 @@ class ReportsBll {
         const plainRows = rows as Record<string, unknown>[];
         const columns = Object.keys((plainRows[0] ?? {}) as Record<string, unknown>);
 
-        sheet.columns = columns.map((key) => ({
-          header: key,
-          key,
-          width: Math.max(12, key.length + 2),
-        }));
+        let currentRow = writeTitleRow(sheet, element.title, columns.length, 1);
+        if (columns.length) {
+          sheet.getRow(currentRow).values = columns;
+          sheet.getRow(currentRow).font = { bold: true };
+          currentRow++;
+        }
 
-        sheet.addRows(plainRows);
-        sheet.getRow(1).font = { bold: true };
+        for (const plainRow of plainRows) {
+          sheet.getRow(currentRow).values = columns.map((column) =>
+            toCellValue(plainRow[column]),
+          );
+          currentRow++;
+        }
+
+        autoFitColumns(sheet);
         continue;
       }
 
       const rowsWithSubQuery = rows as ResultSubQuery[];
       const masterColumns = Object.keys(rowsWithSubQuery[0]?.result ?? {});
-      let currentRow = 1;
+      let currentRow = writeTitleRow(sheet, element.title, masterColumns.length, 1);
 
       if (masterColumns.length) {
         sheet.getRow(currentRow).values = masterColumns;
@@ -299,7 +328,7 @@ class ReportsBll {
         const masterValues = masterColumns.map((column) =>
           toCellValue(item.result?.[column]),
         );
-        sheet. getRow(currentRow).values = masterValues;
+        sheet.getRow(currentRow).values = masterValues;
         currentRow++;
 
         const detailRows = item.subQuery ?? [];

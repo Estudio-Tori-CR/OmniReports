@@ -14,6 +14,7 @@ export class DbSubQuery {
 }
 
 export class DbQuerys {
+  title?: string;
   query!: string;
   instance!: Types.ObjectId | undefined | string;
   sheetName!: string;
@@ -48,6 +49,7 @@ export type SubQueryInt = {
 };
 
 export type QueryInt = {
+  title?: string;
   query: string;
   instance: string;
   sheetName: string;
@@ -64,6 +66,7 @@ export type ReportInt = {
 };
 
 export type QueryToExecute = {
+  title?: string;
   connectionString: string;
   instanceType: string;
   query: string;
@@ -77,6 +80,7 @@ export type ResultSubQuery = {
 };
 
 export type ResultToExcel = {
+  title?: string;
   results: ResultSubQuery[] | Record<string, unknown>[];
   sheetName: string;
 };
@@ -107,6 +111,7 @@ const SubQuerySchema = new Schema<DbSubQuery>(
 
 const QuerySchema = new Schema<DbQuerys>(
   {
+    title: { type: String, trim: true, default: "" },
     query: { type: String, required: true },
     instance: {
       type: Schema.Types.ObjectId,

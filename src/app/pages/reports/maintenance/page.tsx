@@ -1,5 +1,5 @@
 "use client";
-import "./page.module.css";
+import styles from "./page.module.css";
 import { useEffect, useState } from "react";
 import type { SubmitEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -40,6 +40,9 @@ const Maintenance = () => {
   const [optionsUser, setOptionsUser] = useState<MultiSelectOption[]>([]);
   const [instances, setInstances] = useState<Instance[]>([]);
   const [usersForReport, setUsersForReport] = useState<string[]>([]);
+  const [advancedSettingsByIndex, setAdvancedSettingsByIndex] = useState<
+    Record<number, boolean>
+  >({});
 
   const clientInstances = new IntancesReq(router);
   const clientUsers = new UsersReq(router);
@@ -77,6 +80,7 @@ const Maintenance = () => {
         tmpReport.directory = response.body.directory;
         response.body.querys.forEach((x) => {
           tmpReport.querys.push({
+            title: x.title ?? "",
             instance: x.instance?.toString() as string,
             query: x.query,
             sheetName: x.sheetName,
@@ -146,6 +150,7 @@ const Maintenance = () => {
       querys: [
         ...prev.querys,
         {
+          title: "",
           instance: "",
           query: "",
           sheetName: "",
@@ -292,6 +297,30 @@ const Maintenance = () => {
     });
   };
 
+  const onToggleAdvancedSettings = (queryIndex: number) => {
+    setAdvancedSettingsByIndex((prev) => ({
+      ...prev,
+      [queryIndex]: !prev[queryIndex],
+    }));
+  };
+
+  const onRemoveQuery = (queryIndex: number) => {
+    setReport((prev) => ({
+      ...prev,
+      querys: prev.querys.filter((_, i) => i !== queryIndex),
+    }));
+
+    setAdvancedSettingsByIndex((prev) => {
+      const next: Record<number, boolean> = {};
+      for (const [k, value] of Object.entries(prev)) {
+        const index = Number(k);
+        if (Number.isNaN(index) || index === queryIndex) continue;
+        next[index > queryIndex ? index - 1 : index] = value;
+      }
+      return next;
+    });
+  };
+
   return (
     <AppShell>
       <RoleGuard allowed={["ADMIN", "DEVELOPER", "REPORTS"]}>
@@ -381,6 +410,23 @@ const Maintenance = () => {
                         }}
                       />
                       <PersonalInput
+                        labelText={`Title ${index + 1}`}
+                        type="text"
+                        value={q.title ?? ""}
+                        isRequired={false}
+                        onChange={(value) => {
+                          setReport((prev) => {
+                            const copy = { ...prev };
+                            copy.querys = [...copy.querys];
+                            copy.querys[index] = {
+                              ...copy.querys[index],
+                              title: value,
+                            };
+                            return copy;
+                          });
+                        }}
+                      />
+                      <PersonalInput
                         labelText={`Query ${index + 1}`}
                         type="textarea"
                         value={q.query}
@@ -455,15 +501,27 @@ const Maintenance = () => {
                           type="button"
                           className="redButton"
                           callback={() => {
-                            setReport((prev) => ({
-                              ...prev,
-                              querys: prev.querys.filter((_, i) => i !== index),
-                            }));
+                            onRemoveQuery(index);
                           }}
                         />
                       </div>
-
-                      <div key={`subQuery_${index}`}>
+                      <a
+                        href="#"
+                        className={styles.advancedSettingsToggle}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          onToggleAdvancedSettings(index);
+                        }}
+                      >
+                        Advance settings
+                      </a>
+                      <div
+                        className={`${styles.subQueryContainer} ${
+                          advancedSettingsByIndex[index]
+                            ? styles.subQueryContainerOpen
+                            : ""
+                        }`}
+                      >
                         <h3>Sub Query</h3>
                         <PersonalInput
                           type="text"
@@ -481,7 +539,7 @@ const Maintenance = () => {
                                     innerBy: "",
                                   }),
                                   innerBy: value,
-                                  query: `@${value}`,
+                                  query: value ? `@${value}` : "",
                                 },
                               };
                               return copy;
