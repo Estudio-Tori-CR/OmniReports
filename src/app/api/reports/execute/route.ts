@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
 import { withRoles } from "../../middleware";
 import BaseResponse from "@/app/models/baseResponse";
@@ -9,13 +10,19 @@ const log: Logs = new Logs();
 
 export const POST = withRoles(
   ["ADMIN", "DEVELOPER", "REPORTS"],
-  async (req: Request) => {
+  async (req: Request, ctx: RouteContext<any>, user: string) => {
     let response: BaseResponse<string> = new BaseResponse<string>();
     try {
       const bll = new ReportsBll();
       const body: ExecuteReport = Object.assign(
         new ExecuteReport(),
         await req.json(),
+      );
+
+      log.Binnacle(
+        user,
+        body.id,
+        `${req.method} ${new URL(req.url).pathname}`,
       );
 
       response = await bll.ExecuteOne(body);

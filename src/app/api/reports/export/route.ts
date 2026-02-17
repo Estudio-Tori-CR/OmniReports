@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
 import { withRoles } from "../../middleware";
 import BaseResponse from "@/app/models/baseResponse";
@@ -7,17 +8,22 @@ import Logs from "../../utilities/Logs";
 
 const log: Logs = new Logs();
 
-export const POST = withRoles(["ADMIN", "DEVELOPER"], async (req: Request) => {
-  let response: BaseResponse<ExportReport> = new BaseResponse<ExportReport>();
-  try {
-    const bll: MainBll = new MainBll();
-    const body: ExportReport = await req.json();
-    response = await bll.ExportReport(body);
-  } catch (err) {
-    response.isSuccess = false;
-    response.message = "An unexpected error occurred while exporting the report.";
-    log.log(err as string, "error");
-  }
+export const POST = withRoles(
+  ["ADMIN", "DEVELOPER"],
+  async (req: Request, ctx: RouteContext<any>, user: string) => {
+    let response: BaseResponse<ExportReport> = new BaseResponse<ExportReport>();
+    try {
+      log.Binnacle(user, "", `${req.method} ${new URL(req.url).pathname}`);
+      const bll: MainBll = new MainBll();
+      const body: ExportReport = await req.json();
+      response = await bll.ExportReport(body);
+    } catch (err) {
+      response.isSuccess = false;
+      response.message =
+        "An unexpected error occurred while exporting the report.";
+      log.log(err as string, "error");
+    }
 
-  return NextResponse.json(response);
-});
+    return NextResponse.json(response);
+  },
+);

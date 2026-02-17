@@ -7,6 +7,7 @@ import AuthenticatorModel, { Authenticator } from "@/app/models/authenticator";
 import DirectoryReportsModel, {
   DirectoryReports,
 } from "@/app/models/directory";
+import BinnacleModel, { Binnacle } from "@/app/models/binnacle";
 
 class MainDal {
   private connection: ConnectionMongo;
@@ -125,6 +126,45 @@ class MainDal {
     return result;
   }
 
+  public async InsertBinnacle(body: Partial<Binnacle>) {
+    try {
+      const result = await this.connection.insert<Binnacle>(BinnacleModel, body);
+      return result;
+    } catch (err) {
+      const mongoErr = err as { code?: number; message?: string };
+      const isDuplicateKey = mongoErr.code === 11000;
+      const message = mongoErr.message ?? "";
+      const indexMatch = message.match(/index:\s+([^\s]+)\s+dup key/i);
+      let indexName = indexMatch?.[1] ?? "";
+      if (!indexName && message.includes("dup key: { query:")) {
+        indexName = "query_1";
+      } else if (!indexName && message.includes("dup key: { user:")) {
+        indexName = "user_1";
+      }
+      const legacyIndexes = new Set(["user_1", "query_1"]);
+
+      if (!isDuplicateKey || !legacyIndexes.has(indexName)) {
+        throw err;
+      }
+
+      try {
+        await BinnacleModel.collection.dropIndex(indexName);
+      } catch (dropErr) {
+        const dropMessage =
+          (dropErr as { message?: string })?.message?.toLowerCase() ?? "";
+        const indexNotFound =
+          dropMessage.includes("index not found") ||
+          dropMessage.includes("indexnotfound");
+        if (!indexNotFound) {
+          throw dropErr;
+        }
+      }
+
+      const result = await this.connection.insert<Binnacle>(BinnacleModel, body);
+      return result;
+    }
+  }
+
   public async InsertAuthenticator(body: Authenticator) {
     const result = await this.connection.insert<Authenticator>(
       AuthenticatorModel,
@@ -213,7 +253,7 @@ class MainDal {
 
   public async GetReportsByDirectory(directory: string) {
     const result = await this.connection.find<DBReport>(ReportModel, {
-      directory: { $regex: directory, $options: 'i' },
+      directory: { $regex: directory, $options: "i" },
     });
     return result;
   }
@@ -222,7 +262,7 @@ class MainDal {
     const result = await this.connection.find<DirectoryReports>(
       DirectoryReportsModel,
       {
-        path: { $regex: `^${parentPath}/`, $options: 'i' },
+        path: { $regex: `^${parentPath}/`, $options: "i" },
       },
     );
     return result;
