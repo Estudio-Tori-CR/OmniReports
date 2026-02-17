@@ -463,7 +463,7 @@ const Maintenance = () => {
                         />
                       </div>
 
-                      <div>
+                      <div key={`subQuery_${index}`}>
                         <h3>Sub Query</h3>
                         <PersonalInput
                           type="text"

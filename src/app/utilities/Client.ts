@@ -6,6 +6,7 @@ import Message from "../pages/components/popups";
 import { useRouter } from "next/navigation";
 
 class Client {
+  private static readonly REQUEST_TIMEOUT_MS = 20 * 60 * 1000;
   private message: Message;
   private router: ReturnType<typeof useRouter>;
 
@@ -44,6 +45,7 @@ class Client {
       const result: AxiosResponse = await axios.get(`/api/${query}`, {
         params: params,
         headers: await this.getAuthHeader(),
+        timeout: Client.REQUEST_TIMEOUT_MS,
       });
       const respose = result.data as BaseResponse<T>;
 
@@ -97,6 +99,7 @@ class Client {
       try {
         const result: AxiosResponse = await axios.post(`/api/${query}`, json, {
           headers: await this.getAuthHeader(),
+          timeout: Client.REQUEST_TIMEOUT_MS,
         });
         respose = result.data as BaseResponse<T1>;
       } catch {
@@ -154,6 +157,7 @@ class Client {
       try {
         const result: AxiosResponse = await axios.put(`/api/${query}`, json, {
           headers: await this.getAuthHeader(),
+          timeout: Client.REQUEST_TIMEOUT_MS,
         });
         respose = result.data as BaseResponse<T1>;
       } catch {
@@ -165,7 +169,8 @@ class Client {
         this.message.Toast({
           icon: "error",
           title:
-            respose.message || "Failed to update information. Please try again.",
+            respose.message ||
+            "Failed to update information. Please try again.",
         });
       }
 

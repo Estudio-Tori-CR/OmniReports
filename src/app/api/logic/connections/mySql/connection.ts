@@ -6,6 +6,8 @@ import mysql, {
   RowDataPacket,
 } from "mysql2/promise";
 
+const DB_TIMEOUT_MS = 20 * 60 * 1000;
+
 type QueryRows =
   | RowDataPacket[]
   | RowDataPacket[][]
@@ -52,6 +54,7 @@ export class MySqlConnection extends ConnectionMongo {
       database,
       user,
       password,
+      connectTimeout: DB_TIMEOUT_MS,
     };
   }
 
@@ -65,7 +68,10 @@ export class MySqlConnection extends ConnectionMongo {
 
     try {
       if (isCall) {
-        const [rows] = await conn.query<QueryRows>(query);
+        const [rows] = await conn.query<QueryRows>({
+          sql: query,
+          timeout: DB_TIMEOUT_MS,
+        });
         if (Array.isArray(rows)) {
           // If multiple result sets are returned (RowDataPacket[][]), return the first result set.
           if (rows.length > 0 && Array.isArray(rows[0])) {
@@ -78,7 +84,10 @@ export class MySqlConnection extends ConnectionMongo {
         return rows;
       }
 
-      const [rows] = await conn.execute<QueryRows>(query);
+      const [rows] = await conn.query<QueryRows>({
+        sql: query,
+        timeout: DB_TIMEOUT_MS,
+      });
       return rows;
     } finally {
       await conn.end();

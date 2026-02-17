@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import oracledb, { type ConnectionAttributes } from "oracledb";
 
+const DB_TIMEOUT_MS = 20 * 60 * 1000;
+
 export class OracleDbConnection {
   private connectionString: string;
 
@@ -59,6 +61,7 @@ export class OracleDbConnection {
   public async select(query: string): Promise<any[]> {
     const config = this.parseConnectionString();
     const conn = await oracledb.getConnection(config);
+    conn.callTimeout = DB_TIMEOUT_MS;
     try {
       const sql = query.trim().replace(/;$/, "");
 

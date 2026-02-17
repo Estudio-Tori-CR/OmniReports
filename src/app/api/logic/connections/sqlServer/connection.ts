@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import sql, { type config as SqlConfig } from "mssql";
 
+const DB_TIMEOUT_MS = 20 * 60 * 1000;
+
 export class SqlServerConnection{
   private connectionString: string;
 
@@ -48,6 +50,8 @@ export class SqlServerConnection{
       database,
       user,
       password,
+      connectionTimeout: DB_TIMEOUT_MS,
+      requestTimeout: DB_TIMEOUT_MS,
       ...(port ? { port } : {}),
       options: {
         encrypt,
