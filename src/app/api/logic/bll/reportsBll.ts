@@ -3,7 +3,11 @@ import { ExecuteReport } from "@/app/models/executeReport";
 import MainDal from "../dal/mainDal";
 import ReportsDal from "../dal/reportsDal";
 import Miselanius from "../../utilities/Miselanius";
-import { QueryToExecute, ResultToExcel } from "@/app/models/Report";
+import {
+  QueryToExecute,
+  ResultSubQuery,
+  ResultToExcel,
+} from "@/app/models/Report";
 import Encript from "../../utilities/Encript";
 import ExcelJS from "exceljs";
 import BaseResponse from "@/app/models/baseResponse";
@@ -113,6 +117,7 @@ class ReportsBll {
             instanceType: instance?.type as string,
             query: queryToExecute,
             sheetName: element.sheetName,
+            subQuery: q.subQuery,
           });
         }
       }
@@ -120,17 +125,75 @@ class ReportsBll {
       const results: ResultToExcel[] = [];
 
       try {
+        const toSqlLiteral = (value: unknown): string => {
+          if (value === null || value === undefined) return "NULL";
+          if (typeof value === "number" || typeof value === "bigint") {
+            return value.toString();
+          }
+          if (typeof value === "boolean") return value ? "1" : "0";
+          return `'${String(value).replaceAll("'", "''")}'`;
+        };
+
         for (const element of querysToExecute) {
           const result = await this.dal.Execute(
             element.connectionString,
             element.instanceType,
             element.query,
           );
+          const mainRows = (Array.isArray(result) ? result : []) as Record<
+            string,
+            unknown
+          >[];
 
-          results.push({
-            results: result ?? [],
-            sheetName: element.sheetName,
-          });
+          if (element.subQuery?.query) {
+            const resultWithSubQuery: ResultSubQuery[] = [];
+            const innerByName = element.subQuery.innerBy?.trim();
+
+            for (const row of mainRows) {
+              let subQueryRows: Record<string, unknown>[] = [];
+
+              if (innerByName && row[innerByName] !== undefined) {
+                const valueToReplace = toSqlLiteral(row[innerByName]);
+                const placeholder = `@${innerByName}`;
+                const subQueryText = element.subQuery.query.includes(
+                  placeholder,
+                )
+                  ? element.subQuery.query.replaceAll(
+                      placeholder,
+                      valueToReplace,
+                    )
+                  : element.subQuery.query.replaceAll(
+                      innerByName,
+                      valueToReplace,
+                    );
+
+                const subQueryResult = await this.dal.Execute(
+                  element.connectionString,
+                  element.instanceType,
+                  subQueryText,
+                );
+                subQueryRows = (
+                  Array.isArray(subQueryResult) ? subQueryResult : []
+                ) as Record<string, unknown>[];
+              }
+
+              resultWithSubQuery.push({
+                result: row,
+                subQuery: subQueryRows,
+              });
+            }
+
+            results.push({
+              results: resultWithSubQuery,
+              sheetName: element.sheetName,
+            });
+          } else {
+            results.push({
+              results: mainRows,
+              sheetName: element.sheetName,
+            });
+          }
+
         }
       } catch (execErr) {
         this.log.log(`Error executing queries: ${execErr}`, "error");
@@ -170,22 +233,98 @@ class ReportsBll {
   ): Promise<Uint8Array> => {
     const workbook = new ExcelJS.Workbook();
 
+    const isSubQueryRow = (row: unknown): row is ResultSubQuery => {
+      return !!row && typeof row === "object" && "result" in row && "subQuery" in row;
+    };
+
+    const toCellValue = (value: unknown): string | number | boolean | Date | null => {
+      if (value === null || value === undefined) return null;
+      if (
+        typeof value === "string" ||
+        typeof value === "number" ||
+        typeof value === "boolean" ||
+        value instanceof Date
+      ) {
+        return value;
+      }
+      return JSON.stringify(value);
+    };
+
+    const autoFitColumns = (sheet: ExcelJS.Worksheet) => {
+      const maxCol = sheet.columnCount;
+      for (let col = 1; col <= maxCol; col++) {
+        let width = 10;
+        sheet.eachRow({ includeEmpty: false }, (row) => {
+          const value = row.getCell(col).value;
+          const text = value === null || value === undefined ? "" : String(value);
+          width = Math.max(width, text.length + 2);
+        });
+        sheet.getColumn(col).width = Math.min(60, width);
+      }
+    };
+
     for (const element of sheets) {
       const sheet = workbook.addWorksheet(element.sheetName);
       const rows = element.results ?? [];
 
-      const columns = rows.length
-        ? Object.keys(((rows as any[])[0] ?? {}) as Record<string, any>)
-        : [];
+      if (!rows.length) continue;
 
-      sheet.columns = columns.map((key) => ({
-        header: key,
-        key,
-        width: Math.max(12, key.length + 2),
-      }));
+      const firstRow = rows[0];
+      if (!isSubQueryRow(firstRow)) {
+        const plainRows = rows as Record<string, unknown>[];
+        const columns = Object.keys((plainRows[0] ?? {}) as Record<string, unknown>);
 
-      sheet.addRows(rows);
-      if (rows.length) sheet.getRow(1).font = { bold: true };
+        sheet.columns = columns.map((key) => ({
+          header: key,
+          key,
+          width: Math.max(12, key.length + 2),
+        }));
+
+        sheet.addRows(plainRows);
+        sheet.getRow(1).font = { bold: true };
+        continue;
+      }
+
+      const rowsWithSubQuery = rows as ResultSubQuery[];
+      const masterColumns = Object.keys(rowsWithSubQuery[0]?.result ?? {});
+      let currentRow = 1;
+
+      if (masterColumns.length) {
+        sheet.getRow(currentRow).values = masterColumns;
+        sheet.getRow(currentRow).font = { bold: true };
+        currentRow++;
+      }
+
+      for (const item of rowsWithSubQuery) {
+        const masterValues = masterColumns.map((column) =>
+          toCellValue(item.result?.[column]),
+        );
+        sheet. getRow(currentRow).values = masterValues;
+        currentRow++;
+
+        const detailRows = item.subQuery ?? [];
+        if (detailRows.length) {
+          sheet.getCell(currentRow, 1).value = "Detail";
+          sheet.getRow(currentRow).font = { italic: true };
+          currentRow++;
+
+          const detailColumns = Object.keys(detailRows[0] ?? {});
+          sheet.getRow(currentRow).values = detailColumns;
+          sheet.getRow(currentRow).font = { bold: true };
+          currentRow++;
+
+          for (const detailRow of detailRows) {
+            sheet.getRow(currentRow).values = detailColumns.map((column) =>
+              toCellValue(detailRow[column]),
+            );
+            currentRow++;
+          }
+        }
+
+        currentRow++;
+      }
+
+      autoFitColumns(sheet);
     }
 
     const arrayBuffer = await workbook.xlsx.writeBuffer();

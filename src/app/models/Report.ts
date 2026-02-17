@@ -8,11 +8,17 @@ export class DbParameters {
   isRequired!: boolean;
 }
 
+export class DbSubQuery {
+  query!: string;
+  innerBy!: string;
+}
+
 export class DbQuerys {
   query!: string;
   instance!: Types.ObjectId | undefined | string;
   sheetName!: string;
   parameters!: DbParameters[];
+  subQuery!: DbSubQuery;
 }
 
 export class DBReport {
@@ -33,7 +39,12 @@ export type ParametersInt = {
   name: string;
   label: string;
   type: string;
-  isRequired: boolean
+  isRequired: boolean;
+};
+
+export type SubQueryInt = {
+  query: string;
+  innerBy: string;
 };
 
 export type QueryInt = {
@@ -41,6 +52,7 @@ export type QueryInt = {
   instance: string;
   sheetName: string;
   parameters: ParametersInt[];
+  subQuery: SubQueryInt;
 };
 
 export type ReportInt = {
@@ -55,11 +67,17 @@ export type QueryToExecute = {
   connectionString: string;
   instanceType: string;
   query: string;
+  subQuery: SubQueryInt;
   sheetName: string;
 };
 
+export type ResultSubQuery = {
+  result: Record<string, unknown>;
+  subQuery: Record<string, unknown>[];
+};
+
 export type ResultToExcel = {
-  results: [];
+  results: ResultSubQuery[] | Record<string, unknown>[];
   sheetName: string;
 };
 
@@ -79,6 +97,14 @@ const ParametersSchema = new Schema<DbParameters>(
   { _id: false },
 );
 
+const SubQuerySchema = new Schema<DbSubQuery>(
+  {
+    query: { type: String },
+    innerBy: { type: String },
+  },
+  { _id: false },
+);
+
 const QuerySchema = new Schema<DbQuerys>(
   {
     query: { type: String, required: true },
@@ -89,6 +115,7 @@ const QuerySchema = new Schema<DbQuerys>(
     },
     sheetName: { type: String, trim: true },
     parameters: { type: [ParametersSchema], default: [] },
+    subQuery: { type: SubQuerySchema, default: {} },
   },
   { _id: false },
 );

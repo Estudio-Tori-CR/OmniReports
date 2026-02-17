@@ -81,6 +81,7 @@ const Maintenance = () => {
             query: x.query,
             sheetName: x.sheetName,
             parameters: x.parameters,
+            subQuery: x.subQuery ?? { query: "", innerBy: "" },
           });
         });
 
@@ -144,7 +145,13 @@ const Maintenance = () => {
       ...prev,
       querys: [
         ...prev.querys,
-        { instance: "", query: "", sheetName: "", parameters: [] },
+        {
+          instance: "",
+          query: "",
+          sheetName: "",
+          parameters: [],
+          subQuery: { query: "", innerBy: "" },
+        },
       ],
     }));
   };
@@ -329,127 +336,183 @@ const Maintenance = () => {
               </ActionGuard>
               <div id="querys-container">
                 {report.querys.map((q, index) => (
-                  <div
-                    key={index}
-                    style={{
-                      marginBottom: "1rem",
-                      border: "1px solid #ddd",
-                      padding: "0.75rem",
-                      borderRadius: "8px",
-                    }}
-                  >
-                    <PersonalSelect
-                      labelText={`Instance ${index + 1}`}
-                      options={options}
-                      value={q.instance}
-                      isRequered={true}
-                      onChange={(value) => {
-                        setReport((prev) => {
-                          const copy = { ...prev };
-                          copy.querys = [...copy.querys];
-                          copy.querys[index] = {
-                            ...copy.querys[index],
-                            instance: value,
-                          };
-                          return copy;
-                        });
+                  <>
+                    <div
+                      key={index}
+                      style={{
+                        marginBottom: "1rem",
+                        border: "1px solid #ddd",
+                        padding: "0.75rem",
+                        borderRadius: "8px",
                       }}
-                    />
-                    <PersonalInput
-                      labelText={`Sheet Name ${index + 1}`}
-                      type="text"
-                      value={q.sheetName}
-                      isRequired={true}
-                      onChange={(value) => {
-                        setReport((prev) => {
-                          const copy = { ...prev };
-                          copy.querys = [...copy.querys];
-                          copy.querys[index] = {
-                            ...copy.querys[index],
-                            sheetName: value,
-                          };
-                          return copy;
-                        });
-                      }}
-                    />
-                    <PersonalInput
-                      labelText={`Query ${index + 1}`}
-                      type="textarea"
-                      value={q.query}
-                      isRequired={true}
-                      onChange={(value) => {
-                        setReport((prev) => {
-                          const copy = { ...prev };
-                          copy.querys = [...copy.querys];
-                          copy.querys[index] = {
-                            ...copy.querys[index],
-                            query: value,
-                          };
-                          return copy;
-                        });
-                      }}
-                    />
-                    <SortTable
-                      rows={report.querys[index].parameters.map((x) => {
-                        return {
-                          name: x.name,
-                          label: x.label,
-                          type: x.type,
-                          isRequired: x.isRequired ? "Yes" : "No",
-                        };
-                      })}
-                      columnsNames={
-                        ["Name", "Label", "Type", "Is Required"] as unknown as
-                          | null
-                          | undefined
-                      }
-                      buttons={
-                        [
-                          (row: string[]) => {
-                            return (
-                              <PersonalButton
-                                text="Delete"
-                                className="redButton"
-                                isPrimary={true}
-                                callback={() =>
-                                  onDeleteParameter(row[0], index)
-                                }
-                              />
-                            );
-                          },
-                          (row: string[]) => {
-                            return (
-                              <PersonalButton
-                                text="Edit"
-                                isPrimary={true}
-                                callback={() => onEditParameter(row[0], index)}
-                              />
-                            );
-                          },
-                        ] as unknown as null | undefined
-                      }
-                    />
-                    <div className="rightButtonsContainer">
-                      <PersonalButton
-                        text="Add Parameter"
-                        type="button"
-                        callback={() => {
-                          onAddParameter(index);
+                    >
+                      <PersonalSelect
+                        labelText={`Instance ${index + 1}`}
+                        options={options}
+                        value={q.instance}
+                        isRequered={true}
+                        onChange={(value) => {
+                          setReport((prev) => {
+                            const copy = { ...prev };
+                            copy.querys = [...copy.querys];
+                            copy.querys[index] = {
+                              ...copy.querys[index],
+                              instance: value,
+                            };
+                            return copy;
+                          });
                         }}
                       />
-                      <PersonalButton
-                        text="Remove"
-                        type="button"
-                        className="redButton"
-                        callback={() => {
-                          setReport((prev) => ({
-                            ...prev,
-                            querys: prev.querys.filter((_, i) => i !== index),
-                          }));
+                      <PersonalInput
+                        labelText={`Sheet Name ${index + 1}`}
+                        type="text"
+                        value={q.sheetName}
+                        isRequired={true}
+                        onChange={(value) => {
+                          setReport((prev) => {
+                            const copy = { ...prev };
+                            copy.querys = [...copy.querys];
+                            copy.querys[index] = {
+                              ...copy.querys[index],
+                              sheetName: value,
+                            };
+                            return copy;
+                          });
                         }}
                       />
+                      <PersonalInput
+                        labelText={`Query ${index + 1}`}
+                        type="textarea"
+                        value={q.query}
+                        isRequired={true}
+                        onChange={(value) => {
+                          setReport((prev) => {
+                            const copy = { ...prev };
+                            copy.querys = [...copy.querys];
+                            copy.querys[index] = {
+                              ...copy.querys[index],
+                              query: value,
+                            };
+                            return copy;
+                          });
+                        }}
+                      />
+                      <SortTable
+                        rows={report.querys[index].parameters.map((x) => {
+                          return {
+                            name: x.name,
+                            label: x.label,
+                            type: x.type,
+                            isRequired: x.isRequired ? "Yes" : "No",
+                          };
+                        })}
+                        columnsNames={
+                          [
+                            "Name",
+                            "Label",
+                            "Type",
+                            "Is Required",
+                          ] as unknown as null | undefined
+                        }
+                        buttons={
+                          [
+                            (row: string[]) => {
+                              return (
+                                <PersonalButton
+                                  text="Delete"
+                                  className="redButton"
+                                  isPrimary={true}
+                                  callback={() =>
+                                    onDeleteParameter(row[0], index)
+                                  }
+                                />
+                              );
+                            },
+                            (row: string[]) => {
+                              return (
+                                <PersonalButton
+                                  text="Edit"
+                                  isPrimary={true}
+                                  callback={() =>
+                                    onEditParameter(row[0], index)
+                                  }
+                                />
+                              );
+                            },
+                          ] as unknown as null | undefined
+                        }
+                      />
+                      <div className="rightButtonsContainer">
+                        <PersonalButton
+                          text="Add Parameter"
+                          type="button"
+                          callback={() => {
+                            onAddParameter(index);
+                          }}
+                        />
+                        <PersonalButton
+                          text="Remove"
+                          type="button"
+                          className="redButton"
+                          callback={() => {
+                            setReport((prev) => ({
+                              ...prev,
+                              querys: prev.querys.filter((_, i) => i !== index),
+                            }));
+                          }}
+                        />
+                      </div>
+
+                      <div>
+                        <h3>Sub Query</h3>
+                        <PersonalInput
+                          type="text"
+                          labelText="Inner By"
+                          value={q.subQuery?.innerBy ?? ""}
+                          onChange={(value) => {
+                            setReport((prev) => {
+                              const copy = { ...prev };
+                              copy.querys = [...copy.querys];
+                              copy.querys[index] = {
+                                ...copy.querys[index],
+                                subQuery: {
+                                  ...(copy.querys[index].subQuery ?? {
+                                    query: "",
+                                    innerBy: "",
+                                  }),
+                                  innerBy: value,
+                                  query: `@${value}`,
+                                },
+                              };
+                              return copy;
+                            });
+                          }}
+                        />
+                        <PersonalInput
+                          type="textarea"
+                          labelText="Sub Query"
+                          value={q.subQuery?.query ?? ""}
+                          onChange={(value) => {
+                            setReport((prev) => {
+                              const copy = { ...prev };
+                              copy.querys = [...copy.querys];
+                              copy.querys[index] = {
+                                ...copy.querys[index],
+                                subQuery: {
+                                  ...(copy.querys[index].subQuery ?? {
+                                    query: "",
+                                    innerBy: "",
+                                  }),
+                                  query: value,
+                                },
+                              };
+                              return copy;
+                            });
+                          }}
+                        />
+                      </div>
                     </div>
-                  </div>
+                  </>
                 ))}
               </div>
               <div className="rightButtonsContainer">

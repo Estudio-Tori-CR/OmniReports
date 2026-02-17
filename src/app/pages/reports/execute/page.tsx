@@ -53,6 +53,7 @@ const Maintenance = () => {
             query: x.query,
             sheetName: x.sheetName,
             parameters: x.parameters,
+            subQuery: x.subQuery,
           });
         });
 
