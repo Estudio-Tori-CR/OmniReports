@@ -240,12 +240,16 @@ class MainBll {
     return response;
   }
 
-  public async GetInstance(instanceId: string) {
+  public async GetInstance(instanceId: string, isAdmin: boolean = true) {
     const result = await this.dal.GetInstance(instanceId);
     const response = new BaseResponse<Instance>();
     response.isSuccess = true;
     if (result) {
-      result.connectionString = new Encript().decrypt(result.connectionString);
+      if (isAdmin) {
+        result.connectionString = new Encript().decrypt(
+          result.connectionString,
+        );
+      }
       response.message = "Instance loaded successfully.";
       response.body = result;
     } else if (instanceId !== "") {

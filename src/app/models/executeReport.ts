@@ -77,10 +77,24 @@ class QueryParams {
   }
 }
 
+export type ExecuteFileFormat = "xlsx" | "csv";
+
+export type ExecuteReportFile = {
+  fileName: string;
+  mimeType: string;
+  contentBase64: string;
+};
+
+export type ExecuteReportResult = {
+  files: ExecuteReportFile[];
+};
+
 class ExecuteReport {
   constructor() {
     this._id = "";
     this._queryParams = [];
+    this._singleSheet = false;
+    this._format = "xlsx";
   }
 
   private _id: string;
@@ -99,10 +113,28 @@ class ExecuteReport {
     this._queryParams = v;
   }
 
+  private _singleSheet: boolean;
+  public get singleSheet(): boolean {
+    return this._singleSheet;
+  }
+  public set singleSheet(v: boolean) {
+    this._singleSheet = v === true;
+  }
+
+  private _format: ExecuteFileFormat;
+  public get format(): ExecuteFileFormat {
+    return this._format;
+  }
+  public set format(v: string) {
+    this._format = v === "csv" ? "csv" : "xlsx";
+  }
+
   toJSON() {
     return {
       _id: this._id,
       queryParams: this.queryParams,
+      singleSheet: this.singleSheet,
+      format: this.format,
     };
   }
 }

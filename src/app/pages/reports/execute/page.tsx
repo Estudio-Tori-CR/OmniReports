@@ -118,7 +118,16 @@ const Maintenance = () => {
     const copy = Object.assign(new ExecuteReport(), executeReport);
     copy.id = reportId;
 
-    await client.Execute(copy, report.name);
+    const result = await message.ShowExportReport({
+      icon: "question",
+      title: "Export Way",
+    });
+
+    if (result) {
+      copy.singleSheet = result.oneSheet;
+      copy.format = result.exportType as string;
+      await client.Execute(copy, report.name);
+    }
   };
 
   return (

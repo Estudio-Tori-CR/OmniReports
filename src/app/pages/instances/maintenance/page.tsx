@@ -129,7 +129,9 @@ const Maintenance = () => {
                     />
                   </ActionGuard>
                 )}
-                <PersonalButton text="Submit" type="submit" />
+                <ActionGuard allowed={["ADMIN"]}>
+                  <PersonalButton text="Submit" type="submit" />
+                </ActionGuard>
                 <GoBack url="/pages/instances/index" />
               </div>
             </form>

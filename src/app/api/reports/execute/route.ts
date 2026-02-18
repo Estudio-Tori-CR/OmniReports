@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { withRoles } from "../../middleware";
 import BaseResponse from "@/app/models/baseResponse";
 import ReportsBll from "../../logic/bll/reportsBll";
-import { ExecuteReport } from "@/app/models/executeReport";
+import { ExecuteReport, ExecuteReportResult } from "@/app/models/executeReport";
 import Logs from "../../utilities/Logs";
 
 const log: Logs = new Logs();
@@ -11,7 +11,8 @@ const log: Logs = new Logs();
 export const POST = withRoles(
   ["ADMIN", "DEVELOPER", "REPORTS"],
   async (req: Request, ctx: RouteContext<any>, user: string) => {
-    let response: BaseResponse<string> = new BaseResponse<string>();
+    let response: BaseResponse<ExecuteReportResult> =
+      new BaseResponse<ExecuteReportResult>();
     try {
       const bll = new ReportsBll();
       const body: ExecuteReport = Object.assign(

@@ -1,7 +1,7 @@
 import BaseResponse from "@/app/models/baseResponse";
 import Client from "../../Client";
 import { DBReport, ExportReport, ReportInt } from "@/app/models/Report";
-import { ExecuteReport } from "@/app/models/executeReport";
+import { ExecuteReport, ExecuteReportResult } from "@/app/models/executeReport";
 import Miselanius from "@/app/utilities/Miselanius";
 import { useRouter } from "next/navigation";
 import { DirectoryReports } from "@/app/models/directory";
@@ -59,25 +59,37 @@ class ReportsReq {
   public async Execute(
     body: ExecuteReport,
     fileName: string,
-  ): Promise<BaseResponse<null>> {
-    const result = await this.client.Post<ExecuteReport, null>(
+  ): Promise<BaseResponse<ExecuteReportResult>> {
+    const result = await this.client.Post<ExecuteReport, ExecuteReportResult>(
       `reports/execute`,
       body,
     );
 
-    if (result && result.isSuccess && result.body) {
-      const blob = new Miselanius().base64ToBlob(
-        result.body,
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      );
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = fileName ?? "reporte.xlsx";
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      window.URL.revokeObjectURL(url);
+    if (result && result.isSuccess && result.body?.files?.length) {
+      const files = result.body.files;
+      const defaultBaseName = (fileName ?? "reporte").trim() || "reporte";
+
+      for (let index = 0; index < files.length; index++) {
+        const currentFile = files[index];
+        const blob = new Miselanius().base64ToBlob(
+          currentFile.contentBase64,
+          currentFile.mimeType,
+        );
+
+        const url = window.URL.createObjectURL(blob);
+        const downloadName =
+          body.format === "xlsx" && files.length === 1
+            ? `${defaultBaseName}.xlsx`
+            : currentFile.fileName || `${defaultBaseName}_${index + 1}.csv`;
+
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = downloadName;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.setTimeout(() => window.URL.revokeObjectURL(url), 15_000);
+      }
     }
 
     return result;
@@ -139,3 +151,4 @@ class ReportsReq {
 }
 
 export default ReportsReq;
+

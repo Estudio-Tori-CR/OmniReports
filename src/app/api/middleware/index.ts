@@ -1,4 +1,4 @@
-import { jwtVerify } from "jose";
+import { JWTPayload, jwtVerify } from "jose";
 import { NextRequest, NextResponse } from "next/server";
 import type { Role } from "@/app/interfaces/Roles";
 import Logs from "../utilities/Logs";
@@ -21,6 +21,7 @@ type RouteContext = {
 type Handler = (
   req: NextRequest,
   ctx: RouteContext,
+  payload: JWTPayload,
 ) => Promise<Response> | Response;
 
 export function withRoles(allowed: Role[], handler: Handler): Handler {
@@ -68,7 +69,7 @@ export function withRoles(allowed: Role[], handler: Handler): Handler {
         // ignore binnacle errors in auth middleware
       }
 
-      return handler(req, ctx);
+      return handler(req, ctx, payload);
     } catch {
       return NextResponse.json({ error: "Invalid token" }, { status: 403 });
     }

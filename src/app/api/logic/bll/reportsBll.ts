@@ -1,5 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { ExecuteReport } from "@/app/models/executeReport";
+import {
+  ExecuteReport,
+  ExecuteReportFile,
+  ExecuteReportResult,
+} from "@/app/models/executeReport";
 import MainDal from "../dal/mainDal";
 import ReportsDal from "../dal/reportsDal";
 import Miselanius from "../../utilities/Miselanius";
@@ -24,8 +28,8 @@ class ReportsBll {
 
   public async ExecuteOne(
     execute: ExecuteReport,
-  ): Promise<BaseResponse<string>> {
-    const response = new BaseResponse<string>();
+  ): Promise<BaseResponse<ExecuteReportResult>> {
+    const response = new BaseResponse<ExecuteReportResult>();
     const mainDal = new MainDal();
     const utilities = new Miselanius();
     const encript = new Encript();
@@ -196,7 +200,6 @@ class ReportsBll {
               sheetName: element.sheetName,
             });
           }
-
         }
       } catch (execErr) {
         this.log.log(`Error executing queries: ${execErr}`, "error");
@@ -207,10 +210,14 @@ class ReportsBll {
       }
 
       try {
-        const bytes = await this.ExportToExcel(results);
+        const files = await this.ExportToExcel(
+          results,
+          execute.singleSheet,
+          execute.format,
+        );
         response.isSuccess = true;
         response.message = "Report executed successfully.";
-        response.body = Buffer.from(bytes).toString("base64");
+        response.body = { files };
       } catch (excelErr) {
         this.log.log(`Error exporting to Excel: ${excelErr}`, "error");
         response.isSuccess = false;
@@ -233,14 +240,18 @@ class ReportsBll {
 
   private ExportToExcel = async (
     sheets: ResultToExcel[],
-  ): Promise<Uint8Array> => {
-    const workbook = new ExcelJS.Workbook();
-
+    singleSheet = false,
+    exportType = "xlsx",
+  ): Promise<ExecuteReportFile[]> => {
     const isSubQueryRow = (row: unknown): row is ResultSubQuery => {
-      return !!row && typeof row === "object" && "result" in row && "subQuery" in row;
+      return (
+        !!row && typeof row === "object" && "result" in row && "subQuery" in row
+      );
     };
 
-    const toCellValue = (value: unknown): string | number | boolean | Date | null => {
+    const toCellValue = (
+      value: unknown,
+    ): string | number | boolean | Date | null => {
       if (value === null || value === undefined) return null;
       if (
         typeof value === "string" ||
@@ -259,7 +270,8 @@ class ReportsBll {
         let width = 10;
         sheet.eachRow({ includeEmpty: false }, (row) => {
           const value = row.getCell(col).value;
-          const text = value === null || value === undefined ? "" : String(value);
+          const text =
+            value === null || value === undefined ? "" : String(value);
           width = Math.max(width, text.length + 2);
         });
         sheet.getColumn(col).width = Math.min(60, width);
@@ -285,18 +297,29 @@ class ReportsBll {
       return rowNumber + 1;
     };
 
-    for (const element of sheets) {
-      const sheet = workbook.addWorksheet(element.sheetName);
+    const writeResultBlock = (
+      sheet: ExcelJS.Worksheet,
+      element: ResultToExcel,
+      startRow: number,
+    ): number => {
       const rows = element.results ?? [];
+      let currentRow = startRow;
 
-      if (!rows.length) continue;
+      if (!rows.length) return currentRow;
 
       const firstRow = rows[0];
       if (!isSubQueryRow(firstRow)) {
         const plainRows = rows as Record<string, unknown>[];
-        const columns = Object.keys((plainRows[0] ?? {}) as Record<string, unknown>);
+        const columns = Object.keys(
+          (plainRows[0] ?? {}) as Record<string, unknown>,
+        );
 
-        let currentRow = writeTitleRow(sheet, element.title, columns.length, 1);
+        currentRow = writeTitleRow(
+          sheet,
+          element.title,
+          columns.length,
+          currentRow,
+        );
         if (columns.length) {
           sheet.getRow(currentRow).values = columns;
           sheet.getRow(currentRow).font = { bold: true };
@@ -310,13 +333,17 @@ class ReportsBll {
           currentRow++;
         }
 
-        autoFitColumns(sheet);
-        continue;
+        return currentRow + 1;
       }
 
       const rowsWithSubQuery = rows as ResultSubQuery[];
       const masterColumns = Object.keys(rowsWithSubQuery[0]?.result ?? {});
-      let currentRow = writeTitleRow(sheet, element.title, masterColumns.length, 1);
+      currentRow = writeTitleRow(
+        sheet,
+        element.title,
+        masterColumns.length,
+        currentRow,
+      );
 
       if (masterColumns.length) {
         sheet.getRow(currentRow).values = masterColumns;
@@ -353,11 +380,77 @@ class ReportsBll {
         currentRow++;
       }
 
-      autoFitColumns(sheet);
+      return currentRow + 1;
+    };
+
+    const toSafeFileName = (name: string, fallback: string): string => {
+      const clean = name
+        .trim()
+        .replace(/[\\/:*?"<>|]/g, "_")
+        .replace(/\s+/g, " ");
+      return clean || fallback;
+    };
+
+    if (exportType === "csv") {
+      const files: ExecuteReportFile[] = [];
+      const usedNames = new Map<string, number>();
+
+      for (let i = 0; i < sheets.length; i++) {
+        const element = sheets[i];
+        const workbook = new ExcelJS.Workbook();
+        const sheetName = element.sheetName?.trim() || `sheet_${i + 1}`;
+        const sheet = workbook.addWorksheet(sheetName);
+        writeResultBlock(sheet, element, 1);
+        autoFitColumns(sheet);
+
+        const arrayBuffer = await workbook.csv.writeBuffer();
+        const csvBytes = new Uint8Array(arrayBuffer);
+        const csvWithBom = Buffer.concat([
+          Buffer.from([0xef, 0xbb, 0xbf]),
+          Buffer.from(csvBytes),
+        ]);
+        const baseName = toSafeFileName(sheetName, `sheet_${i + 1}`);
+        const count = (usedNames.get(baseName) ?? 0) + 1;
+        usedNames.set(baseName, count);
+        const uniqueName = count > 1 ? `${baseName}_${count}` : baseName;
+
+        files.push({
+          fileName: `${uniqueName}.csv`,
+          mimeType: "text/csv;charset=utf-8",
+          contentBase64: csvWithBom.toString("base64"),
+        });
+      }
+
+      return files;
+    }
+
+    const workbook = new ExcelJS.Workbook();
+    if (singleSheet) {
+      const groupedSheet = workbook.addWorksheet("Report");
+      let currentRow = 1;
+      for (const element of sheets) {
+        currentRow = writeResultBlock(groupedSheet, element, currentRow);
+      }
+      autoFitColumns(groupedSheet);
+    } else {
+      for (const element of sheets) {
+        const sheet = workbook.addWorksheet(element.sheetName);
+        writeResultBlock(sheet, element, 1);
+        autoFitColumns(sheet);
+      }
     }
 
     const arrayBuffer = await workbook.xlsx.writeBuffer();
-    return new Uint8Array(arrayBuffer);
+    return [
+      {
+        fileName: "report.xlsx",
+        mimeType:
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        contentBase64: Buffer.from(new Uint8Array(arrayBuffer)).toString(
+          "base64",
+        ),
+      },
+    ];
   };
 }
 

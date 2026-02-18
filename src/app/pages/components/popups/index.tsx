@@ -11,6 +11,11 @@ interface ToastOptions {
   title: string;
 }
 
+type ExportReportOptions = {
+  oneSheet: boolean;
+  exportType: "xlsx" | "csv" | null;
+};
+
 interface AlertOptions {
   icon: IconType;
   title: string;
@@ -298,6 +303,73 @@ class Message {
     });
 
     return (result.value ?? null) as DirectoryFormValue | null;
+  }
+
+  async ShowExportReport(opts: ToastOptions): Promise<ExportReportOptions> {
+    let oneSheet = false;
+
+    const result = await Swal.fire({
+      title: opts.title,
+      showCancelButton: true,
+      allowEscapeKey: false,
+      allowOutsideClick: false,
+      confirmButtonText: "Excel",
+      cancelButtonText: "CSV",
+      confirmButtonColor: "var(--primary-color)",
+      cancelButtonColor: "var(--secondary-color)",
+      focusConfirm: false,
+
+      // HTML puro
+      html: `
+      <div style="display:flex; gap:10px; text-align:center;">
+        <input type="checkbox" id="swal-one-sheet" />
+        <label for="swal-one-sheet" style="font-size:12px;">Export on Sheet</label>
+      </div>
+    `,
+
+      didOpen: () => {
+        document.body.classList.remove("swal2-height-auto");
+
+        const oneSheetInput = document.getElementById(
+          "swal-one-sheet",
+        ) as HTMLInputElement | null;
+
+        oneSheet = oneSheetInput?.checked === true;
+        oneSheetInput?.addEventListener("change", () => {
+          oneSheet = oneSheetInput.checked;
+        });
+      },
+
+      preConfirm: async () => {
+        const oneSheetInput = document.getElementById(
+          "swal-one-sheet",
+        ) as HTMLInputElement | null;
+        oneSheet = oneSheetInput?.checked === true;
+        return {
+          oneSheet,
+          exportType: "xlsx",
+        };
+      },
+    });
+
+    if (result.isConfirmed) {
+      return {
+        oneSheet: result.value?.oneSheet === true,
+        exportType: "xlsx",
+      };
+    }
+
+    if (result.dismiss === Swal.DismissReason.cancel) {
+      return {
+        oneSheet,
+        exportType: "csv",
+      };
+    }
+
+    return {
+      oneSheet: false,
+      exportType: null,
+    };
   }
 }
 
