@@ -4,6 +4,7 @@ import type { Role } from "@/app/interfaces/Roles";
 import Logs from "../utilities/Logs";
 
 const secret = new TextEncoder().encode(process.env.JWT_SECRET!);
+const JWT_NAME = "session";
 
 export type SessionPayload = {
   sub: string;
@@ -35,11 +36,14 @@ export function withRoles(
 ): RouteHandler {
   return async (req: NextRequest, ctx: RouteContext) => {
     const auth = req.headers.get("authorization");
-    if (!auth || !auth.startsWith("Bearer ")) {
+    const bearerToken =
+      auth && auth.startsWith("Bearer ") ? auth.split(" ")[1] : "";
+    const cookieToken = req.cookies.get(JWT_NAME)?.value ?? "";
+    const token = bearerToken || cookieToken;
+
+    if (!token) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-
-    const token = auth.split(" ")[1];
 
     try {
       const { payload } = await jwtVerify(token, secret);

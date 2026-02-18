@@ -9,13 +9,13 @@ const JWT_SECRET = process.env.JWT_SECRET!;
 const secretKey = new TextEncoder().encode(JWT_SECRET);
 
 const EXPIRES_SECONDS = parseInt(process.env.EXPIRES_SECONDS as string); // 8 horas
+const IS_PRODUCTION = process.env.NODE_ENV === "production";
 
 const log: Logs = new Logs();
 
 export const POST = async (req: Request) => {
   const response: BaseResponse<null> = new BaseResponse<null>();
   try {
-    debugger;
     const { username, password } = await req.json();
 
     if (
@@ -38,8 +38,8 @@ export const POST = async (req: Request) => {
       // respuesta + cookie
       const res = NextResponse.json(response, { status: 200 });
       res.cookies.set(JWT_NAME, token, {
-        httpOnly: false,
-        secure: false,
+        httpOnly: true,
+        secure: IS_PRODUCTION,
         sameSite: "lax",
         path: "/",
         maxAge: EXPIRES_SECONDS,
