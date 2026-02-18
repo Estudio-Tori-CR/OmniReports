@@ -7,7 +7,7 @@ import PersonalInput from "../../components/input";
 import PersonalButton from "../../components/button";
 import RoleGuard from "../../components/RolGuard";
 import Message from "../../components/popups";
-import { ReportInt } from "@/app/models/Report";
+import { FormulaInt, ReportInt } from "@/app/models/Report";
 import ReportsReq from "@/app/utilities/requests/reports/requests";
 import {
   ExecuteReport,
@@ -63,6 +63,7 @@ const Maintenance = () => {
           tmpReport.querys.forEach((x) => {
             const queryParams = new QueryParams();
             queryParams.sheetName = x.sheetName;
+            queryParams.formulas = x.formulas as FormulaInt[];
             queryParams.parameters = x.parameters.map((y) => {
               const param = new ParametersReport();
               param.name = y.name;

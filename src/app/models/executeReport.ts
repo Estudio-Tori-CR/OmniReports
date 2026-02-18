@@ -1,3 +1,5 @@
+import { FormulaInt } from "./Report";
+
 class ParametersReport {
   constructor() {
     this._type = "";
@@ -52,6 +54,7 @@ class QueryParams {
   constructor() {
     this._sheetName = "";
     this._parameters = [];
+    this._formulas = [];
   }
   private _sheetName: string;
   public get sheetName(): string {
@@ -69,10 +72,19 @@ class QueryParams {
     this._parameters = v;
   }
 
+  private _formulas: FormulaInt[];
+  public get formulas(): FormulaInt[] {
+    return this._formulas;
+  }
+  public set formulas(v: FormulaInt[]) {
+    this._formulas = v;
+  }
+
   toJSON() {
     return {
       sheetName: this.sheetName,
       parameters: this.parameters,
+      formulas: this.formulas,
     };
   }
 }

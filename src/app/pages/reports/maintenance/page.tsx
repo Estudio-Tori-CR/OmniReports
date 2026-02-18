@@ -86,6 +86,7 @@ const Maintenance = () => {
             sheetName: x.sheetName,
             parameters: x.parameters,
             subQuery: x.subQuery ?? { query: "", innerBy: "" },
+            formulas: x.formulas ?? [],
           });
         });
 
@@ -156,6 +157,7 @@ const Maintenance = () => {
           sheetName: "",
           parameters: [],
           subQuery: { query: "", innerBy: "" },
+          formulas: [],
         },
       ],
     }));
@@ -319,6 +321,60 @@ const Maintenance = () => {
       }
       return next;
     });
+  };
+
+  const onAddFormula = (queryIndex: number) => {
+    setReport((prev) => ({
+      ...prev,
+      querys: prev.querys.map((item, i) =>
+        i === queryIndex
+          ? {
+              ...item,
+              formulas: [
+                ...(item.formulas ?? []),
+                { column: "", row: "", formula: "" },
+              ],
+            }
+          : item,
+      ),
+    }));
+  };
+
+  const onChangeFormula = (
+    queryIndex: number,
+    formulaIndex: number,
+    field: "column" | "row" | "formula",
+    value: string,
+  ) => {
+    setReport((prev) => ({
+      ...prev,
+      querys: prev.querys.map((item, i) =>
+        i === queryIndex
+          ? {
+              ...item,
+              formulas: (item.formulas ?? []).map((formula, idx) =>
+                idx === formulaIndex ? { ...formula, [field]: value } : formula,
+              ),
+            }
+          : item,
+      ),
+    }));
+  };
+
+  const onRemoveFormula = (queryIndex: number, formulaIndex: number) => {
+    setReport((prev) => ({
+      ...prev,
+      querys: prev.querys.map((item, i) =>
+        i === queryIndex
+          ? {
+              ...item,
+              formulas: (item.formulas ?? []).filter(
+                (_, idx) => idx !== formulaIndex,
+              ),
+            }
+          : item,
+      ),
+    }));
   };
 
   return (
@@ -568,6 +624,74 @@ const Maintenance = () => {
                             });
                           }}
                         />
+                        <PersonalButton
+                          text="Add Formula"
+                          type="button"
+                          callback={() => onAddFormula(index)}
+                        />
+                        {(q.formulas ?? []).map((formula, formulaIndex) => (
+                          <div
+                            key={`formula-${index}-${formulaIndex}`}
+                            style={{
+                              marginTop: "0.75rem",
+                              border: "1px solid #ddd",
+                              borderRadius: "8px",
+                              padding: "0.5rem",
+                            }}
+                          >
+                            <div style={{ display: "flex", gap: "1rem" }}>
+                              <PersonalInput
+                                type="text"
+                                labelText="Column"
+                                value={formula.column}
+                                onChange={(value) =>
+                                  onChangeFormula(
+                                    index,
+                                    formulaIndex,
+                                    "column",
+                                    value,
+                                  )
+                                }
+                              />
+                              <PersonalInput
+                                type="text"
+                                labelText="Row"
+                                value={formula.row}
+                                onChange={(value) =>
+                                  onChangeFormula(
+                                    index,
+                                    formulaIndex,
+                                    "row",
+                                    value,
+                                  )
+                                }
+                              />
+                            </div>
+                            <PersonalInput
+                              type="text"
+                              labelText="Formula"
+                              value={formula.formula}
+                              onChange={(value) =>
+                                onChangeFormula(
+                                  index,
+                                  formulaIndex,
+                                  "formula",
+                                  value,
+                                )
+                              }
+                            />
+                            <div className="rightButtonsContainer">
+                              <PersonalButton
+                                text="Remove Formula"
+                                type="button"
+                                className="redButton"
+                                callback={() =>
+                                  onRemoveFormula(index, formulaIndex)
+                                }
+                              />
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     </div>
                   </>

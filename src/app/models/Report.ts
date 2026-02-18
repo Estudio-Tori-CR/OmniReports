@@ -13,6 +13,12 @@ export class DbSubQuery {
   innerBy!: string;
 }
 
+export class DbFormula {
+  column!: string;
+  row!: string;
+  formula!: string;
+}
+
 export class DbQuerys {
   title?: string;
   query!: string;
@@ -20,6 +26,7 @@ export class DbQuerys {
   sheetName!: string;
   parameters!: DbParameters[];
   subQuery!: DbSubQuery;
+  formulas?: DbFormula[];
 }
 
 export class DBReport {
@@ -48,6 +55,12 @@ export type SubQueryInt = {
   innerBy: string;
 };
 
+export type FormulaInt = {
+  column: string;
+  row: string;
+  formula: string;
+};
+
 export type QueryInt = {
   title?: string;
   query: string;
@@ -55,6 +68,7 @@ export type QueryInt = {
   sheetName: string;
   parameters: ParametersInt[];
   subQuery: SubQueryInt;
+  formulas?: FormulaInt[];
 };
 
 export type ReportInt = {
@@ -72,6 +86,7 @@ export type QueryToExecute = {
   query: string;
   subQuery: SubQueryInt;
   sheetName: string;
+  formulas: DbFormula[];
 };
 
 export type ResultSubQuery = {
@@ -83,6 +98,7 @@ export type ResultToExcel = {
   title?: string;
   results: ResultSubQuery[] | Record<string, unknown>[];
   sheetName: string;
+  formulas: FormulaInt[];
 };
 
 export type ExportReport = {
@@ -109,6 +125,15 @@ const SubQuerySchema = new Schema<DbSubQuery>(
   { _id: false },
 );
 
+const FormulaSchema = new Schema<DbFormula>(
+  {
+    column: { type: String, trim: true, default: "" },
+    row: { type: String, trim: true, default: "" },
+    formula: { type: String, trim: true, default: "" },
+  },
+  { _id: false },
+);
+
 const QuerySchema = new Schema<DbQuerys>(
   {
     title: { type: String, trim: true, default: "" },
@@ -121,6 +146,7 @@ const QuerySchema = new Schema<DbQuerys>(
     sheetName: { type: String, trim: true },
     parameters: { type: [ParametersSchema], default: [] },
     subQuery: { type: SubQuerySchema, default: {} },
+    formulas: { type: [FormulaSchema], default: [] },
   },
   { _id: false },
 );

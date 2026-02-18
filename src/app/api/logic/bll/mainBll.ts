@@ -261,6 +261,7 @@ class MainBll {
   }
 
   public async InsertReport(body: DBReport) {
+    debugger;
     const response = new BaseResponse<string>();
     const sqlScan = new SqlScan();
     for (const item of body.querys) {

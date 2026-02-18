@@ -8,6 +8,7 @@ import MainDal from "../dal/mainDal";
 import ReportsDal from "../dal/reportsDal";
 import Miselanius from "../../utilities/Miselanius";
 import {
+  DbFormula,
   QueryToExecute,
   ResultSubQuery,
   ResultToExcel,
@@ -123,6 +124,7 @@ class ReportsBll {
             query: queryToExecute,
             sheetName: element.sheetName,
             subQuery: q.subQuery,
+            formulas: q.formulas as DbFormula[],
           });
         }
       }
@@ -192,12 +194,14 @@ class ReportsBll {
               title: element.title,
               results: resultWithSubQuery,
               sheetName: element.sheetName,
+              formulas: element.formulas,
             });
           } else {
             results.push({
               title: element.title,
               results: mainRows,
               sheetName: element.sheetName,
+              formulas: element.formulas,
             });
           }
         }
@@ -243,10 +247,22 @@ class ReportsBll {
     singleSheet = false,
     exportType = "xlsx",
   ): Promise<ExecuteReportFile[]> => {
+    debugger;
     const isSubQueryRow = (row: unknown): row is ResultSubQuery => {
       return (
         !!row && typeof row === "object" && "result" in row && "subQuery" in row
       );
+    };
+
+    const setFormula = (
+      sheet: ExcelJS.Worksheet,
+      colum: string,
+      row: string,
+      value: string,
+    ) => {
+      sheet.getCell(`${colum}${row}`).value = {
+        formula: value,
+      };
     };
 
     const toCellValue = (
@@ -430,12 +446,23 @@ class ReportsBll {
       let currentRow = 1;
       for (const element of sheets) {
         currentRow = writeResultBlock(groupedSheet, element, currentRow);
+        for (const formula of element.formulas) {
+          setFormula(
+            groupedSheet,
+            formula.column,
+            formula.row,
+            formula.formula,
+          );
+        }
       }
       autoFitColumns(groupedSheet);
     } else {
       for (const element of sheets) {
         const sheet = workbook.addWorksheet(element.sheetName);
         writeResultBlock(sheet, element, 1);
+        for (const formula of element.formulas) {
+          setFormula(sheet, formula.column, formula.row, formula.formula);
+        }
         autoFitColumns(sheet);
       }
     }
