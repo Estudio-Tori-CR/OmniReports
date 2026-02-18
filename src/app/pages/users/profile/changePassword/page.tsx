@@ -108,13 +108,13 @@ const ChangePassword = () => {
   return (
     <RoleGuard allowed={["ADMIN", "DEVELOPER", "REPORTS"]}>
       <AppShell>
-        <div className="container">
-          <div className="center-container">
-            <div className="form-title">
+        <div className={`container ${style.pageContainer}`}>
+          <div className={`center-container ${style.pageCard}`}>
+            <div className={`form-title ${style.formTitle}`}>
               <h1>Change Password</h1>
               <p>Change your password</p>
             </div>
-            <form onSubmit={onSubmit}>
+            <form onSubmit={onSubmit} className={style.formContent}>
               <PersonalInput
                 labelText="Current Password"
                 type="password"
@@ -168,11 +168,11 @@ const ChangePassword = () => {
                 }
               />
               {password.newPassworad !== password.verifyPassword && (
-                <p style={{ color: "var(--red)", marginTop: "-1rem" }}>
+                <p className={style.passwordMismatch}>
                   Your password does not match
                 </p>
               )}
-              <div className="rightButtonsContainer">
+              <div className={`rightButtonsContainer ${style.actions}`}>
                 <PersonalButton text="Submit" type="submit" />
                 <GoBack url="/pages/users/profile" />
               </div>

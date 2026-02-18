@@ -1,10 +1,162 @@
+.maintenanceContainer {
+  padding: 1.25rem;
+}
+
+.maintenanceCard {
+  width: 100%;
+  margin: 0 auto;
+  border: 1px solid #d7e2ea;
+  background: linear-gradient(180deg, #f7fbff 0%, #ffffff 220px), #ffffff;
+  box-shadow:
+    0 22px 48px rgba(13, 39, 72, 0.16),
+    0 6px 16px rgba(13, 39, 72, 0.08);
+}
+
+.formTitle {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.queryCounter {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: #e8f4ff;
+  color: #0b4f7f;
+  border: 1px solid #b7d7ef;
+  border-radius: 999px;
+  padding: 0.24rem 0.7rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.maintenanceForm {
+  display: grid;
+  gap: 1rem;
+}
+
+.topRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.topMainInput {
+  flex: 1 1 420px;
+  min-width: 260px;
+}
+
+.topAction {
+  padding-top: 1.6rem;
+}
+
+.compactButton {
+  width: auto !important;
+  min-width: 9.2rem;
+  margin: 0 !important;
+}
+
+.metaBlock {
+  border: 1px solid #e1e8ee;
+  border-radius: 12px;
+  padding: 1rem;
+  background: #fbfdff;
+}
+
+.querysContainer {
+  display: grid;
+  gap: 1rem;
+}
+
+.emptyState {
+  border: 2px dashed #c7d5e2;
+  border-radius: 12px;
+  padding: 1.2rem;
+  text-align: center;
+  background: #f8fbff;
+  color: #4d6275;
+}
+
+.emptyState > h3 {
+  margin-bottom: 0.35rem;
+  color: #20374d;
+}
+
+.queryCard {
+  border: 1px solid #d7e2ea;
+  border-radius: 12px;
+  padding: 1rem;
+  background: #ffffff;
+  box-shadow:
+    0 8px 20px rgba(17, 48, 82, 0.05),
+    0 2px 6px rgba(17, 48, 82, 0.04);
+}
+
+.queryHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.35rem;
+}
+
+.queryHeader > h3 {
+  color: var(--primary-color);
+}
+
+.queryBadge {
+  background: #0b3b60;
+  color: #f2f8ff;
+  border-radius: 999px;
+  padding: 0.2rem 0.6rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.queryGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.tableContainer {
+  border: 1px solid #e0e8ef;
+  border-radius: 10px;
+  padding: 0.5rem 0.7rem 1rem;
+  margin-bottom: 1rem;
+  background: #fcfdff;
+  overflow-x: auto;
+}
+
+.queryActions {
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
 .advancedSettingsToggle {
-  display: inline-block;
-  margin-top: 0.5rem;
-  color: #0d6efd;
+  display: inline-flex;
+  align-items: center;
+  margin-top: 0.4rem;
+  border: 1px solid #bfd4e4;
+  border-radius: 999px;
+  padding: 0.34rem 0.8rem;
+  background: #f0f8ff;
+  color: #0e5385;
   cursor: pointer;
-  text-decoration: underline;
   user-select: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.advancedSettingsToggle:hover {
+  background: #e3f1ff;
+  border-color: #9fc2db;
 }
 
 .subQueryContainer {
@@ -16,13 +168,77 @@
     max-height 0.35s ease,
     opacity 0.25s ease,
     transform 0.25s ease,
-    margin-top 0.25s ease;
+    margin-top 0.25s ease,
+    padding-top 0.25s ease;
   margin-top: 0;
+  border-top: 1px dashed transparent;
 }
 
 .subQueryContainerOpen {
-  max-height: 1000px;
+  max-height: 1200px;
   opacity: 1;
   transform: translateY(0);
+  margin-top: 0.8rem;
+  padding-top: 0.8rem;
+  border-top-color: #d8e3ec;
+}
+
+.subQueryContainer > h4 {
+  margin-bottom: 0.8rem;
+  color: #123f62;
+}
+
+.formulaCard {
   margin-top: 0.75rem;
+  border: 1px solid #d7e2ea;
+  border-radius: 10px;
+  padding: 0.75rem;
+  background: #ffffff;
+}
+
+.formulaGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.mainActions {
+  margin-top: 0.4rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e0e8ef;
+}
+
+@media (max-width: 900px) {
+  .maintenanceContainer {
+    padding: 0.9rem;
+  }
+
+  .queryCounter {
+    position: static;
+    width: fit-content;
+    margin-top: 0.4rem;
+  }
+
+  .topAction {
+    padding-top: 0;
+  }
+
+  .queryGrid,
+  .formulaGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .maintenanceContainer {
+    padding: 0.5rem;
+  }
+
+  .compactButton {
+    width: 100% !important;
+  }
+
+  .queryActions {
+    justify-content: stretch;
+  }
 }

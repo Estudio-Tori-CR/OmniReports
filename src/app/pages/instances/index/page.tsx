@@ -1,5 +1,5 @@
 "use client";
-import "./page.module.css";
+import style from "./page.module.css";
 import { useEffect, useState } from "react";
 import AppShell from "../../components/sidebar";
 import RoleGuard from "../../components/RolGuard";
@@ -37,17 +37,17 @@ const Index = () => {
   return (
     <RoleGuard allowed={["ADMIN", "DEVELOPER"]}>
       <AppShell>
-        <div className="container">
-          <div className="center-container">
-            <div className="form-title">
+        <div className={`container ${style.instancesContainer}`}>
+          <div className={`center-container ${style.instancesCard}`}>
+            <div className={`form-title ${style.formTitle}`}>
               <h1>Intances</h1>
               <p>List of data base instances</p>
             </div>
-            <div className="squares-container">
+            <div className={`squares-container ${style.cardsGrid}`}>
               {instances.map((x) => {
                 return (
                   <div
-                    className="square"
+                    className={`square ${style.instanceSquare}`}
                     key={x._id?.toString()}
                     role="button"
                     onClick={() => {
@@ -56,11 +56,18 @@ const Index = () => {
                       );
                     }}
                   >
-                    {getIcon(x.type)}
-                    <p>{x.name}</p>
+                    <div className={style.iconWrap}>{getIcon(x.type)}</div>
+                    <span className={style.cardType}>{x.type}</span>
+                    <p className={style.instanceName}>{x.name}</p>
                   </div>
                 );
               })}
+              {instances.length === 0 && (
+                <div className={style.emptyState}>
+                  <h3>No instances available</h3>
+                  <p>Create a new instance to start linking reports.</p>
+                </div>
+              )}
             </div>
           </div>
         </div>

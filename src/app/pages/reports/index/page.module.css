@@ -1,59 +1,253 @@
-.reportName {
-  max-height: 2.5rem;
-  overflow: auto;
+.reportsContainer {
+  padding: 1.25rem;
 }
 
-.button {
-  padding: 0.5rem;
-  border-radius: 0.25rem;
-  border: none;
-  color: var(--white);
-  background-color: var(--primary-color);
+.reportsCard {
+  width: 100%;
+  max-width: 1300px;
+  margin: 0 auto;
+  border: 1px solid #d7e2ea;
+  background: linear-gradient(180deg, #f7fbff 0%, #ffffff 240px), #ffffff;
+  box-shadow:
+    0 22px 48px rgba(13, 39, 72, 0.16),
+    0 6px 16px rgba(13, 39, 72, 0.08);
 }
 
-.button:hover {
-  cursor: pointer;
+.formTitle {
+  display: grid;
+  gap: 0.85rem;
 }
 
-.reportCard {
-  position: relative;
+.headerRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
 }
 
-.menuTrigger {
-  position: absolute;
-  top: 0.35rem;
-  right: 0.55rem;
-  font-size: 1.2rem;
-  font-weight: 700;
-  line-height: 0.9;
-  cursor: pointer;
-  user-select: none;
-  z-index: 2;
-  display: none;
+.subtitle {
+  color: var(--sub-title);
 }
 
-.reportCard:hover > .menuTrigger {
-  display: block;
-}
-
-.home {
-  margin-left: 0.5rem;
-  margin-top: 0.5rem;
-}
-
-.home:hover {
-  cursor: pointer;
+.headerActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .importButton {
-  margin: 0px !important;
+  margin: 0 !important;
+  width: auto !important;
+  min-width: 9rem;
   background-color: var(--secondary-color) !important;
+  border-radius: 0.5rem !important;
+  border-bottom-right-radius: 0px !important;
+  border-top-right-radius: 0px !important;
+}
+
+.createButton {
+  margin: 0 !important;
+  width: auto !important;
+  min-width: 10.5rem;
+  border-radius: 0.5rem !important;
   border-bottom-left-radius: 0px !important;
   border-top-left-radius: 0px !important;
 }
 
-.createButton {
-  margin: 0px !important;
-  border-bottom-right-radius: 0px !important;
-  border-top-right-radius: 0px !important;
+.pathBar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  border: 1px solid #d9e5ee;
+  background: #f9fbff;
+  border-radius: 10px;
+  padding: 0.55rem 0.75rem;
+}
+
+.pathLabel {
+  color: #586d82;
+  font-weight: 700;
+}
+
+.homeButton {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 8px;
+  border: 1px solid #c8d8e5;
+  background: #ffffff;
+  color: #0a4c79;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.pathValue {
+  color: #153f5f;
+}
+
+.itemsCount {
+  margin-left: auto;
+  background: #e8f4ff;
+  color: #0b4f7f;
+  border: 1px solid #b7d7ef;
+  border-radius: 999px;
+  padding: 0.22rem 0.66rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.backButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.2rem 0 0.8rem;
+  border: 1px solid #bfd4e4;
+  border-radius: 999px;
+  padding: 0.34rem 0.8rem;
+  background: #f0f8ff;
+  color: #0e5385;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.cardsGrid {
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+}
+
+.reportCard {
+  position: relative;
+  display: flex !important;
+  flex-direction: column;
+  justify-content: flex-start !important;
+  align-items: flex-start !important;
+  min-height: 10.6rem;
+  border: 1px solid #d6e0ea !important;
+  border-radius: 12px !important;
+  padding: 0.95rem !important;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%) !important;
+  box-shadow:
+    0 8px 20px rgba(17, 48, 82, 0.05),
+    0 2px 6px rgba(17, 48, 82, 0.04);
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.2s ease;
+}
+
+.reportCard:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 12px 24px rgba(17, 48, 82, 0.08),
+    0 3px 10px rgba(17, 48, 82, 0.06);
+}
+
+.cardIconWrap {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: #e8f4ff;
+  color: #0b4f7f;
+  display: grid;
+  place-items: center;
+  margin-bottom: 0.7rem;
+}
+
+.cardIconWrap > svg {
+  width: 26px;
+  height: 26px;
+}
+
+.cardBody {
+  width: 100%;
+  display: grid;
+  gap: 0.25rem;
+}
+
+.cardType {
+  color: #6f8498;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.reportName {
+  max-height: 3.2rem;
+  overflow: auto;
+  color: var(--primary-color);
+  font-weight: 700;
+}
+
+.reportName p {
+  white-space: normal;
+  word-break: break-word;
+}
+
+.menuTrigger {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 999px;
+  border: 1px solid #d3dfeb;
+  background: #ffffff;
+  color: #274766;
+  cursor: pointer;
+  user-select: none;
+  z-index: 2;
+  display: none;
+  place-items: center;
+}
+
+.reportCard:hover > .menuTrigger {
+  display: grid;
+  justify-content: center;
+  align-items: center;
+  padding-bottom: 0.4rem;
+}
+
+.emptyState {
+  grid-column: 1 / -1;
+  border: 2px dashed #c7d5e2;
+  border-radius: 12px;
+  padding: 1.2rem;
+  text-align: center;
+  background: #f8fbff;
+  color: #4d6275;
+}
+
+.emptyState > h3 {
+  margin-bottom: 0.35rem;
+  color: #20374d;
+}
+
+@media (max-width: 900px) {
+  .reportsContainer {
+    padding: 0.9rem;
+  }
+
+  .itemsCount {
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .reportsContainer {
+    padding: 0.5rem;
+  }
+
+  .cardsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .createButton,
+  .importButton {
+    width: 100% !important;
+  }
 }

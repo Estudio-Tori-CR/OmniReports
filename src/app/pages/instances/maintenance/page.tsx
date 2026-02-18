@@ -1,5 +1,5 @@
 "use client";
-import "./page.module.css";
+import style from "./page.module.css";
 import type { SubmitEvent } from "react";
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -85,13 +85,13 @@ const Maintenance = () => {
   return (
     <AppShell>
       <RoleGuard allowed={["ADMIN", "DEVELOPER"]}>
-        <div className="container">
-          <div className="center-container">
-            <div className="form-title">
+        <div className={`container ${style.pageContainer}`}>
+          <div className={`center-container ${style.pageCard}`}>
+            <div className={`form-title ${style.formTitle}`}>
               <h1>Intances Maintenance</h1>
               <p>Create or update a data base instance</p>
             </div>
-            <form onSubmit={onSubmit}>
+            <form onSubmit={onSubmit} className={style.formContent}>
               <PersonalInput
                 labelText="Instance Name"
                 type="text"
@@ -125,7 +125,7 @@ const Maintenance = () => {
                 isRequered={true}
                 onChange={(e) => setInstance((i) => ({ ...i, type: e }))}
               />
-              <div className="rightButtonsContainer">
+              <div className={`rightButtonsContainer ${style.actions}`}>
                 {instanceId && (
                   <ActionGuard allowed={["ADMIN"]}>
                     <PersonalButton

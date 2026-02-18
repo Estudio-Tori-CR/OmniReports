@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import "./page.module.css";
+import style from "./page.module.css";
 import { use, useEffect, useState } from "react";
 import AppShell from "../../components/sidebar";
 import UsersReq from "@/app/utilities/requests/users/requests";
@@ -115,69 +115,76 @@ const Index = () => {
   return (
     <RoleGuard allowed={["ADMIN"]}>
       <AppShell>
-        <div className="container">
-          <div className="center-container">
-            <SortTable
-              columnsNames={
-                [
-                  "Email",
-                  "First Name",
-                  "Last Name",
-                  "Role",
-                  "Status",
-                ] as unknown as any
-              }
-              rows={usersTable}
-              max={10}
-              buttons={
-                [
-                  (row: any) => {
-                    if (row[0] !== currentUser.email) {
-                      return (
-                        <PersonalButton
-                          text="Edit"
-                          isPrimary={true}
-                          callback={() => editUser(row)}
-                        />
-                      );
-                    }
-                  },
-                  (row: any) => {
-                    if (row[0] !== currentUser.email) {
-                      if (row[4] === "Active") {
+        <div className={`container ${style.pageContainer}`}>
+          <div className={`center-container ${style.pageCard}`}>
+            <div className={`form-title ${style.formTitle}`}>
+              <h1>Users</h1>
+              <p>Manage user access and profile status</p>
+              <span className={style.totalTag}>{usersTable.length} users</span>
+            </div>
+            <div className={style.tableContainer}>
+              <SortTable
+                columnsNames={
+                  [
+                    "Email",
+                    "First Name",
+                    "Last Name",
+                    "Role",
+                    "Status",
+                  ] as unknown as any
+                }
+                rows={usersTable}
+                max={10}
+                buttons={
+                  [
+                    (row: any) => {
+                      if (row[0] !== currentUser.email) {
                         return (
                           <PersonalButton
-                            text="Delete"
-                            className="redButton"
+                            text="Edit"
                             isPrimary={true}
-                            callback={() => disableUser(row)}
-                          />
-                        );
-                      } else {
-                        return (
-                          <PersonalButton
-                            text="Active"
-                            isPrimary={true}
-                            callback={() => activeUser(row)}
+                            callback={() => editUser(row)}
                           />
                         );
                       }
-                    }
-                  },
-                  (row: any) => {
-                    if (row[0] !== currentUser.email) {
-                      return (
-                        <PersonalButton
-                          text="Generate Password"
-                          isPrimary={true}
-                          callback={() => generatePassword(row)}
-                        />
-                      );
-                    }
-                  },
-                ] as unknown as any
-              }
-            />
+                    },
+                    (row: any) => {
+                      if (row[0] !== currentUser.email) {
+                        if (row[4] === "Active") {
+                          return (
+                            <PersonalButton
+                              text="Delete"
+                              className="redButton"
+                              isPrimary={true}
+                              callback={() => disableUser(row)}
+                            />
+                          );
+                        } else {
+                          return (
+                            <PersonalButton
+                              text="Active"
+                              isPrimary={true}
+                              callback={() => activeUser(row)}
+                            />
+                          );
+                        }
+                      }
+                    },
+                    (row: any) => {
+                      if (row[0] !== currentUser.email) {
+                        return (
+                          <PersonalButton
+                            text="Generate Password"
+                            isPrimary={true}
+                            callback={() => generatePassword(row)}
+                          />
+                        );
+                      }
+                    },
+                  ] as unknown as any
+                }
+              />
+            </div>
           </div>
         </div>
       </AppShell>

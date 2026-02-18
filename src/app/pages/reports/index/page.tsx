@@ -76,8 +76,11 @@ const DirectoryCard = ({
         role="button"
         onClick={() => goToDirectory(x)}
       >
-        <div>
+        <div className={style.cardIconWrap}>
           <GoFileDirectory />
+        </div>
+        <div className={style.cardBody}>
+          <span className={style.cardType}>Directory</span>
           <div className={style.reportName}>
             <p>{x}</p>
           </div>
@@ -163,8 +166,11 @@ const ReportCard = ({
         role="button"
         onClick={onOpenReport}
       >
-        <div>
+        <div className={style.cardIconWrap}>
           <TbReportAnalytics />
+        </div>
+        <div className={style.cardBody}>
+          <span className={style.cardType}>Report</span>
           <div className={style.reportName}>
             <p>{name}</p>
           </div>
@@ -461,14 +467,14 @@ const Index = () => {
   return (
     <RoleGuard allowed={["ADMIN", "DEVELOPER", "REPORTS"]}>
       <AppShell>
-        <div className="container">
-          <div className="center-container">
-            <div className="form-title">
+        <div className={`container ${style.reportsContainer}`}>
+          <div className={`center-container ${style.reportsCard}`}>
+            <div className={`form-title ${style.formTitle}`}>
               <h1>Reports</h1>
-              <div style={{ display: "flex" }}>
-                <p style={{ width: "100%" }}>List of reports</p>
+              <div className={style.headerRow}>
+                <p className={style.subtitle}>List of reports</p>
                 <ActionGuard allowed={["ADMIN", "DEVELOPER"]}>
-                  <div className="rightButtonsContainer">
+                  <div className={style.headerActions}>
                     <PersonalButton
                       text="Import"
                       callback={onImport}
@@ -482,27 +488,34 @@ const Index = () => {
                   </div>
                 </ActionGuard>
               </div>
-              <p style={{ width: "100%", marginBottom: "0.5rem" }}>
-                Current path
-                <span onClick={goToHome} className={style.home}>
+              <div className={style.pathBar}>
+                <span className={style.pathLabel}>Current path</span>
+                <button
+                  type="button"
+                  onClick={goToHome}
+                  className={style.homeButton}
+                >
                   <FaHome />
+                </button>
+                <strong className={style.pathValue}>{currentPathLabel}</strong>
+                <span className={style.itemsCount}>
+                  {directories.length + currentReports.length} items
                 </span>
-                : <strong>{currentPathLabel}</strong>
-              </p>
+              </div>
             </div>
             {currentPath !== "" && (
-              <span
-                role="button"
+              <button
+                type="button"
+                className={style.backButton}
                 onClick={() => {
                   goToParentDirectory();
                 }}
               >
-                <MdOutlineSubdirectoryArrowLeft
-                  style={{ width: "2rem", height: "2rem", cursor: "pointer" }}
-                />
-              </span>
+                <MdOutlineSubdirectoryArrowLeft />
+                Back to parent
+              </button>
             )}
-            <div className="squares-container">
+            <div className={`squares-container ${style.cardsGrid}`}>
               {directories.map((x) => {
                 return (
                   <DirectoryCard
@@ -538,6 +551,12 @@ const Index = () => {
                   />
                 );
               })}
+              {directories.length === 0 && currentReports.length === 0 && (
+                <div className={style.emptyState}>
+                  <h3>No reports in this directory</h3>
+                  <p>Create a report or navigate to a different folder.</p>
+                </div>
+              )}
             </div>
           </div>
         </div>

@@ -116,14 +116,14 @@ export default function Authenticator() {
   return (
     <div className={style.loginContainer}>
       <div className={style.loginInputsContainer}>
-        <img
-          src="../icon.png"
-          alt="icon"
-          className="icon"
-          style={{ width: "250px", height: "200px" }}
-        />
-        <form onSubmit={onSubmit}>
+        <div className={style.brandSection}>
+          <img src="../icon.png" alt="icon" className={style.brandIcon} />
+        </div>
+        <form onSubmit={onSubmit} className={style.formContent}>
           <h2>Validate your token</h2>
+          <p className={style.subtitle}>
+            Enter the verification code sent to your email.
+          </p>
           <div className={style.inputsContainer} style={inputsContainerStyle}>
             {length.map((x) => {
               return (
@@ -157,19 +157,21 @@ export default function Authenticator() {
           </div>
           <div className={style.sendAgainContainer}>
             {seconds > 0 && (
-              <p className={style.waitToSend}>{seconds} to send again</p>
+              <p className={style.waitToSend}>{seconds}s to send again</p>
             )}
             {seconds === 0 && (
-              <a
-                role="button"
+              <button
+                type="button"
                 onClick={sendAuthenticator}
                 className={style.sendAgain}
               >
                 Send Again
-              </a>
+              </button>
             )}
           </div>
-          <PersonalButton text="Validate" type="submit" />
+          <div className={style.actions}>
+            <PersonalButton text="Validate" type="submit" />
+          </div>
         </form>
       </div>
     </div>

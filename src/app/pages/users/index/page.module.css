@@ -1,0 +1,58 @@
+.pageContainer {
+  padding: 1.25rem;
+}
+
+.pageCard {
+  width: 100%;
+  max-width: 1300px;
+  margin: 0 auto;
+  border: 1px solid #d7e2ea;
+  background: linear-gradient(180deg, #f7fbff 0%, #ffffff 220px), #ffffff;
+  box-shadow:
+    0 22px 48px rgba(13, 39, 72, 0.16),
+    0 6px 16px rgba(13, 39, 72, 0.08);
+}
+
+.formTitle {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.totalTag {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: #e8f4ff;
+  color: #0b4f7f;
+  border: 1px solid #b7d7ef;
+  border-radius: 999px;
+  padding: 0.24rem 0.7rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.tableContainer {
+  border: 1px solid #e0e8ef;
+  border-radius: 10px;
+  padding: 0.6rem 0.8rem 1rem;
+  background: #fcfdff;
+  overflow-x: auto;
+}
+
+@media (max-width: 900px) {
+  .pageContainer {
+    padding: 0.9rem;
+  }
+
+  .totalTag {
+    position: static;
+    display: inline-block;
+    margin-top: 0.5rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .pageContainer {
+    padding: 0.5rem;
+  }
+}

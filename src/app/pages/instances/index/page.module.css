@@ -1,0 +1,96 @@
+.instancesContainer {
+  padding: 1.25rem;
+}
+
+.instancesCard {
+  width: 100%;
+  max-width: 1300px;
+  margin: 0 auto;
+  border: 1px solid #d7e2ea;
+  background: linear-gradient(180deg, #f7fbff 0%, #ffffff 220px), #ffffff;
+  box-shadow:
+    0 22px 48px rgba(13, 39, 72, 0.16),
+    0 6px 16px rgba(13, 39, 72, 0.08);
+}
+
+.formTitle {
+  margin-bottom: 1rem;
+}
+
+.cardsGrid {
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+}
+
+.instanceSquare {
+  min-height: 10.5rem;
+  border: 1px solid #d6e0ea !important;
+  border-radius: 12px !important;
+  padding: 0.95rem !important;
+  justify-content: center !important;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%) !important;
+  box-shadow:
+    0 8px 20px rgba(17, 48, 82, 0.05),
+    0 2px 6px rgba(17, 48, 82, 0.04);
+}
+
+.iconWrap {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: #e8f4ff;
+  color: #0b4f7f;
+  display: grid;
+  place-items: center;
+  margin: 0 auto 0.7rem;
+}
+
+.iconWrap > svg {
+  width: 26px;
+  height: 26px;
+}
+
+.cardType {
+  color: #6f8498;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.instanceName {
+  margin-top: 0.35rem;
+  color: var(--primary-color);
+  font-weight: 700;
+  word-break: break-word;
+}
+
+.emptyState {
+  grid-column: 1 / -1;
+  border: 2px dashed #c7d5e2;
+  border-radius: 12px;
+  padding: 1.2rem;
+  text-align: center;
+  background: #f8fbff;
+  color: #4d6275;
+}
+
+.emptyState > h3 {
+  margin-bottom: 0.35rem;
+  color: #20374d;
+}
+
+@media (max-width: 900px) {
+  .instancesContainer {
+    padding: 0.9rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .instancesContainer {
+    padding: 0.5rem;
+  }
+
+  .cardsGrid {
+    grid-template-columns: 1fr;
+  }
+}

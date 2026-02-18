@@ -1,6 +1,6 @@
 "use client";
-import "./page.module.css";
-import { use, useEffect, useState } from "react";
+import style from "./page.module.css";
+import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import AppShell from "../../components/sidebar";
 import PersonalInput from "../../components/input";
@@ -35,47 +35,45 @@ const Profile = () => {
     });
   }, [userID]);
 
-  const onSubmit = async () => {
-    await client.Update(userID, user);
-  };
-
   return (
     <RoleGuard allowed={["ADMIN", "DEVELOPER", "REPORTS"]}>
       <AppShell>
-        <div className="container">
-          <div className="center-container">
-            <div
-              className="form-title"
-              style={{ display: "inline-flex", width: "100%" }}
-            >
-              <h1 style={{ width: "15rem" }}>User Profile</h1>
-              <div className="rightButtonsContainer">
-                <PersonalButton
-                  text="Change Password"
-                  type="button"
-                  callback={() => {
-                    route.replace("/pages/users/profile/changePassword");
-                  }}
-                />
+        <div className={`container ${style.pageContainer}`}>
+          <div className={`center-container ${style.pageCard}`}>
+            <div className={`form-title ${style.formTitle}`}>
+              <div className={style.headerRow}>
+                <h1>User Profile</h1>
+                <div className={`rightButtonsContainer ${style.headerActions}`}>
+                  <PersonalButton
+                    text="Change Password"
+                    type="button"
+                    className={style.compactButton}
+                    callback={() => {
+                      route.replace("/pages/users/profile/changePassword");
+                    }}
+                  />
+                </div>
               </div>
             </div>
-            <form>
-              <PersonalInput
-                labelText="First Name"
-                type="text"
-                isRequired={true}
-                value={user.firstName}
-                disable={true}
-                onChange={(e) => setUser((u) => ({ ...u, firstName: e }))}
-              />
-              <PersonalInput
-                labelText="Last Name"
-                type="text"
-                isRequired={true}
-                value={user.lastName}
-                disable={true}
-                onChange={(e) => setUser((u) => ({ ...u, lastName: e }))}
-              />
+            <form className={style.formContent}>
+              <div className={style.profileGrid}>
+                <PersonalInput
+                  labelText="First Name"
+                  type="text"
+                  isRequired={true}
+                  value={user.firstName}
+                  disable={true}
+                  onChange={(e) => setUser((u) => ({ ...u, firstName: e }))}
+                />
+                <PersonalInput
+                  labelText="Last Name"
+                  type="text"
+                  isRequired={true}
+                  value={user.lastName}
+                  disable={true}
+                  onChange={(e) => setUser((u) => ({ ...u, lastName: e }))}
+                />
+              </div>
               <PersonalInput
                 labelText="Email"
                 type="email"
@@ -96,13 +94,6 @@ const Profile = () => {
                 disable={true}
                 onChange={(e) => setUser((u) => ({ ...u, roles: e }))}
               />
-              <div className="rightButtonsContainer">
-                <PersonalButton
-                  text="Submit"
-                  type="button"
-                  callback={onSubmit}
-                />
-              </div>
             </form>
           </div>
         </div>

@@ -134,24 +134,20 @@ const Maintenance = () => {
   return (
     <AppShell>
       <RoleGuard allowed={["ADMIN", "DEVELOPER", "REPORTS"]}>
-        <div className="container">
-          <div className="center-container">
-            <div className="form-title">
+        <div className={`container ${style.pageContainer}`}>
+          <div className={`center-container ${style.pageCard}`}>
+            <div className={`form-title ${style.formTitle}`}>
               <h1>Report</h1>
-              <p>{report.name}</p>
+              <p className={style.reportName}>{report.name}</p>
+              <span className={style.sheetCounter}>
+                {report.querys.length} sheet
+                {report.querys.length === 1 ? "" : "s"}
+              </span>
             </div>
-            <form>
-              <div id="querys-container">
+            <form className={style.formContent}>
+              <div id="querys-container" className={style.querysContainer}>
                 {report.querys.map((q, index) => (
-                  <div
-                    key={index}
-                    style={{
-                      marginBottom: "1rem",
-                      border: "1px solid #ddd",
-                      padding: "0.75rem",
-                      borderRadius: "8px",
-                    }}
-                  >
+                  <div key={index} className={style.queryCard}>
                     <h2
                       className={style.sheetName}
                       style={{
@@ -180,8 +176,14 @@ const Maintenance = () => {
                     </div>
                   </div>
                 ))}
+                {report.querys.length === 0 && (
+                  <div className={style.emptyState}>
+                    <h3>No parameters configured</h3>
+                    <p>This report has no executable query parameters.</p>
+                  </div>
+                )}
               </div>
-              <div className="rightButtonsContainer">
+              <div className={`rightButtonsContainer ${style.actions}`}>
                 <PersonalButton
                   text="Export"
                   type="button"

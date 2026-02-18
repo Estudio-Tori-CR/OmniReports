@@ -1,5 +1,5 @@
 "use client";
-import "./page.module.css";
+import style from "./page.module.css";
 import { useEffect, useState } from "react";
 import type { SubmitEvent } from "react";
 import { useSearchParams } from "next/navigation";
@@ -73,10 +73,10 @@ const Maintenance = () => {
   return (
     <RoleGuard allowed={["ADMIN"]}>
       <AppShell>
-        <div className="container">
-          <div className="center-container">
-            <form onSubmit={onSubmit}>
-              <div className="form-title">
+        <div className={`container ${style.pageContainer}`}>
+          <div className={`center-container ${style.pageCard}`}>
+            <form onSubmit={onSubmit} className={style.formContent}>
+              <div className={`form-title ${style.formTitle}`}>
                 <h1>User Maintenance</h1>
                 <p>Create or update a user profile</p>
               </div>
@@ -112,7 +112,7 @@ const Maintenance = () => {
                 isRequered={true}
                 onChange={(e) => setUser((u) => ({ ...u, roles: e }))}
               />
-              <div className="rightButtonsContainer">
+              <div className={`rightButtonsContainer ${style.actions}`}>
                 <PersonalButton text="Submit" type="submit" />
                 <GoBack url="/pages/users/index" />
               </div>

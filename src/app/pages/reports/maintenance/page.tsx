@@ -380,91 +380,105 @@ const Maintenance = () => {
   return (
     <AppShell>
       <RoleGuard allowed={["ADMIN", "DEVELOPER", "REPORTS"]}>
-        <div className="container">
-          <div className="center-container">
-            <div className="form-title">
+        <div className={`container ${styles.maintenanceContainer}`}>
+          <div className={`center-container ${styles.maintenanceCard}`}>
+            <div className={`form-title ${styles.formTitle}`}>
               <h1>Reports Maintenance</h1>
               <p>Create or update a data base report</p>
+              <span className={styles.queryCounter}>
+                {report.querys.length} quer{report.querys.length === 1 ? "y" : "ies"}
+              </span>
             </div>
-            <form onSubmit={onSubmit}>
-              <div style={{ display: "flex" }}>
-                <PersonalInput
-                  labelText="Report Name"
-                  type="text"
-                  isRequired={true}
-                  value={report?.name}
-                  onChange={(e) => setReport((r) => ({ ...r, name: e }))}
-                />
-                <div style={{ marginTop: "0.6rem" }}>
+            <form onSubmit={onSubmit} className={styles.maintenanceForm}>
+              <div className={styles.topRow}>
+                <div className={styles.topMainInput}>
+                  <PersonalInput
+                    labelText="Report Name"
+                    type="text"
+                    isRequired={true}
+                    value={report?.name}
+                    onChange={(e) => setReport((r) => ({ ...r, name: e }))}
+                  />
+                </div>
+                <div className={styles.topAction}>
                   <PersonalButton
                     text="Add Query"
                     callback={addQuery}
                     isPrimary={true}
+                    className={styles.compactButton}
                   />
                 </div>
               </div>
-              <PersonalSelect
-                labelText="Directory"
-                options={optionsDirectories}
-                isRequered={false}
-                value={report?.directory}
-                onChange={(e) => setReport((r) => ({ ...r, directory: e }))}
-              />
-
-              <ActionGuard allowed={["ADMIN"]}>
-                <PersonalMultiSelect
-                  options={optionsUser}
-                  labelText="Users"
-                  values={usersForReport}
-                  onChange={(value) => setUsersForReport(value)}
+              <div className={styles.metaBlock}>
+                <PersonalSelect
+                  labelText="Directory"
+                  options={optionsDirectories}
+                  isRequered={false}
+                  value={report?.directory}
+                  onChange={(e) => setReport((r) => ({ ...r, directory: e }))}
                 />
-              </ActionGuard>
-              <div id="querys-container">
-                {report.querys.map((q, index) => (
-                  <>
-                    <div
-                      key={index}
-                      style={{
-                        marginBottom: "1rem",
-                        border: "1px solid #ddd",
-                        padding: "0.75rem",
-                        borderRadius: "8px",
-                      }}
-                    >
-                      <PersonalSelect
-                        labelText={`Instance ${index + 1}`}
-                        options={options}
-                        value={q.instance}
-                        isRequered={true}
-                        onChange={(value) => {
-                          setReport((prev) => {
-                            const copy = { ...prev };
-                            copy.querys = [...copy.querys];
-                            copy.querys[index] = {
-                              ...copy.querys[index],
-                              instance: value,
-                            };
-                            return copy;
-                          });
-                        }}
-                      />
-                      <PersonalInput
-                        labelText={`Sheet Name ${index + 1}`}
-                        type="text"
-                        value={q.sheetName}
-                        isRequired={true}
-                        onChange={(value) => {
-                          setReport((prev) => {
-                            const copy = { ...prev };
-                            copy.querys = [...copy.querys];
-                            copy.querys[index] = {
-                              ...copy.querys[index],
-                              sheetName: value,
-                            };
-                            return copy;
-                          });
-                        }}
-                      />
+
+                <ActionGuard allowed={["ADMIN"]}>
+                  <PersonalMultiSelect
+                    options={optionsUser}
+                    labelText="Users"
+                    values={usersForReport}
+                    onChange={(value) => setUsersForReport(value)}
+                  />
+                </ActionGuard>
+              </div>
+              <div id="querys-container" className={styles.querysContainer}>
+                {report.querys.length === 0 ? (
+                  <div className={styles.emptyState}>
+                    <h3>No queries yet</h3>
+                    <p>
+                      Add your first query to start building the report data
+                      source.
+                    </p>
+                  </div>
+                ) : (
+                  report.querys.map((q, index) => (
+                    <div key={index} className={styles.queryCard}>
+                      <div className={styles.queryHeader}>
+                        <h3>Query {index + 1}</h3>
+                        <span className={styles.queryBadge}>#{index + 1}</span>
+                      </div>
+                      <div className={styles.queryGrid}>
+                        <PersonalSelect
+                          labelText={`Instance ${index + 1}`}
+                          options={options}
+                          value={q.instance}
+                          isRequered={true}
+                          onChange={(value) => {
+                            setReport((prev) => {
+                              const copy = { ...prev };
+                              copy.querys = [...copy.querys];
+                              copy.querys[index] = {
+                                ...copy.querys[index],
+                                instance: value,
+                              };
+                              return copy;
+                            });
+                          }}
+                        />
+                        <PersonalInput
+                          labelText={`Sheet Name ${index + 1}`}
+                          type="text"
+                          value={q.sheetName}
+                          isRequired={true}
+                          onChange={(value) => {
+                            setReport((prev) => {
+                              const copy = { ...prev };
+                              copy.querys = [...copy.querys];
+                              copy.querys[index] = {
+                                ...copy.querys[index],
+                                sheetName: value,
+                              };
+                              return copy;
+                            });
+                          }}
+                        />
+                      </div>
                       <PersonalInput
                         labelText={`Title ${index + 1}`}
                         type="text"
@@ -499,55 +513,61 @@ const Maintenance = () => {
                           });
                         }}
                       />
-                      <SortTable
-                        rows={report.querys[index].parameters.map((x) => {
-                          return {
-                            name: x.name,
-                            label: x.label,
-                            type: x.type,
-                            isRequired: x.isRequired ? "Yes" : "No",
-                          };
-                        })}
-                        columnsNames={
-                          [
-                            "Name",
-                            "Label",
-                            "Type",
-                            "Is Required",
-                          ] as unknown as null | undefined
-                        }
-                        buttons={
-                          [
-                            (row: string[]) => {
-                              return (
-                                <PersonalButton
-                                  text="Delete"
-                                  className="redButton"
-                                  isPrimary={true}
-                                  callback={() =>
-                                    onDeleteParameter(row[0], index)
-                                  }
-                                />
-                              );
-                            },
-                            (row: string[]) => {
-                              return (
-                                <PersonalButton
-                                  text="Edit"
-                                  isPrimary={true}
-                                  callback={() =>
-                                    onEditParameter(row[0], index)
-                                  }
-                                />
-                              );
-                            },
-                          ] as unknown as null | undefined
-                        }
-                      />
-                      <div className="rightButtonsContainer">
+                      <div className={styles.tableContainer}>
+                        <SortTable
+                          rows={report.querys[index].parameters.map((x) => {
+                            return {
+                              name: x.name,
+                              label: x.label,
+                              type: x.type,
+                              isRequired: x.isRequired ? "Yes" : "No",
+                            };
+                          })}
+                          columnsNames={
+                            [
+                              "Name",
+                              "Label",
+                              "Type",
+                              "Is Required",
+                            ] as unknown as null | undefined
+                          }
+                          buttons={
+                            [
+                              (row: string[]) => {
+                                return (
+                                  <PersonalButton
+                                    text="Delete"
+                                    className={`redButton ${styles.compactButton}`}
+                                    isPrimary={true}
+                                    callback={() =>
+                                      onDeleteParameter(row[0], index)
+                                    }
+                                  />
+                                );
+                              },
+                              (row: string[]) => {
+                                return (
+                                  <PersonalButton
+                                    text="Edit"
+                                    className={styles.compactButton}
+                                    isPrimary={true}
+                                    callback={() =>
+                                      onEditParameter(row[0], index)
+                                    }
+                                  />
+                                );
+                              },
+                            ] as unknown as null | undefined
+                          }
+                        />
+                      </div>
+                      <div
+                        className={`rightButtonsContainer ${styles.queryActions}`}
+                      >
                         <PersonalButton
                           text="Add Parameter"
                           type="button"
+                          className={styles.compactButton}
                           callback={() => {
                             onAddParameter(index);
                           }}
@@ -555,22 +575,23 @@ const Maintenance = () => {
                         <PersonalButton
                           text="Remove"
                           type="button"
-                          className="redButton"
+                          className={`redButton ${styles.compactButton}`}
                           callback={() => {
                             onRemoveQuery(index);
                           }}
                         />
                       </div>
-                      <a
-                        href="#"
+                      <button
+                        type="button"
                         className={styles.advancedSettingsToggle}
-                        onClick={(e) => {
-                          e.preventDefault();
+                        onClick={() => {
                           onToggleAdvancedSettings(index);
                         }}
                       >
-                        Advance settings
-                      </a>
+                        {advancedSettingsByIndex[index]
+                          ? "Hide advanced settings"
+                          : "Show advanced settings"}
+                      </button>
                       <div
                         className={`${styles.subQueryContainer} ${
                           advancedSettingsByIndex[index]
@@ -578,7 +599,7 @@ const Maintenance = () => {
                             : ""
                         }`}
                       >
-                        <h3>Sub Query</h3>
+                        <h4>Sub Query</h4>
                         <PersonalInput
                           type="text"
                           labelText="Inner By"
@@ -624,22 +645,22 @@ const Maintenance = () => {
                             });
                           }}
                         />
-                        <PersonalButton
-                          text="Add Formula"
-                          type="button"
-                          callback={() => onAddFormula(index)}
-                        />
+                        <div
+                          className={`rightButtonsContainer ${styles.queryActions}`}
+                        >
+                          <PersonalButton
+                            text="Add Formula"
+                            type="button"
+                            className={styles.compactButton}
+                            callback={() => onAddFormula(index)}
+                          />
+                        </div>
                         {(q.formulas ?? []).map((formula, formulaIndex) => (
                           <div
                             key={`formula-${index}-${formulaIndex}`}
-                            style={{
-                              marginTop: "0.75rem",
-                              border: "1px solid #ddd",
-                              borderRadius: "8px",
-                              padding: "0.5rem",
-                            }}
+                            className={styles.formulaCard}
                           >
-                            <div style={{ display: "flex", gap: "1rem" }}>
+                            <div className={styles.formulaGrid}>
                               <PersonalInput
                                 type="text"
                                 labelText="Column"
@@ -680,11 +701,13 @@ const Maintenance = () => {
                                 )
                               }
                             />
-                            <div className="rightButtonsContainer">
+                            <div
+                              className={`rightButtonsContainer ${styles.queryActions}`}
+                            >
                               <PersonalButton
                                 text="Remove Formula"
                                 type="button"
-                                className="redButton"
+                                className={`redButton ${styles.compactButton}`}
                                 callback={() =>
                                   onRemoveFormula(index, formulaIndex)
                                 }
@@ -694,10 +717,10 @@ const Maintenance = () => {
                         ))}
                       </div>
                     </div>
-                  </>
-                ))}
+                  ))
+                )}
               </div>
-              <div className="rightButtonsContainer">
+              <div className={`rightButtonsContainer ${styles.mainActions}`}>
                 <PersonalButton text="Save All" type="submit" />
                 <GoBack url="/pages/reports/index" />
               </div>
