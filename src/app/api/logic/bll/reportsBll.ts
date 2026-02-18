@@ -247,7 +247,6 @@ class ReportsBll {
     singleSheet = false,
     exportType = "xlsx",
   ): Promise<ExecuteReportFile[]> => {
-    debugger;
     const isSubQueryRow = (row: unknown): row is ResultSubQuery => {
       return (
         !!row && typeof row === "object" && "result" in row && "subQuery" in row

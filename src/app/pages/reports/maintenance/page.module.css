@@ -4,6 +4,7 @@
 
 .maintenanceCard {
   width: 100%;
+  max-width: 1600px;
   margin: 0 auto;
   border: 1px solid #d7e2ea;
   background: linear-gradient(180deg, #f7fbff 0%, #ffffff 220px), #ffffff;
