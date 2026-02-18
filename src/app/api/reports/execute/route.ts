@@ -10,7 +10,7 @@ const log: Logs = new Logs();
 
 export const POST = withRoles(
   ["ADMIN", "DEVELOPER", "REPORTS"],
-  async (req: Request, ctx: RouteContext<any>, user: string) => {
+  async (req: Request) => {
     let response: BaseResponse<ExecuteReportResult> =
       new BaseResponse<ExecuteReportResult>();
     try {
@@ -19,13 +19,6 @@ export const POST = withRoles(
         new ExecuteReport(),
         await req.json(),
       );
-
-      log.Binnacle(
-        user,
-        body.id,
-        `${req.method} ${new URL(req.url).pathname}`,
-      );
-
       response = await bll.ExecuteOne(body);
     } catch (err) {
       response.isSuccess = false;

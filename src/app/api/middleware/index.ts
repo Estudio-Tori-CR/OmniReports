@@ -18,13 +18,21 @@ type RouteContext = {
   params: Promise<Record<string, string>>;
 };
 
-type Handler = (
+type AuthenticatedHandler = (
   req: NextRequest,
   ctx: RouteContext,
   payload: JWTPayload,
 ) => Promise<Response> | Response;
 
-export function withRoles(allowed: Role[], handler: Handler): Handler {
+type RouteHandler = (
+  req: NextRequest,
+  ctx: RouteContext,
+) => Promise<Response> | Response;
+
+export function withRoles(
+  allowed: Role[],
+  handler: AuthenticatedHandler,
+): RouteHandler {
   return async (req: NextRequest, ctx: RouteContext) => {
     const auth = req.headers.get("authorization");
     if (!auth || !auth.startsWith("Bearer ")) {

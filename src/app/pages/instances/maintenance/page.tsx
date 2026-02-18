@@ -14,8 +14,10 @@ import BaseResponse from "@/app/models/baseResponse";
 import Message from "../../components/popups";
 import ActionGuard from "../../components/ActionGuard";
 import GoBack from "../../components/goBack";
+import { useAppSelector } from "@/app/GlobalState/GlobalState";
 
 const Maintenance = () => {
+  const { role } = useAppSelector((s) => s.user);
   const router = useRouter();
   const searchParams = useSearchParams();
   const [instance, setInstance] = useState<InstanceInt>({
@@ -101,6 +103,11 @@ const Maintenance = () => {
                 labelText="Connection String"
                 type="textarea"
                 isRequired={true}
+                readOnly={
+                  instance?.connectionString && !role.includes("ADMIN")
+                    ? true
+                    : false
+                }
                 value={instance?.connectionString}
                 placeholder="Server=localhost;Port=3306;Database=employees_small;User ID=root;Password=root;SslMode=Preferred;Connection Timeout=15;Default Command Timeout=30;Allow User Variables=true"
                 onChange={(e) =>
