@@ -76,7 +76,13 @@ export function withRoles(
 
       try {
         const log = new Logs();
-        await log.Binnacle(user, reportId, source);
+        const xff = req.headers.get("x-forwarded-for");
+        const realIp = req.headers.get("x-real-ip");
+
+        const clientIp =
+          (xff ? xff.split(",")[0].trim() : null) ?? realIp ?? "unknown";
+
+        await log.Binnacle(user, reportId, clientIp, source);
       } catch {
         // ignore binnacle errors in auth middleware
       }

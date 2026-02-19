@@ -157,22 +157,29 @@ const Maintenance = () => {
                       {q.sheetName}
                     </h2>
                     <div className={style.filtersContainer}>
-                      {q.parameters.map((x) => {
-                        return (
-                          <PersonalInput
-                            labelText={x.label}
-                            type={x.type.includes("list") ? "text" : x.type}
-                            key={x.name}
-                            isRequired={x.isRequired}
-                            placeholder={
-                              x.type.includes("list") ? "value,value,value" : ""
-                            }
-                            onChange={(e) => {
-                              onSetParameter(e, x.name, x.type, q.sheetName);
-                            }}
-                          />
-                        );
-                      })}
+                      {q.parameters.length > 0 ? (
+                        q.parameters.map((x) => {
+                          return (
+                            <PersonalInput
+                              labelText={x.label}
+                              type={x.type.includes("list") ? "text" : x.type}
+                              key={x.name}
+                              isRequired={x.isRequired}
+                              placeholder={
+                                x.type.includes("list") ? "value,value,value" : ""
+                              }
+                              onChange={(e) => {
+                                onSetParameter(e, x.name, x.type, q.sheetName);
+                              }}
+                            />
+                          );
+                        })
+                      ) : (
+                        <div className={`${style.emptyState} ${style.sheetEmptyState}`}>
+                          <h3>No input parameters</h3>
+                          <p>This sheet has no input parameters configured.</p>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}

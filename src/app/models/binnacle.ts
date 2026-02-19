@@ -5,6 +5,7 @@ export class Binnacle {
   method!: string;
   user!: string;
   report!: string;
+  requestIP!: string;
 
   constructor(init?: Partial<Binnacle>) {
     Object.assign(this, init);
@@ -16,6 +17,7 @@ const binnacleSchema = new Schema<Binnacle>(
     method: { type: String, required: true, trim: true },
     user: { type: String, required: true, trim: true },
     report: { type: String, required: false, trim: true },
+    requestIP: { type: String, required: true, trim: true },
   },
   { timestamps: true },
 );

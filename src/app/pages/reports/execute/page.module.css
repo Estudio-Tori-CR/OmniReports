@@ -81,6 +81,21 @@
   color: #20374d;
 }
 
+.sheetEmptyState {
+  grid-column: 1 / -1;
+  padding: 0.95rem;
+  text-align: left;
+}
+
+.sheetEmptyState > h3 {
+  font-size: 1rem;
+  margin-bottom: 0.25rem;
+}
+
+.sheetEmptyState > p {
+  margin: 0;
+}
+
 .actions {
   margin-top: 0.4rem;
   padding-top: 1rem;

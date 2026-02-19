@@ -97,7 +97,6 @@ const Index = () => {
   };
 
   const generatePassword = async (data: string[]) => {
-    debugger;
     const email = data[0];
     if (!email) return;
 

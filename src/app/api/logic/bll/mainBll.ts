@@ -261,7 +261,6 @@ class MainBll {
   }
 
   public async InsertReport(body: DBReport) {
-    debugger;
     const response = new BaseResponse<string>();
     const sqlScan = new SqlScan();
     for (const item of body.querys) {
@@ -431,7 +430,6 @@ class MainBll {
             instances.body.length === 0 ||
             instances.body === null
           ) {
-            debugger;
             const tmpId = element._id;
             element._id = undefined;
             const id = await this.InsertInstance(element);

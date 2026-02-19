@@ -68,12 +68,18 @@ class Logs {
     return caller?.replace(/^at\s+/, "") ?? "unknown";
   }
 
-  public async Binnacle(user: string, report: string, source?: string) {
+  public async Binnacle(
+    user: string,
+    report: string,
+    requestIP: string,
+    source?: string,
+  ) {
     try {
       const entry = new Binnacle({
         method: source?.trim() || this.getCallerFromStack(),
         report: report,
         user: user,
+        requestIP,
       });
       await this.dal.InsertBinnacle(entry);
     } catch (err) {
