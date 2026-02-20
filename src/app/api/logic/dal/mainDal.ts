@@ -1,13 +1,17 @@
 import UserModel, { User } from "@/app/models/User";
 import { ConnectionMongo } from "../connections/mongoDB/connection";
 import InstanceModel, { Instance } from "@/app/models/Instance";
-import ReportModel, { DBReport } from "@/app/models/Report";
+import ReportModel, { DBReport, ExportReport } from "@/app/models/Report";
 import LogModel, { Log } from "@/app/models/Log";
 import AuthenticatorModel, { Authenticator } from "@/app/models/authenticator";
 import DirectoryReportsModel, {
   DirectoryReports,
 } from "@/app/models/directory";
 import BinnacleModel, { Binnacle } from "@/app/models/binnacle";
+import ExportReportModel, {
+  PendingExportReport,
+} from "@/app/models/exportReports";
+import PendingExportReportModel from "@/app/models/exportReports";
 
 class MainDal {
   private connection: ConnectionMongo;
@@ -128,7 +132,10 @@ class MainDal {
 
   public async InsertBinnacle(body: Partial<Binnacle>) {
     try {
-      const result = await this.connection.insert<Binnacle>(BinnacleModel, body);
+      const result = await this.connection.insert<Binnacle>(
+        BinnacleModel,
+        body,
+      );
       return result;
     } catch (err) {
       const mongoErr = err as { code?: number; message?: string };
@@ -160,7 +167,10 @@ class MainDal {
         }
       }
 
-      const result = await this.connection.insert<Binnacle>(BinnacleModel, body);
+      const result = await this.connection.insert<Binnacle>(
+        BinnacleModel,
+        body,
+      );
       return result;
     }
   }
@@ -263,6 +273,46 @@ class MainDal {
       DirectoryReportsModel,
       {
         path: { $regex: `^${parentPath}/`, $options: "i" },
+      },
+    );
+    return result;
+  }
+
+  public async InsertPendingExportReport(body: PendingExportReport) {
+    const result = await this.connection.insert<PendingExportReport>(
+      PendingExportReportModel,
+      body,
+    );
+    return result;
+  }
+
+  public async GetOnePendingExportReport(reportId: string) {
+    const result = await this.connection.getOne<PendingExportReport>(
+      PendingExportReportModel,
+      { reportId: reportId },
+    );
+    return result;
+  }
+
+  public async UpdatePendingExportReport(
+    reportId: string,
+    body: PendingExportReport,
+  ) {
+    const result = await this.connection.update<PendingExportReport>(
+      PendingExportReportModel,
+      body,
+      {
+        reportId: reportId,
+      },
+    );
+    return result;
+  }
+
+  public async DeletePendingExportReport(reportId: string) {
+    const result = await this.connection.delete<PendingExportReport>(
+      PendingExportReportModel,
+      {
+        reportId: reportId,
       },
     );
     return result;

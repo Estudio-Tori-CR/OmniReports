@@ -38,6 +38,10 @@ export class Repository<T extends object> {
     return this.M.updateOne(filter, update);
   }
 
+  async delete(filter: QueryFilter<T>) {
+    return this.M.deleteMany(filter);
+  }
+
   // async deleteOne(filter: QueryFilter<T>) {
   //   return this.M.deleteOne(filter);
   // }
@@ -95,5 +99,11 @@ export class ConnectionMongo {
     const r = this.repo<T>(M);
 
     return r.find(filter);
+  }
+
+  public async delete<T extends object>(M: Model<T>, filter: QueryFilter<T>) {
+    await this.connect();
+    const r = this.repo<T>(M);
+    return r.delete(filter);
   }
 }

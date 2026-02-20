@@ -3,14 +3,51 @@ import Client from "../../Client";
 import { DBReport, ExportReport, ReportInt } from "@/app/models/Report";
 import { ExecuteReport, ExecuteReportResult } from "@/app/models/executeReport";
 import Miselanius from "@/app/utilities/Miselanius";
+import { PendingExportReport } from "@/app/models/exportReports";
 import { useRouter } from "next/navigation";
 import { DirectoryReports } from "@/app/models/directory";
+import Loader from "@/app/pages/components/loading";
 
 class ReportsReq {
   private client: Client;
+  private static readonly EXPORT_POLLING_INTERVAL_MS = 1500;
 
   constructor(router: ReturnType<typeof useRouter>) {
     this.client = new Client(router);
+  }
+
+  private sleep(ms: number) {
+    return new Promise((resolve) => window.setTimeout(resolve, ms));
+  }
+
+  private downloadFiles(
+    files: PendingExportReport["files"],
+    fileName: string,
+    format: string,
+  ) {
+    const defaultBaseName = (fileName ?? "reporte").trim() || "reporte";
+
+    for (let index = 0; index < files.length; index++) {
+      const currentFile = files[index];
+      const blob = new Miselanius().base64ToBlob(
+        currentFile.file,
+        currentFile.mimeType,
+      );
+
+      const url = window.URL.createObjectURL(blob);
+      const downloadName =
+        format === "xlsx" && files.length === 1
+          ? `${defaultBaseName}.xlsx`
+          : currentFile.fileName || `${defaultBaseName}_${index + 1}.csv`;
+
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = downloadName;
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      window.setTimeout(() => window.URL.revokeObjectURL(url), 15_000);
+    }
   }
 
   public async Insert(body: ReportInt): Promise<BaseResponse<null>> {
@@ -60,39 +97,61 @@ class ReportsReq {
     body: ExecuteReport,
     fileName: string,
   ): Promise<BaseResponse<ExecuteReportResult>> {
-    const result = await this.client.Post<ExecuteReport, ExecuteReportResult>(
-      `reports/execute`,
-      body,
-    );
+    const response = new BaseResponse<ExecuteReportResult>();
+    try {
+      Loader().show();
 
-    if (result && result.isSuccess && result.body?.files?.length) {
-      const files = result.body.files;
-      const defaultBaseName = (fileName ?? "reporte").trim() || "reporte";
+      const start = await this.client.Post<ExecuteReport, string>(
+        `reports/execute`,
+        body,
+        false,
+        false,
+      );
 
-      for (let index = 0; index < files.length; index++) {
-        const currentFile = files[index];
-        const blob = new Miselanius().base64ToBlob(
-          currentFile.contentBase64,
-          currentFile.mimeType,
+      if (!start.isSuccess || !start.body) {
+        response.isSuccess = false;
+        response.message =
+          start.message || "Failed to start report export. Please try again.";
+        return response;
+      }
+
+      while (true) {
+        const result = await this.client.Get<PendingExportReport>(
+          `reports/execute?reportId=${start.body}`,
+          false,
+          false,
         );
 
-        const url = window.URL.createObjectURL(blob);
-        const downloadName =
-          body.format === "xlsx" && files.length === 1
-            ? `${defaultBaseName}.xlsx`
-            : currentFile.fileName || `${defaultBaseName}_${index + 1}.csv`;
+        if (!result.isSuccess) {
+          response.isSuccess = false;
+          response.message =
+            result.message || "Failed while generating the exported file.";
+          return response;
+        }
 
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = downloadName;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        window.setTimeout(() => window.URL.revokeObjectURL(url), 15_000);
+        if (
+          result.body?.status === "F" &&
+          (result.body.files?.length ?? 0) > 0
+        ) {
+          this.downloadFiles(result.body.files, fileName, body.format);
+
+          response.isSuccess = true;
+          response.message = result.message || "Report exported successfully.";
+          response.body = {
+            files: result.body.files.map((item) => ({
+              fileName: item.fileName,
+              mimeType: item.mimeType,
+              contentBase64: item.file,
+            })),
+          };
+          return response;
+        }
+
+        await this.sleep(ReportsReq.EXPORT_POLLING_INTERVAL_MS);
       }
+    } finally {
+      Loader().hidde();
     }
-
-    return result;
   }
 
   public async Export(body: ExportReport): Promise<BaseResponse<ExportReport>> {
@@ -151,4 +210,3 @@ class ReportsReq {
 }
 
 export default ReportsReq;
-

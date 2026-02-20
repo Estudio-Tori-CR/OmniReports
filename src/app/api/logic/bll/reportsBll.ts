@@ -17,6 +17,7 @@ import Encript from "../../utilities/Encript";
 import ExcelJS from "exceljs";
 import BaseResponse from "@/app/models/baseResponse";
 import Logs from "../../utilities/Logs";
+import { PendingExportReport } from "@/app/models/exportReports";
 
 class ReportsBll {
   private dal: ReportsDal;
@@ -27,7 +28,7 @@ class ReportsBll {
     this.log = new Logs();
   }
 
-  public async ExecuteOne(
+  private async ExecuteOne(
     execute: ExecuteReport,
   ): Promise<BaseResponse<ExecuteReportResult>> {
     const response = new BaseResponse<ExecuteReportResult>();
@@ -445,13 +446,15 @@ class ReportsBll {
       let currentRow = 1;
       for (const element of sheets) {
         currentRow = writeResultBlock(groupedSheet, element, currentRow);
-        for (const formula of element.formulas) {
-          setFormula(
-            groupedSheet,
-            formula.column,
-            formula.row,
-            formula.formula,
-          );
+        if (element.formulas) {
+          for (const formula of element.formulas) {
+            setFormula(
+              groupedSheet,
+              formula.column,
+              formula.row,
+              formula.formula,
+            );
+          }
         }
       }
       autoFitColumns(groupedSheet);
@@ -459,8 +462,10 @@ class ReportsBll {
       for (const element of sheets) {
         const sheet = workbook.addWorksheet(element.sheetName);
         writeResultBlock(sheet, element, 1);
-        for (const formula of element.formulas) {
-          setFormula(sheet, formula.column, formula.row, formula.formula);
+        if (element.formulas) {
+          for (const formula of element.formulas) {
+            setFormula(sheet, formula.column, formula.row, formula.formula);
+          }
         }
         autoFitColumns(sheet);
       }
@@ -478,6 +483,75 @@ class ReportsBll {
       },
     ];
   };
+
+  private async SaveExport(
+    reportId: string,
+    status: string,
+    message: string = "",
+    files: ExecuteReportFile[] = [],
+  ) {
+    const mainDal = new MainDal();
+    const exist = (await mainDal.GetOnePendingExportReport(reportId)) ?? false;
+
+    if (exist) {
+      await mainDal.UpdatePendingExportReport(reportId, {
+        files: files.map((x) => {
+          return {
+            file: x.contentBase64,
+            fileName: x.fileName,
+            mimeType: x.mimeType,
+          };
+        }),
+        reportId: reportId,
+        status: status,
+        message: message,
+      });
+    } else {
+      await mainDal.InsertPendingExportReport({
+        files: files.map((x) => {
+          return {
+            file: x.contentBase64,
+            fileName: x.fileName,
+            mimeType: x.mimeType,
+          };
+        }),
+        reportId: reportId,
+        status: status,
+        message: message,
+      });
+    }
+  }
+
+  public async ProcessExport(body: ExecuteReport, reportId: string) {
+    await this.SaveExport(reportId, "I");
+    setImmediate(async () => {
+      const response = await this.ExecuteOne(body);
+
+      await this.SaveExport(
+        reportId,
+        response.isSuccess ? "F" : "E",
+        response.message,
+        response.body?.files,
+      );
+    });
+  }
+
+  public async DownloadExport(reportId: string) {
+    const response = new BaseResponse<PendingExportReport>();
+
+    const mainDal = new MainDal();
+    const entity = await mainDal.GetOnePendingExportReport(reportId);
+
+    response.body = entity;
+    response.isSuccess = entity?.status != "E";
+    response.message = entity?.message as string;
+
+    if (entity?.status != "I") {
+      await mainDal.DeletePendingExportReport(reportId);
+    }
+
+    return response;
+  }
 }
 
 export default ReportsBll;
