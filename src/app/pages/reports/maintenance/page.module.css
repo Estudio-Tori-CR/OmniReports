@@ -203,6 +203,82 @@
   gap: 1rem;
 }
 
+.deliverySettingsSection {
+  margin-top: 1rem;
+  border-top: 1px dashed #d8e3ec;
+  padding-top: 0.9rem;
+}
+
+.reportDeliveryBlock .deliverySettingsSection {
+  margin-top: 0;
+  border-top: none;
+  padding-top: 0;
+}
+
+.deliverySettingsSection > h4 {
+  margin-bottom: 0.8rem;
+  color: #123f62;
+}
+
+.daysGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+
+.dayCheckboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.45rem 0.55rem;
+  border: 1px solid #d8e3ec;
+  border-radius: 8px;
+  background: #f9fcff;
+  font-size: 0.9rem;
+  color: #21435f;
+}
+
+.dayCheckboxInput {
+  accent-color: #0d5b8f;
+}
+
+.mailInputsGrid {
+  margin-top: 0.8rem;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.mailField {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.mailFieldLabel {
+  font-size: 0.85rem;
+  color: #2c4a63;
+  font-weight: 600;
+}
+
+.mailFieldInput {
+  width: 100%;
+  min-height: 2.35rem;
+  border: 1px solid #c5d5e3;
+  border-radius: 10px;
+  padding: 0.5rem 0.65rem;
+  background: #ffffff;
+  color: #102333;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.mailFieldInput:focus {
+  outline: none;
+  border-color: #6da4ca;
+  box-shadow: 0 0 0 3px rgba(109, 164, 202, 0.2);
+}
+
 .mainActions {
   margin-top: 0.4rem;
   padding-top: 1rem;
@@ -228,6 +304,14 @@
   .formulaGrid {
     grid-template-columns: 1fr;
   }
+
+  .daysGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .mailInputsGrid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 640px) {
@@ -241,5 +325,9 @@
 
   .queryActions {
     justify-content: stretch;
+  }
+
+  .daysGrid {
+    grid-template-columns: 1fr;
   }
 }

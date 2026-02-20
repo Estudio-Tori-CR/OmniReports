@@ -41,3 +41,4 @@ yarn-error.log*
 next-env.d.ts
 .github/instructions/snyk_rules.instructions.md
 .vscode/settings.json
+dist-worker/*

@@ -1,41 +1,69 @@
-OmniReports - Levantar worker con PM2 en Linux
-==============================================
+OmniReports - Compilar y publicar worker con PM2 (Linux)
+========================================================
 
 1) Requisitos
-- Node.js 20+ y npm instalados.
-- PM2 instalado globalmente:
+- Node.js 20+ y npm.
+- PM2 global:
   npm i -g pm2
 
-2) Ir al proyecto e instalar dependencias
+2) Variables de entorno requeridas
+- Backend/API:
+  - JWT_SECRET
+  - MONGO_CONNECTION_STRING
+- Worker:
+  - WORKER_API_BASE_URL (ejemplo: http://127.0.0.1:3001)
+  - WORKER_JWT_SECRET (si no existe, usa JWT_SECRET)
+  - WORKER_JWT_EMAIL (ejemplo: worker@omnireports.local)
+  - WORKER_JWT_ROLE (debe ser ADMIN para endpoint programado)
+- Correo (para adjuntos programados):
+  - SMTP_HOST
+  - SMTP_PORT
+  - SMTP_USER
+  - SMTP_PASS
+  - FROM_EMAIL (opcional, recomendado)
+  - SMTP_TLS (true/false)
+
+3) Instalar dependencias y compilar
 - cd /ruta/a/OmniReports
 - npm ci
-
-3) Compilar el worker TypeScript
+- npm run build
 - npm run worker:build
 
-4) Levantar el worker con PM2
-- pm2 start dist-worker/workers/report.worker.js --name omnireports-worker
+4) Publicar procesos con PM2
+- API Next.js:
+  pm2 start npm --name omnireports-api -- run start
+- Worker:
+  pm2 start dist-worker/workers/report.worker.js --name omnireports-worker
 
-5) Verificar estado y logs
+5) Persistencia al reiniciar servidor
+- pm2 startup systemd -u <tu_usuario> --hp /home/<tu_usuario>
+- Ejecuta el comando que PM2 imprime (con sudo).
+- pm2 save
+
+6) Verificacion operativa
 - pm2 status
+- pm2 logs omnireports-api
 - pm2 logs omnireports-worker
+- Confirmar que existan reportes activos con:
+  - deliverySettings.weekDays
+  - deliverySettings.executionTime
+  - deliverySettings.emailTo/emailCc/emailBcc
 
-6) Reiniciar / detener / eliminar
+7) Despliegue de cambios (incluye flujo nuevo de export + envio por correo)
+- git pull
+- npm ci
+- npm run build
+- npm run worker:build
+- pm2 restart omnireports-api
+- pm2 restart omnireports-worker
+
+8) Comandos de mantenimiento
 - pm2 restart omnireports-worker
 - pm2 stop omnireports-worker
 - pm2 delete omnireports-worker
 
-7) Iniciar automaticamente al reiniciar el servidor
-- pm2 startup systemd -u <tu_usuario> --hp /home/<tu_usuario>
-- Ejecuta el comando que PM2 te imprime al final (con sudo).
-- pm2 save
-
-8) Despliegue de cambios del worker
-- git pull
-- npm ci
-- npm run worker:build
-- pm2 restart omnireports-worker
-
 Notas
-- El worker corre cada 5 minutos desde el proceso Node.
-- Si cambias workers/report.worker.ts, debes recompilar (npm run worker:build) antes de reiniciar en PM2.
+- El worker ejecuta cada 5 minutos.
+- El worker llama POST /api/reports/reportsSheduled?reportId=<id>.
+- Si cambias workers/report.worker.ts, recompila con npm run worker:build.
+- Si cambias endpoints/BLL/API (src/app/api/**), recompila con npm run build y reinicia la API.

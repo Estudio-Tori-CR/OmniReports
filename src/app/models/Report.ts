@@ -19,6 +19,14 @@ export class DbFormula {
   formula!: string;
 }
 
+export class DbDeliverySettings {
+  weekDays!: number[];
+  executionTime!: string;
+  emailTo!: string;
+  emailCc!: string;
+  emailBcc!: string;
+}
+
 export class DbQuerys {
   title?: string;
   query!: string;
@@ -34,6 +42,7 @@ export class DBReport {
   name!: string;
   querys!: DbQuerys[];
   directory!: string;
+  deliverySettings?: DbDeliverySettings;
   createdAt?: Date;
   updatedAt?: Date;
   isActive: boolean = false;
@@ -71,11 +80,20 @@ export type QueryInt = {
   formulas?: FormulaInt[];
 };
 
+export type DeliverySettingsInt = {
+  weekDays: number[];
+  executionTime: string;
+  emailTo: string;
+  emailCc: string;
+  emailBcc: string;
+};
+
 export type ReportInt = {
   _id?: string;
   name: string;
   querys: QueryInt[];
   directory: string;
+  deliverySettings?: DeliverySettingsInt;
   isActive: boolean;
 };
 
@@ -134,6 +152,17 @@ const FormulaSchema = new Schema<DbFormula>(
   { _id: false },
 );
 
+const DeliverySettingsSchema = new Schema<DbDeliverySettings>(
+  {
+    weekDays: { type: [Number], default: [] },
+    executionTime: { type: String, trim: true, default: "" },
+    emailTo: { type: String, trim: true, default: "" },
+    emailCc: { type: String, trim: true, default: "" },
+    emailBcc: { type: String, trim: true, default: "" },
+  },
+  { _id: false },
+);
+
 const QuerySchema = new Schema<DbQuerys>(
   {
     title: { type: String, trim: true, default: "" },
@@ -156,6 +185,7 @@ const ReportSchema = new Schema<DBReport>(
     name: { type: String, required: true, trim: true },
     querys: { type: [QuerySchema], required: true, default: [] },
     directory: { type: String, required: false, default: "" },
+    deliverySettings: { type: DeliverySettingsSchema, default: {} },
     isActive: { type: Boolean, default: true },
   },
   { timestamps: true },

@@ -146,6 +146,38 @@ class MainDal {
     return result;
   }
 
+  public async GetReportsToExecuteBySchedule(
+    executionTime: string,
+    weekDay: number,
+  ) {
+    const normalizedTime = executionTime.trim();
+    const isValidDay = Number.isInteger(weekDay) && weekDay >= 0 && weekDay <= 6;
+    const isValidTime = /^([01]\d|2[0-3]):([0-5]\d)$/.test(normalizedTime);
+
+    if (!normalizedTime || !isValidDay || !isValidTime) {
+      return [] as DBReport[];
+    }
+
+    const now = new Date();
+    const currentTime = `${String(now.getHours()).padStart(2, "0")}:${String(
+      now.getMinutes(),
+    ).padStart(2, "0")}`;
+
+    // If the provided time is from previous day (e.g. now-5m across midnight),
+    // clamp to 00:00 so only current-day schedules are considered.
+    const rangeStart = normalizedTime <= currentTime ? normalizedTime : "00:00";
+
+    const result = await this.connection.find<DBReport>(ReportModel, {
+      isActive: true,
+      "deliverySettings.executionTime": {
+        $gte: rangeStart,
+        $lte: currentTime,
+      },
+      "deliverySettings.weekDays": weekDay,
+    });
+    return result;
+  }
+
   public async GetReport(reportId: string | null) {
     if (!reportId) return null;
     const result = await this.connection.find<DBReport>(ReportModel, {

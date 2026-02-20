@@ -6,9 +6,17 @@ type TemplateData = Record<string, string | number | undefined>;
 
 type SendMailArgs = {
   to: string;
+  cc?: string;
+  bcc?: string;
   subject: string;
   text?: string;
   html?: string;
+  attachments?: Array<{
+    filename: string;
+    content: string | Buffer;
+    contentType?: string;
+    encoding?: string;
+  }>;
   templateName?: string; // load template from templates folder by name (without .html)
   templateData?: TemplateData; // placeholders replacement for template
 };
@@ -70,9 +78,12 @@ class Mail {
 
   async SendMail({
     to,
+    cc,
+    bcc,
     subject,
     text,
     html,
+    attachments,
     templateName,
     templateData,
   }: SendMailArgs) {
@@ -93,9 +104,12 @@ class Mail {
       const info = await transporter.sendMail({
         from,
         to,
+        cc,
+        bcc,
         subject,
         text,
         html: finalHtml,
+        attachments,
       });
 
       return info;

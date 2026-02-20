@@ -922,6 +922,22 @@ class MainBll {
     await this.UpdateUser(user._id as unknown as string, user);
     return isBlocked;
   }
+
+  public async GetReportsToExecuteBySchedule(day: number, hour: string) {
+    const result = await this.dal.GetReportsToExecuteBySchedule(hour, day);
+    const response = new BaseResponse<DBReport[]>();
+
+    if (result) {
+      response.isSuccess = true;
+      response.message = "Reports loaded successfully.";
+      response.body = result;
+    } else {
+      response.isSuccess = false;
+      response.message = "No reports were found.";
+    }
+
+    return response;
+  }
 }
 
 export default MainBll;

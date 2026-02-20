@@ -1,0 +1,131 @@
+OmniReports - Guia Unificada APP + Worker (Linux con PM2)
+=========================================================
+
+Objetivo
+- Esta guia publica y opera los 2 procesos del sistema:
+  - Proyecto APP (Next.js): UI + API.
+  - Proyecto WORKER: ejecutor de reportes programados.
+
+---------------------------------------------------------
+1) Requisitos base (aplica a ambos)
+---------------------------------------------------------
+- Linux con acceso al servidor.
+- Node.js 20+ y npm.
+- PM2 global:
+  npm i -g pm2
+- Codigo del repo en servidor:
+  cd /ruta/a/OmniReports
+
+---------------------------------------------------------
+2) Variables por proyecto
+---------------------------------------------------------
+
+2.1 Proyecto APP (Next.js)
+- Obligatorias:
+  - JWT_SECRET
+  - MONGO_CONNECTION_STRING
+- Correo (obligatorias para envio de adjuntos y notificaciones):
+  - SMTP_HOST
+  - SMTP_PORT
+  - SMTP_USER
+  - SMTP_PASS
+  - SMTP_TLS (true/false)
+  - FROM_EMAIL (recomendado)
+- Recomendadas:
+  - URL_LOGIN
+  - LOGO_URL
+  - EMAIL_SUPPORT
+
+2.2 Proyecto WORKER
+- Obligatorias:
+  - WORKER_API_BASE_URL (ejemplo: http://127.0.0.1:3001)
+  - WORKER_JWT_EMAIL (ejemplo: worker@omnireports.local)
+  - WORKER_JWT_ROLE (debe ser ADMIN)
+- Token:
+  - WORKER_JWT_SECRET (si no existe, usa JWT_SECRET)
+
+Nota importante:
+- El envio de correos sucede en la APP (API), no en el proceso worker.
+- El worker solo dispara el endpoint programado.
+
+---------------------------------------------------------
+3) Build de ambos proyectos
+---------------------------------------------------------
+- Desde la raiz del repo:
+  - npm ci
+  - npm run build
+  - npm run worker:build
+
+---------------------------------------------------------
+4) Publicacion inicial con PM2
+---------------------------------------------------------
+
+4.1 Publicar APP
+- pm2 start npm --name omnireports-app -- run start
+
+4.2 Publicar WORKER
+- pm2 start dist-worker/workers/report.worker.js --name omnireports-worker
+
+4.3 Persistencia al reiniciar servidor
+- pm2 startup systemd -u <tu_usuario> --hp /home/<tu_usuario>
+- Ejecuta el comando final que imprime PM2 (con sudo).
+- pm2 save
+
+---------------------------------------------------------
+5) Verificacion operativa
+---------------------------------------------------------
+- Estado procesos:
+  - pm2 status
+- Logs APP:
+  - pm2 logs omnireports-app
+- Logs WORKER:
+  - pm2 logs omnireports-worker
+
+Validaciones funcionales del flujo programado:
+- La APP debe responder en WORKER_API_BASE_URL.
+- Existen reportes activos con:
+  - deliverySettings.weekDays
+  - deliverySettings.executionTime
+  - deliverySettings.emailTo/emailCc/emailBcc
+- El worker invoca:
+  - POST /api/reports/reportsSheduled?reportId=<id>
+
+---------------------------------------------------------
+6) Publicacion de cambios (ciclo estandar)
+---------------------------------------------------------
+- git pull
+- npm ci
+- npm run build
+- npm run worker:build
+- pm2 restart omnireports-app
+- pm2 restart omnireports-worker
+
+Regla rapida de reinicio:
+- Cambios en src/app/api/** o APP: build APP + restart APP.
+- Cambios en workers/**: build worker + restart worker.
+- Si tocas ambos: recompila ambos y reinicia ambos.
+
+---------------------------------------------------------
+7) Operacion y mantenimiento
+---------------------------------------------------------
+- Reiniciar:
+  - pm2 restart omnireports-app
+  - pm2 restart omnireports-worker
+- Detener:
+  - pm2 stop omnireports-app
+  - pm2 stop omnireports-worker
+- Eliminar:
+  - pm2 delete omnireports-app
+  - pm2 delete omnireports-worker
+
+---------------------------------------------------------
+8) Troubleshooting rapido
+---------------------------------------------------------
+- Si el worker no ejecuta reportes:
+  - Verifica WORKER_API_BASE_URL y JWT/WORKER_JWT_SECRET.
+  - Verifica WORKER_JWT_ROLE=ADMIN.
+  - Revisa logs de ambos procesos.
+- Si exporta pero no envia correo:
+  - El problema esta en APP (SMTP o configuracion de destinatarios del reporte).
+- Si cambiaste TypeScript y no ves cambios:
+  - Recompila (npm run build y/o npm run worker:build) y reinicia PM2.

@@ -10,7 +10,7 @@ import PersonalSelect, { SelectOptions } from "../../components/select";
 import PersonalButton from "../../components/button";
 import RoleGuard from "../../components/RolGuard";
 import Message from "../../components/popups";
-import { ExportReport, ReportInt } from "@/app/models/Report";
+import { DeliverySettingsInt, ReportInt } from "@/app/models/Report";
 import BaseResponse from "@/app/models/baseResponse";
 import ReportsReq from "@/app/utilities/requests/reports/requests";
 import ActionGuard from "../../components/ActionGuard";
@@ -23,6 +23,42 @@ import PersonalMultiSelect, {
 } from "../../components/multiSelect";
 import GoBack from "../../components/goBack";
 
+const WEEK_DAYS = [
+  { label: "Sunday", index: 0 },
+  { label: "Monday", index: 1 },
+  { label: "Tuesday", index: 2 },
+  { label: "Wednesday", index: 3 },
+  { label: "Thursday", index: 4 },
+  { label: "Friday", index: 5 },
+  { label: "Saturday", index: 6 },
+];
+
+const DEFAULT_DELIVERY_SETTINGS: DeliverySettingsInt = {
+  weekDays: [],
+  executionTime: "",
+  emailTo: "",
+  emailCc: "",
+  emailBcc: "",
+};
+
+const buildDeliverySettings = (
+  settings?: Partial<DeliverySettingsInt>,
+): DeliverySettingsInt => {
+  const safeWeekDays = Array.from(
+    new Set(
+      (settings?.weekDays ?? []).filter(
+        (day) => Number.isInteger(day) && day >= 0 && day <= 6,
+      ),
+    ),
+  ).sort((a, b) => a - b);
+
+  return {
+    ...DEFAULT_DELIVERY_SETTINGS,
+    ...settings,
+    weekDays: safeWeekDays,
+  };
+};
+
 const Maintenance = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -31,6 +67,7 @@ const Maintenance = () => {
     name: "",
     querys: [],
     directory: "",
+    deliverySettings: { ...DEFAULT_DELIVERY_SETTINGS },
     isActive: true,
   });
   const [options, setOptions] = useState<SelectOptions[]>([]);
@@ -72,12 +109,16 @@ const Maintenance = () => {
           name: "",
           querys: [],
           directory: "",
+          deliverySettings: { ...DEFAULT_DELIVERY_SETTINGS },
           isActive: false,
         };
         tmpReport._id = response.body._id?.toString();
         tmpReport.name = response.body.name;
         tmpReport.isActive = response.body.isActive;
         tmpReport.directory = response.body.directory;
+        tmpReport.deliverySettings = buildDeliverySettings(
+          response.body.deliverySettings,
+        );
         response.body.querys.forEach((x) => {
           tmpReport.querys.push({
             title: x.title ?? "",
@@ -96,6 +137,7 @@ const Maintenance = () => {
           name: "",
           querys: [],
           directory: "",
+          deliverySettings: { ...DEFAULT_DELIVERY_SETTINGS },
           isActive: true,
         });
       }
@@ -426,6 +468,154 @@ const Maintenance = () => {
                     onChange={(value) => setUsersForReport(value)}
                   />
                 </ActionGuard>
+              </div>
+              <div className={`${styles.metaBlock} ${styles.reportDeliveryBlock}`}>
+                <div className={styles.deliverySettingsSection}>
+                  <h4>Email Delivery</h4>
+                  <div className={styles.daysGrid}>
+                    {WEEK_DAYS.map((day) => (
+                      <label
+                        key={`report-day-${day.index}`}
+                        className={styles.dayCheckboxLabel}
+                      >
+                        <input
+                          type="checkbox"
+                          name="report-send-days"
+                          value={day.index}
+                          className={styles.dayCheckboxInput}
+                          checked={(
+                            report.deliverySettings?.weekDays ?? []
+                          ).includes(day.index)}
+                          onChange={(event) => {
+                            const dayIndex = Number(event.target.value);
+                            setReport((prev) => ({
+                              ...prev,
+                              deliverySettings: (() => {
+                                const currentWeekDays =
+                                  prev.deliverySettings?.weekDays ?? [];
+                                const nextWeekDays = event.target.checked
+                                  ? Array.from(
+                                      new Set([...currentWeekDays, dayIndex]),
+                                    ).sort((a, b) => a - b)
+                                  : currentWeekDays.filter(
+                                      (currentDay) => currentDay !== dayIndex,
+                                    );
+                                return {
+                                  ...buildDeliverySettings(
+                                    prev.deliverySettings,
+                                  ),
+                                  weekDays: nextWeekDays,
+                                };
+                              })(),
+                            }));
+                          }}
+                        />
+                        <span>{day.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                  <div className={styles.mailInputsGrid}>
+                    <div className={styles.mailField}>
+                      <label
+                        htmlFor="report-execution-time"
+                        className={styles.mailFieldLabel}
+                      >
+                        Execution Time
+                      </label>
+                      <input
+                        id="report-execution-time"
+                        name="report-execution-time"
+                        type="time"
+                        className={styles.mailFieldInput}
+                        value={report.deliverySettings?.executionTime ?? ""}
+                        onChange={(event) => {
+                          setReport((prev) => ({
+                            ...prev,
+                            deliverySettings: {
+                              ...buildDeliverySettings(prev.deliverySettings),
+                              executionTime: event.target.value,
+                            },
+                          }));
+                        }}
+                      />
+                    </div>
+                    <div className={styles.mailField}>
+                      <label
+                        htmlFor="report-email-to"
+                        className={styles.mailFieldLabel}
+                      >
+                        Email To
+                      </label>
+                      <input
+                        id="report-email-to"
+                        name="report-email-to"
+                        type="email"
+                        className={styles.mailFieldInput}
+                        placeholder="name@company.com"
+                        value={report.deliverySettings?.emailTo ?? ""}
+                        onChange={(event) => {
+                          setReport((prev) => ({
+                            ...prev,
+                            deliverySettings: {
+                              ...buildDeliverySettings(prev.deliverySettings),
+                              emailTo: event.target.value,
+                            },
+                          }));
+                        }}
+                      />
+                    </div>
+                    <div className={styles.mailField}>
+                      <label
+                        htmlFor="report-email-cc"
+                        className={styles.mailFieldLabel}
+                      >
+                        Copy (CC)
+                      </label>
+                      <input
+                        id="report-email-cc"
+                        name="report-email-cc"
+                        type="email"
+                        className={styles.mailFieldInput}
+                        placeholder="copy@company.com"
+                        value={report.deliverySettings?.emailCc ?? ""}
+                        onChange={(event) => {
+                          setReport((prev) => ({
+                            ...prev,
+                            deliverySettings: {
+                              ...buildDeliverySettings(prev.deliverySettings),
+                              emailCc: event.target.value,
+                            },
+                          }));
+                        }}
+                      />
+                    </div>
+                    <div className={styles.mailField}>
+                      <label
+                        htmlFor="report-email-bcc"
+                        className={styles.mailFieldLabel}
+                      >
+                        Blind Copy (BCC)
+                      </label>
+                      <input
+                        id="report-email-bcc"
+                        name="report-email-bcc"
+                        type="email"
+                        className={styles.mailFieldInput}
+                        placeholder="hidden@company.com"
+                        value={report.deliverySettings?.emailBcc ?? ""}
+                        onChange={(event) => {
+                          setReport((prev) => ({
+                            ...prev,
+                            deliverySettings: {
+                              ...buildDeliverySettings(prev.deliverySettings),
+                              emailBcc: event.target.value,
+                            },
+                          }));
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
               <div id="querys-container" className={styles.querysContainer}>
                 {report.querys.length === 0 ? (

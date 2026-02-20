@@ -3,6 +3,8 @@ import {
   ExecuteReport,
   ExecuteReportFile,
   ExecuteReportResult,
+  ParametersReport,
+  QueryParams,
 } from "@/app/models/executeReport";
 import MainDal from "../dal/mainDal";
 import ReportsDal from "../dal/reportsDal";
@@ -18,6 +20,7 @@ import ExcelJS from "exceljs";
 import BaseResponse from "@/app/models/baseResponse";
 import Logs from "../../utilities/Logs";
 import { PendingExportReport } from "@/app/models/exportReports";
+import Mail from "../../utilities/Mail";
 
 class ReportsBll {
   private dal: ReportsDal;
@@ -548,6 +551,92 @@ class ReportsBll {
         message: message,
       });
     }
+  }
+
+  public async ExecuteAndSendScheduledReport(reportId: string) {
+    const response = new BaseResponse<null>();
+    const normalizedReportId = (reportId ?? "").trim();
+    if (!normalizedReportId) {
+      response.isSuccess = false;
+      response.message = "Invalid report id.";
+      return response;
+    }
+
+    const mainDal = new MainDal();
+    const report = await mainDal.GetReport(normalizedReportId);
+
+    if (!report || !report.isActive) {
+      response.isSuccess = false;
+      response.message = "Report not found or inactive.";
+      return response;
+    }
+
+    const toRecipients = (report.deliverySettings?.emailTo ?? "").trim();
+    const ccRecipients = (report.deliverySettings?.emailCc ?? "").trim();
+    const bccRecipients = (report.deliverySettings?.emailBcc ?? "").trim();
+
+    let to = toRecipients;
+    let cc = ccRecipients;
+    let bcc = bccRecipients;
+
+    if (!to && cc) {
+      to = cc;
+      cc = "";
+    } else if (!to && bcc) {
+      to = bcc;
+      bcc = "";
+    }
+
+    if (!to) {
+      response.isSuccess = false;
+      response.message = "No recipients configured for scheduled delivery.";
+      return response;
+    }
+
+    const executeBody = new ExecuteReport();
+    executeBody.id = normalizedReportId;
+    executeBody.singleSheet = false;
+    executeBody.format = "xlsx";
+    executeBody.queryParams = (report.querys ?? []).map((query) => {
+      const item = new QueryParams();
+      item.sheetName = query.sheetName ?? "";
+      item.formulas = query.formulas ?? [];
+      item.parameters = (query.parameters ?? []).map((parameter) => {
+        const oneParameter = new ParametersReport();
+        oneParameter.type = parameter.type ?? "";
+        oneParameter.name = parameter.name ?? "";
+        oneParameter.value = "";
+        oneParameter.isRequired = parameter.isRequired === true;
+        return oneParameter;
+      });
+      return item;
+    });
+
+    const execution = await this.ExecuteOne(executeBody);
+    if (!execution.isSuccess || !execution.body?.files?.length) {
+      response.isSuccess = false;
+      response.message =
+        execution.message || "Failed to execute the scheduled report.";
+      return response;
+    }
+
+    await new Mail().SendMail({
+      to,
+      cc: cc || undefined,
+      bcc: bcc || undefined,
+      subject: `Scheduled report - ${report.name}`,
+      text: `Please find attached the scheduled report "${report.name}".`,
+      attachments: execution.body.files.map((file) => ({
+        filename: file.fileName,
+        content: file.contentBase64,
+        contentType: file.mimeType,
+        encoding: "base64",
+      })),
+    });
+
+    response.isSuccess = true;
+    response.message = "Report exported and sent by email successfully.";
+    return response;
   }
 
   public async ProcessExport(body: ExecuteReport, reportId: string, owner: string) {
