@@ -8,6 +8,7 @@ export class User {
   password!: string;
   roles!: string;
   reports: string[] = [];
+  countIntents: number = 0;
   createdAt?: Date;
   updatedAt?: Date;
   isActive: boolean = false;
@@ -41,6 +42,7 @@ const userSchema = new Schema<User>(
     roles: { type: String, required: true },
     reports: { type: [String], default: [] },
     isActive: { type: Boolean, default: true },
+    countIntents: { type: Number, default: 0 },
   },
   { timestamps: true },
 );

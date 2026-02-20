@@ -26,11 +26,17 @@ class MainBll {
   public async LogIn(email: string, password: string) {
     password = new Encript().Hash(password);
     const result = await this.dal.LogIn(email, password);
+
+    const isBlocked = await this.CountCredentialsIntent(email, result != null);
+
     const response = new BaseResponse<User>();
     if (result) {
       response.isSuccess = true;
       response.message = "Sign-in completed successfully.";
       response.body = result;
+    } else if (isBlocked) {
+      response.isSuccess = false;
+      response.message = "Your user is blocked. Please contact support.";
     } else {
       response.isSuccess = false;
       response.message = "Invalid email or password.";
@@ -580,18 +586,35 @@ class MainBll {
     const response = new BaseResponse<User>();
     response.isSuccess = true;
     try {
+      const user = await this.dal.GetUser(userId);
+      if (!user) {
+        response.isSuccess = false;
+        response.message = "User not found.";
+        return response;
+      }
+
+      if (!user.isActive) {
+        response.isSuccess = false;
+        response.message = "Your user is blocked. Please contact support.";
+        return response;
+      }
+
       const currentToken = await this.dal.ValidateAuthenticator(userId, token);
       if (!currentToken) {
+        const isBlocked = await this.CountCredentialsIntent(user.email, false);
         response.isSuccess = false;
-        response.message = "The verification code is invalid or has expired.";
+        response.message = isBlocked
+          ? "Your user is blocked. Please contact support."
+          : "The verification code is invalid or has expired.";
       } else {
+        await this.CountCredentialsIntent(user.email, true);
         await this.ExpireAuthenticatorByUser(
           userId,
           currentToken?._id?.toString(),
         );
 
         response.message = "Verification code validated successfully.";
-        response.body = (await this.GetUser(userId)).body;
+        response.body = user;
       }
     } catch (err) {
       this.log.log(`Error: ${err}`, "error");
@@ -748,6 +771,24 @@ class MainBll {
       response.message = "Error generating temporary password.";
       return response;
     }
+  }
+
+  private async CountCredentialsIntent(filter: string, isValid: boolean) {
+    const user = await this.dal.GetUserByEmailOrId(filter);
+    if (!user) return false;
+    if (!user.isActive) return true;
+
+    const currentIntents = user.countIntents ?? 0;
+    user.countIntents = isValid ? 0 : currentIntents + 1;
+
+    let isBlocked = false;
+    if (user.countIntents >= 5) {
+      user.isActive = false;
+      isBlocked = true;
+    }
+
+    await this.UpdateUser(user._id as unknown as string, user);
+    return isBlocked;
   }
 }
 

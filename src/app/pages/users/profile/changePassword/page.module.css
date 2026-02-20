@@ -27,11 +27,75 @@
   gap: 1rem;
 }
 
-.passwordLevelContainer {
-  height: max-content;
-  padding: 0.3rem;
+.passwordStrength {
+  width: 180px;
+  padding: 0.45rem 0.6rem;
   margin-bottom: 0.3rem;
-  border-radius: 5px;
+  border-radius: 8px;
+  border: 1px solid #d7e2ea;
+  background: #ffffff;
+}
+
+.passwordStrengthHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.45rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #7b8a98;
+}
+
+.passwordStrengthValue {
+  font-size: 0.75rem;
+  letter-spacing: normal;
+  text-transform: none;
+  font-weight: 700;
+}
+
+.passwordStrengthTrack {
+  width: 100%;
+  height: 6px;
+  background: #edf1f5;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.passwordStrengthFill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  transition:
+    width 180ms ease-in-out,
+    background-color 180ms ease-in-out;
+}
+
+.passwordLow .passwordStrengthValue {
+  color: #8b1e1e;
+}
+
+.passwordLow .passwordStrengthFill {
+  width: 33%;
+  background: #c44a4a;
+}
+
+.passwordMedium .passwordStrengthValue {
+  color: #7a6200;
+}
+
+.passwordMedium .passwordStrengthFill {
+  width: 66%;
+  background: #d4a62a;
+}
+
+.passwordHigh .passwordStrengthValue {
+  color: #146c4a;
+}
+
+.passwordHigh .passwordStrengthFill {
+  width: 100%;
+  background: #1e8f63;
 }
 
 .passwordMismatch {
@@ -55,6 +119,10 @@
   .newPassword {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .passwordStrength {
+    width: 100%;
   }
 }
 

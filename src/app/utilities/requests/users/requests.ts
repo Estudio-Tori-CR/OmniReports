@@ -21,6 +21,7 @@ class UsersReq {
       lastName: "",
       roles: "",
       reports: [],
+      countIntents: 0,
       isActive: false,
     });
 

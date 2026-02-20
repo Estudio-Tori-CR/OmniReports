@@ -75,14 +75,16 @@ const Index = () => {
 
     // 1) optimista: actualizar UI primero
     setUsers((prev) =>
-      prev.map((u) => (u._id === user._id ? { ...u, isActive: true } : u)),
+      prev.map((u) =>
+        u._id === user._id ? { ...u, isActive: true, countIntents: 0 } : u,
+      ),
     );
     setUsersTable((prev) =>
       prev.map((r) => (r.email === email ? { ...r, status: "Active" } : r)),
     );
 
     // 2) guardar en backend
-    const updatedUser = { ...user, isActive: true };
+    const updatedUser = { ...user, isActive: true, countIntents: 0 };
     client.Update(user._id.toString(), updatedUser);
   };
 

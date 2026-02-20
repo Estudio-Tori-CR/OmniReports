@@ -12,6 +12,7 @@ import ExportReportModel, {
   PendingExportReport,
 } from "@/app/models/exportReports";
 import PendingExportReportModel from "@/app/models/exportReports";
+import { Types } from "mongoose";
 
 class MainDal {
   private connection: ConnectionMongo;
@@ -32,6 +33,20 @@ class MainDal {
   public async GetUser(userId: string | null) {
     if (!userId) return null;
     const result = await this.connection.find<User>(UserModel, { _id: userId });
+    return result[0];
+  }
+
+  public async GetUserByEmailOrId(filter: string | null) {
+    if (!filter) return null;
+
+    const result = Types.ObjectId.isValid(filter)
+      ? await this.connection.find<User>(UserModel, {
+          $or: [{ _id: filter }, { email: filter }],
+        })
+      : await this.connection.find<User>(UserModel, {
+          email: filter,
+        });
+
     return result[0];
   }
 

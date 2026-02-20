@@ -105,6 +105,15 @@ const ChangePassword = () => {
     }
   };
 
+  const passwordLevelLabel =
+    passwordLevel === 1 ? "Low" : passwordLevel === 2 ? "Medium" : "High";
+  const passwordLevelClass =
+    passwordLevel === 1
+      ? style.passwordLow
+      : passwordLevel === 2
+        ? style.passwordMedium
+        : style.passwordHigh;
+
   return (
     <RoleGuard allowed={["ADMIN", "DEVELOPER", "REPORTS"]}>
       <AppShell>
@@ -136,25 +145,17 @@ const ChangePassword = () => {
                 />
                 {passwordLevel !== 0 && (
                   <div
-                    className={style.passwordLevelContainer}
-                    style={{
-                      backgroundColor:
-                        passwordLevel === 1
-                          ? "var(--red)"
-                          : passwordLevel === 2
-                            ? "yellow"
-                            : "green",
-                      color:
-                        passwordLevel === 1
-                          ? "var(--white)"
-                          : passwordLevel === 2
-                            ? "var(--black)"
-                            : "var(--white)",
-                    }}
+                    className={`${style.passwordStrength} ${passwordLevelClass}`}
                   >
-                    {passwordLevel === 1 && <p>Low</p>}
-                    {passwordLevel === 2 && <p>Medium</p>}
-                    {passwordLevel === 3 && <p>High</p>}
+                    <div className={style.passwordStrengthHeader}>
+                      <span>Password strength</span>
+                      <span className={style.passwordStrengthValue}>
+                        {passwordLevelLabel}
+                      </span>
+                    </div>
+                    <div className={style.passwordStrengthTrack}>
+                      <span className={style.passwordStrengthFill} />
+                    </div>
                   </div>
                 )}
               </div>
