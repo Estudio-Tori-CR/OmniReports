@@ -30,7 +30,7 @@ const Index = () => {
   const client = new UsersReq(router);
 
   useEffect(() => {
-    client.GetAll("").then((response) => {
+    client.GetAll().then((response) => {
       if (response.isSuccess && response.body) {
         const userTmp: userTable[] = response.body.map((x) => ({
           email: x.email,

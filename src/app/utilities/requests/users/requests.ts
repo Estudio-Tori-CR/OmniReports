@@ -14,15 +14,12 @@ class UsersReq {
     email: string,
     password: string,
   ): Promise<BaseResponse<User>> {
-    const result = await this.client.Post<User, User>(`users/logIn`, {
+    const result = await this.client.Post<
+      { email: string; password: string },
+      User
+    >(`users/logIn`, {
       email,
       password,
-      firstName: "",
-      lastName: "",
-      roles: "",
-      reports: [],
-      countIntents: 0,
-      isActive: false,
     });
 
     return result;
@@ -57,7 +54,7 @@ class UsersReq {
     return result;
   }
 
-  public async GetAll(filter: string): Promise<BaseResponse<User[]>> {
+  public async GetAll(): Promise<BaseResponse<User[]>> {
     const result = await this.client.Get<User[]>("users/");
 
     return result;
@@ -65,24 +62,21 @@ class UsersReq {
 
   public async ValidatePassword(
     currentPassword: string,
-    userId: string,
   ): Promise<BaseResponse<User>> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const result = await this.client.Post<any, User>("users/validatePassword", {
       currentPassword,
-      userId,
     });
 
     return result;
   }
 
   public async ChangePassword(
-    userId: string | undefined,
-    body: UserInt,
+    newPassword: string,
   ): Promise<BaseResponse<null>> {
-    const result = await this.client.Put<UserInt, null>(
-      `users/changePassword?userId=${userId}`,
-      body,
+    const result = await this.client.Put<{ password: string }, null>(
+      `users/changePassword`,
+      { password: newPassword },
     );
 
     return result;

@@ -63,12 +63,17 @@ class MainDal {
     return result;
   }
 
+  public async HasUsers() {
+    const result = await this.connection.getOne<User>(UserModel, {});
+    return result !== null;
+  }
+
   public async InsertUser(body: User) {
     const result = await this.connection.insert<User>(UserModel, body);
     return result;
   }
 
-  public async UpdateUser(userId: string, body: User) {
+  public async UpdateUser(userId: string, body: Partial<User>) {
     const result = await this.connection.update<User>(UserModel, body, {
       _id: userId,
     });
@@ -301,10 +306,13 @@ class MainDal {
     return result;
   }
 
-  public async GetOnePendingExportReport(reportId: string) {
+  public async GetOnePendingExportReport(reportId: string, owner?: string) {
+    const pendingFilter: { reportId: string; owner?: string } = { reportId };
+    if (owner) pendingFilter.owner = owner;
+
     const result = await this.connection.getOne<PendingExportReport>(
       PendingExportReportModel,
-      { reportId: reportId },
+      pendingFilter,
     );
     return result;
   }
@@ -312,23 +320,26 @@ class MainDal {
   public async UpdatePendingExportReport(
     reportId: string,
     body: PendingExportReport,
+    owner?: string,
   ) {
+    const pendingFilter: { reportId: string; owner?: string } = { reportId };
+    if (owner) pendingFilter.owner = owner;
+
     const result = await this.connection.update<PendingExportReport>(
       PendingExportReportModel,
       body,
-      {
-        reportId: reportId,
-      },
+      pendingFilter,
     );
     return result;
   }
 
-  public async DeletePendingExportReport(reportId: string) {
+  public async DeletePendingExportReport(reportId: string, owner?: string) {
+    const pendingFilter: { reportId: string; owner?: string } = { reportId };
+    if (owner) pendingFilter.owner = owner;
+
     const result = await this.connection.delete<PendingExportReport>(
       PendingExportReportModel,
-      {
-        reportId: reportId,
-      },
+      pendingFilter,
     );
     return result;
   }

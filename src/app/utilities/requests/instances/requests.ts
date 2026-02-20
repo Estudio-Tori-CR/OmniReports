@@ -40,7 +40,6 @@ class IntancesReq {
   }
 
   public async GetAll(
-    filter: string,
     isExport: boolean = false,
   ): Promise<BaseResponse<Instance[]>> {
     const result = await this.client.Get<Instance[]>(

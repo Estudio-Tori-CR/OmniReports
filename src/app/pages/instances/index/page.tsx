@@ -16,7 +16,7 @@ const Index = () => {
   const client = new IntancesReq(router);
 
   useEffect(() => {
-    client.GetAll("").then((response) => {
+    client.GetAll().then((response) => {
       if (response.isSuccess && response.body) {
         setInstances(response.body);
       }

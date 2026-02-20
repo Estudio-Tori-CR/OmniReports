@@ -13,6 +13,7 @@ export class File {
 export class PendingExportReport {
   _id?: Types.ObjectId;
   reportId!: string;
+  owner!: string;
   files!: File[];
   status!: string;
   message!: string;
@@ -34,6 +35,7 @@ const fileSchema = new Schema<File>(
 const pendingExportReportSchema = new Schema<PendingExportReport>(
   {
     reportId: { type: String, required: true, trim: true },
+    owner: { type: String, required: true, trim: true },
     files: { type: [fileSchema], default: [] },
     status: { type: String, required: true, trim: true, default: "P" },
     message: { type: String, trim: true },

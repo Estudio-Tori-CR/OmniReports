@@ -51,7 +51,7 @@ const Maintenance = () => {
   const reportId = searchParams.get("reportId") ?? "";
 
   useEffect(() => {
-    clientInstances.GetAll("", true).then((response) => {
+    clientInstances.GetAll(true).then((response) => {
       const options: SelectOptions[] = [];
       if (response.isSuccess && response.body) {
         setInstances(response.body);
@@ -120,7 +120,7 @@ const Maintenance = () => {
 
   useEffect(() => {
     if (role.includes("ADMIN")) {
-      clientUsers.GetAll("").then((response) => {
+      clientUsers.GetAll().then((response) => {
         if (response.isSuccess && response.body) {
           const optionsTmp = [...optionsUser];
           response.body.forEach((x) => {

@@ -4,17 +4,35 @@ import BaseResponse from "@/app/models/baseResponse";
 import { User } from "@/app/models/User";
 import MainBll from "../../logic/bll/mainBll";
 import Logs from "../../utilities/Logs";
+import { JWTPayload } from "jose";
 
 const log: Logs = new Logs();
 
 export const POST = withRoles(
   ["ADMIN", "DEVELOPER", "REPORTS"],
-  async (req: Request) => {
+  async (req: Request, _ctx, payload: JWTPayload) => {
     let response: BaseResponse<User> = new BaseResponse<User>();
     try {
       const bll: MainBll = new MainBll();
-      const body = await req.json();
-      response = await bll.ValidatePassword(body.currentPassword, body.userId);
+      const body = (await req.json()) as { currentPassword?: string };
+
+      const sessionEmail = String(payload.email ?? payload.sub ?? "").trim();
+      if (!sessionEmail) {
+        response.isSuccess = false;
+        response.message = "Unauthorized.";
+        return NextResponse.json(response, { status: 401 });
+      }
+
+      const sessionUser = await bll.GetUserByEmail(sessionEmail);
+      const sessionUserId = sessionUser?._id?.toString() ?? "";
+      if (!sessionUser || !sessionUserId) {
+        response.isSuccess = false;
+        response.message = "Unauthorized.";
+        return NextResponse.json(response, { status: 401 });
+      }
+
+      const currentPassword = body.currentPassword?.toString() ?? "";
+      response = await bll.ValidatePassword(currentPassword, sessionUserId);
     } catch (err) {
       response.isSuccess = false;
       response.message =

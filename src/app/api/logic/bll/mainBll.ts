@@ -14,6 +14,7 @@ import AuthenticatorModel, {
 } from "@/app/models/authenticator";
 import { DirectoryReports } from "@/app/models/directory";
 import SqlScan from "../../utilities/SqlScan";
+import { Role } from "@/app/interfaces/Roles";
 
 class MainBll {
   private dal: MainDal;
@@ -21,6 +22,20 @@ class MainBll {
   constructor() {
     this.dal = new MainDal();
     this.log = new Logs();
+  }
+
+  private sanitizeUser(user: User | null | undefined): User | null {
+    if (!user) return null;
+    return {
+      ...user,
+      password: "",
+    };
+  }
+
+  private sanitizeUsers(users: User[] | null | undefined): User[] {
+    return (users ?? [])
+      .map((user) => this.sanitizeUser(user))
+      .filter((user): user is User => user !== null);
   }
 
   public async LogIn(email: string, password: string) {
@@ -33,7 +48,7 @@ class MainBll {
     if (result) {
       response.isSuccess = true;
       response.message = "Sign-in completed successfully.";
-      response.body = result;
+      response.body = this.sanitizeUser(result) as User;
     } else if (isBlocked) {
       response.isSuccess = false;
       response.message = "Your user is blocked. Please contact support.";
@@ -52,7 +67,7 @@ class MainBll {
     if (result) {
       response.isSuccess = true;
       response.message = "User details loaded successfully.";
-      response.body = result;
+      response.body = this.sanitizeUser(result) as User;
     } else if (userId !== "") {
       response.isSuccess = false;
       response.message = "User not found.";
@@ -67,7 +82,7 @@ class MainBll {
     if (result) {
       response.isSuccess = true;
       response.message = "Users loaded successfully.";
-      response.body = result;
+      response.body = this.sanitizeUsers(result);
     } else {
       response.isSuccess = false;
       response.message = "No users were found.";
@@ -123,7 +138,62 @@ class MainBll {
     return response;
   }
 
-  public async UpdateUser(userId: string, body: User) {
+  public async CanBootstrap() {
+    const hasUsers = await this.dal.HasUsers();
+    return !hasUsers;
+  }
+
+  public async BootstrapCreateFirstUser(body: User) {
+    const response = new BaseResponse<null>();
+
+    const canBootstrap = await this.CanBootstrap();
+    if (!canBootstrap) {
+      response.isSuccess = false;
+      response.message = "Bootstrap is disabled because users already exist.";
+      return response;
+    }
+
+    const email = body.email?.trim();
+    const firstName = body.firstName?.trim();
+    const lastName = body.lastName?.trim();
+    const password = body.password?.trim();
+
+    if (!email || !firstName || !lastName || !password) {
+      response.isSuccess = false;
+      response.message =
+        "firstName, lastName, email and password are required for bootstrap.";
+      return response;
+    }
+
+    const existingUser = await this.dal.ValidateEmail(email);
+    if (existingUser) {
+      response.isSuccess = false;
+      response.message = "User already exists.";
+      return response;
+    }
+
+    body.firstName = firstName;
+    body.lastName = lastName;
+    body.email = email;
+    body.password = new Encript().Hash(password);
+    body.roles = "ADMIN";
+    body.reports = body.reports ?? [];
+    body.countIntents = 0;
+    body.isActive = true;
+
+    const result = await this.dal.InsertUser(body);
+    if (result) {
+      response.isSuccess = true;
+      response.message = "Initial admin user created successfully.";
+    } else {
+      response.isSuccess = false;
+      response.message = "Failed to create initial admin user.";
+    }
+
+    return response;
+  }
+
+  public async UpdateUser(userId: string, body: Partial<User>) {
     const result = await this.dal.UpdateUser(userId, body);
     const response = new BaseResponse<null>();
 
@@ -145,7 +215,7 @@ class MainBll {
     if (result) {
       response.isSuccess = true;
       response.message = "Current password validated successfully.";
-      response.body = result;
+      response.body = this.sanitizeUser(result) as User;
     } else {
       response.isSuccess = false;
       response.message = "The current password is incorrect.";
@@ -154,23 +224,30 @@ class MainBll {
     return response;
   }
 
-  public async ChangePassword(userId: string, body: User, ip: string) {
-    body.password = new Encript().Hash(body.password);
-    const result = await this.dal.UpdateUser(userId, body);
+  public async ChangePassword(userId: string, newPassword: string, ip: string) {
+    const user = await this.dal.GetUser(userId);
     const response = new BaseResponse<null>();
+    if (!user) {
+      response.isSuccess = false;
+      response.message = "User not found.";
+      return response;
+    }
+
+    const result = await this.dal.UpdateUser(userId, {
+      password: new Encript().Hash(newPassword),
+    });
 
     if (result) {
-      const user = await this.dal.GetUser(userId);
       try {
         const mail = new Mail();
         await mail.SendMail({
-          to: body.email,
+          to: user.email,
           subject: "Password has been changed in OmniReports",
           templateName: "password_changed",
           templateData: {
             firstName: user?.firstName ?? "",
             lastName: user?.lastName ?? "",
-            email: body.email,
+            email: user.email,
             ip,
             DATE: new Date().toLocaleDateString(),
             TIME: new Date().toLocaleTimeString(),
@@ -179,7 +256,7 @@ class MainBll {
           },
         });
       } catch (err) {
-        this.log.log(`Error sending email to ${body.email}: ${err}`, "error");
+        this.log.log(`Error sending email to ${user.email}: ${err}`, "error");
       }
       response.isSuccess = true;
       response.message = "Password changed successfully.";
@@ -189,6 +266,10 @@ class MainBll {
     }
 
     return response;
+  }
+
+  public async GetUserByEmail(email: string) {
+    return this.dal.ValidateEmail(email);
   }
 
   public async InsertInstance(body: Instance) {
@@ -332,7 +413,7 @@ class MainBll {
     return response;
   }
 
-  public async GetReports(filter: string | null, userId: string) {
+  public async GetReports(filter: Role[] | null, userId: string) {
     const result = await this.dal.GetReports(null);
     const response = new BaseResponse<DBReport[]>();
 
@@ -341,7 +422,7 @@ class MainBll {
       response.message = "Reports loaded successfully.";
       response.body = [];
 
-      if (filter?.includes("ADMIN") || filter === "") {
+      if (filter?.includes("ADMIN") || filter === null) {
         response.body = result;
       } else {
         const user = await this.dal.GetUser(userId);
@@ -614,7 +695,7 @@ class MainBll {
         );
 
         response.message = "Verification code validated successfully.";
-        response.body = user;
+        response.body = this.sanitizeUser(user) as User;
       }
     } catch (err) {
       this.log.log(`Error: ${err}`, "error");

@@ -7,7 +7,6 @@ import PersonalInput from "../../../components/input";
 import PersonalButton from "../../../components/button";
 import UsersReq from "@/app/utilities/requests/users/requests";
 import RoleGuard from "../../../components/RolGuard";
-import { useAppSelector } from "@/app/GlobalState/GlobalState";
 import Message from "@/app/pages/components/popups";
 import { useRouter } from "next/navigation";
 import GoBack from "@/app/pages/components/goBack";
@@ -22,7 +21,6 @@ type ChangePasswordType = {
 
 const ChangePassword = () => {
   const router = useRouter();
-  const currentUser = useAppSelector((state) => state.user);
   const [password, setPassword] = useState<ChangePasswordType>({
     currentPassword: "",
     newPassworad: "",
@@ -77,18 +75,15 @@ const ChangePassword = () => {
     if (passwordLevel === 3) {
       if (password.newPassworad === password.verifyPassword) {
         client
-          .ValidatePassword(password.currentPassword, currentUser._id)
+          .ValidatePassword(password.currentPassword)
           .then((response) => {
-            if (response.isSuccess && response.body) {
-              response.body.password = password.newPassworad;
-              client
-                .ChangePassword(currentUser._id, response.body)
-                .then((response) => {
-                  message.Toast({
-                    icon: "success",
-                    title: response.message,
-                  });
+            if (response.isSuccess) {
+              client.ChangePassword(password.newPassworad).then((response) => {
+                message.Toast({
+                  icon: "success",
+                  title: response.message,
                 });
+              });
             }
           });
       } else {

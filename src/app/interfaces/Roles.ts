@@ -4,6 +4,7 @@ export type Role = 'ADMIN' | 'DEVELOPER' | 'REPORTS' | string;
 export const ROUTES_RULES: Array<{ pattern: RegExp; allowed: Role[] }> = [
   { pattern: /^\/pages\/reports(\/|$)/, allowed: ['ADMIN','DEVELOPER','REPORTS'] },
   { pattern: /^\/pages\/instances(\/|$)/, allowed: ['ADMIN','DEVELOPER'] },
+  { pattern: /^\/pages\/users\/profile(\/|$)/, allowed: ['ADMIN','DEVELOPER','REPORTS'] },
   { pattern: /^\/pages\/users(\/|$)/, allowed: ['ADMIN'] }, // users SOLO admin
   { pattern: /^\/pages\/connections(\/|$)/, allowed: ['ADMIN','DEVELOPER'] },
 ];

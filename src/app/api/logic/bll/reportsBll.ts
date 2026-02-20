@@ -66,11 +66,15 @@ class ReportsBll {
           const instance = await mainDal.GetInstance(q.instance as string);
 
           for (const param of element.parameters) {
-            let value = param.value.toString();
-            if (value !== null && value !== "" && value !== undefined) {
+            const rawValue = param.value;
+            let value =
+              rawValue === null || rawValue === undefined
+                ? ""
+                : rawValue.toString();
+            if (value !== "") {
               switch (param.type) {
                 case "text":
-                  value = `'${value}'`;
+                  value = `'${value.replaceAll("'", "''")}'`;
                   break;
                 case "datetime-local":
                   switch (instance?.type) {
@@ -103,7 +107,7 @@ class ReportsBll {
                     value = value
                       .split(",")
                       .map((x) => {
-                        return `'${x}'`;
+                        return `'${x.trim().replaceAll("'", "''")}'`;
                       })
                       .join(",");
                   }
@@ -268,6 +272,13 @@ class ReportsBll {
     const toCellValue = (
       value: unknown,
     ): string | number | boolean | Date | null => {
+      const sanitizeSpreadsheetText = (text: string) => {
+        if (/^\s*[=+\-@]/.test(text) || /^[\t\r\n]/.test(text)) {
+          return `'${text}`;
+        }
+        return text;
+      };
+
       if (value === null || value === undefined) return null;
       if (
         typeof value === "string" ||
@@ -275,9 +286,12 @@ class ReportsBll {
         typeof value === "boolean" ||
         value instanceof Date
       ) {
+        if (typeof value === "string") {
+          return sanitizeSpreadsheetText(value);
+        }
         return value;
       }
-      return JSON.stringify(value);
+      return sanitizeSpreadsheetText(JSON.stringify(value));
     };
 
     const autoFitColumns = (sheet: ExcelJS.Worksheet) => {
@@ -337,7 +351,9 @@ class ReportsBll {
           currentRow,
         );
         if (columns.length) {
-          sheet.getRow(currentRow).values = columns;
+          sheet.getRow(currentRow).values = columns.map((column) =>
+            toCellValue(column),
+          );
           sheet.getRow(currentRow).font = { bold: true };
           currentRow++;
         }
@@ -362,7 +378,9 @@ class ReportsBll {
       );
 
       if (masterColumns.length) {
-        sheet.getRow(currentRow).values = masterColumns;
+        sheet.getRow(currentRow).values = masterColumns.map((column) =>
+          toCellValue(column),
+        );
         sheet.getRow(currentRow).font = { bold: true };
         currentRow++;
       }
@@ -381,7 +399,9 @@ class ReportsBll {
           currentRow++;
 
           const detailColumns = Object.keys(detailRows[0] ?? {});
-          sheet.getRow(currentRow).values = detailColumns;
+          sheet.getRow(currentRow).values = detailColumns.map((column) =>
+            toCellValue(column),
+          );
           sheet.getRow(currentRow).font = { bold: true };
           currentRow++;
 
@@ -486,28 +506,36 @@ class ReportsBll {
 
   private async SaveExport(
     reportId: string,
+    owner: string,
     status: string,
     message: string = "",
     files: ExecuteReportFile[] = [],
   ) {
     const mainDal = new MainDal();
-    const exist = (await mainDal.GetOnePendingExportReport(reportId)) ?? false;
+    const exist =
+      (await mainDal.GetOnePendingExportReport(reportId, owner)) ?? false;
 
     if (exist) {
-      await mainDal.UpdatePendingExportReport(reportId, {
-        files: files.map((x) => {
-          return {
-            file: x.contentBase64,
-            fileName: x.fileName,
-            mimeType: x.mimeType,
-          };
-        }),
-        reportId: reportId,
-        status: status,
-        message: message,
-      });
+      await mainDal.UpdatePendingExportReport(
+        reportId,
+        {
+          owner,
+          files: files.map((x) => {
+            return {
+              file: x.contentBase64,
+              fileName: x.fileName,
+              mimeType: x.mimeType,
+            };
+          }),
+          reportId: reportId,
+          status: status,
+          message: message,
+        },
+        owner,
+      );
     } else {
       await mainDal.InsertPendingExportReport({
+        owner,
         files: files.map((x) => {
           return {
             file: x.contentBase64,
@@ -522,13 +550,14 @@ class ReportsBll {
     }
   }
 
-  public async ProcessExport(body: ExecuteReport, reportId: string) {
-    await this.SaveExport(reportId, "I");
+  public async ProcessExport(body: ExecuteReport, reportId: string, owner: string) {
+    await this.SaveExport(reportId, owner, "I");
     setImmediate(async () => {
       const response = await this.ExecuteOne(body);
 
       await this.SaveExport(
         reportId,
+        owner,
         response.isSuccess ? "F" : "E",
         response.message,
         response.body?.files,
@@ -536,18 +565,23 @@ class ReportsBll {
     });
   }
 
-  public async DownloadExport(reportId: string) {
+  public async DownloadExport(reportId: string, owner: string) {
     const response = new BaseResponse<PendingExportReport>();
+    if (!reportId || !owner) {
+      response.isSuccess = false;
+      response.message = "Invalid export request.";
+      return response;
+    }
 
     const mainDal = new MainDal();
-    const entity = await mainDal.GetOnePendingExportReport(reportId);
+    const entity = await mainDal.GetOnePendingExportReport(reportId, owner);
 
     response.body = entity;
     response.isSuccess = entity?.status != "E";
     response.message = entity?.message as string;
 
     if (entity?.status != "I") {
-      await mainDal.DeletePendingExportReport(reportId);
+      await mainDal.DeletePendingExportReport(reportId, owner);
     }
 
     return response;

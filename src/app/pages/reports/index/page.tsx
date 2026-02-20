@@ -231,7 +231,7 @@ const Index = () => {
   const [currentPath, setCurrentPath] = useState(lastPath ?? "");
   // we set in true for the fist render
   const [fileImported, setFileImported] = useState(true);
-  const { role, _id } = useAppSelector((s) => s.user);
+  const { role } = useAppSelector((s) => s.user);
   const canEdit = role.includes("ADMIN") || role.includes("DEVELOPER");
 
   const client = useMemo(() => new ReportsReq(router), [router]);
@@ -291,14 +291,14 @@ const Index = () => {
     }
 
     client
-      .GetAll(role.includes("ADMIN") ? "" : role, _id as string)
+      .GetAll()
       .then((response) => {
         if (response.isSuccess && response.body) {
           setReports(response.body);
           setFileImported(false);
         }
       });
-  }, [client, fileImported, role, _id]);
+  }, [client, fileImported, role]);
 
   const goToDirectory = (directoryName: string) => {
     const newPath = currentPath
@@ -425,7 +425,7 @@ const Index = () => {
         icon: "question",
         title: "Export Report",
       });
-      const instances = (await new IntancesReq(router).GetAll("", true)).body;
+      const instances = (await new IntancesReq(router).GetAll(true)).body;
       if (isEncrypted !== null && isEncrypted !== undefined) {
         let exportData: ExportReport = {
           report: responseReport.body,

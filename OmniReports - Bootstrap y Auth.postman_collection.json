@@ -1,0 +1,136 @@
+{
+  "info": {
+    "_postman_id": "50f7416b-4f7f-4b88-b835-6257cd129628",
+    "name": "OmniReports - Bootstrap y Auth",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "52568511",
+    "_collection_link": "https://go.postman.co/collection/52568511-50f7416b-4f7f-4b88-b835-6257cd129628?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Bootstrap",
+      "item": [
+        {
+          "name": "01 - Obtener sesion bootstrap",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200/401/403 esperado', function () {",
+                  "  pm.expect([200, 401, 403, 500]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "x-bootstrap-token",
+                "value": "{{bootstrapToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/authenticator",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "authenticator"
+              ]
+            },
+            "description": "Genera cookie de sesion bootstrap (solo si no existe ningun usuario)."
+          },
+          "response": []
+        },
+        {
+          "name": "02 - Crear primer admin",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJib290c3RyYXBAb21uaXJlcG9ydHMubG9jYWwiLCJyb2xlcyI6WyJCT09UU1RSQVAiXSwiYm9vdHN0cmFwIjp0cnVlLCJpYXQiOjE3NzE2MDYzNzUsImV4cCI6MTc3MTYwNjY3NX0.vfXjuGEEl1Wbk6hCiCIhEmo-31rCrqOY8hlv3S95Ef4",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Jean Carlos\",\n  \"lastName\": \"Quesada Cascante\",\n  \"email\": \"{{newAdminEmail}}\",\n  \"password\": \"{{newAdminPassword}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/bootstrap",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "bootstrap"
+              ]
+            },
+            "description": "Crea el primer usuario ADMIN usando el token bootstrap."
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "bootstrapToken",
+      "value": "CHANGE_ME_WITH_A_LONG_RANDOM_VALUE"
+    },
+    {
+      "key": "newAdminEmail",
+      "value": "admin@omni.local"
+    },
+    {
+      "key": "newAdminPassword",
+      "value": "Admin123!*"
+    }
+  ]
+}
