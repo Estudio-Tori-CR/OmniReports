@@ -10,7 +10,7 @@ export default class Miselanius {
     const password = Array.from(array, (x) => chars[x % chars.length]).join("");
 
     return {
-      hash: new Encript().Hash(password),
+      hash: new Encript().HashPassword(password),
       password,
     };
   }

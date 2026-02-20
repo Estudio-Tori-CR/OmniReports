@@ -4,7 +4,8 @@ import type { Role } from "@/app/interfaces/Roles";
 import Logs from "../utilities/Logs";
 
 const secret = new TextEncoder().encode(process.env.JWT_SECRET!);
-const JWT_NAME = "session";
+export const JWT_NAME = "session";
+export const PREAUTH_JWT_NAME = "preauth";
 
 export type SessionPayload = {
   sub: string;
@@ -29,6 +30,38 @@ type RouteHandler = (
   req: NextRequest,
   ctx: RouteContext,
 ) => Promise<Response> | Response;
+
+type PreAuthenticatedHandler = (
+  req: NextRequest,
+  ctx: RouteContext,
+  payload: JWTPayload,
+) => Promise<Response> | Response;
+
+export function withPreAuth(handler: PreAuthenticatedHandler): RouteHandler {
+  return async (req: NextRequest, ctx: RouteContext) => {
+    const auth = req.headers.get("authorization");
+    const bearerToken =
+      auth && auth.startsWith("Bearer ") ? auth.split(" ")[1] : "";
+    const cookieToken = req.cookies.get(PREAUTH_JWT_NAME)?.value ?? "";
+    const token = bearerToken || cookieToken;
+
+    if (!token) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    try {
+      const { payload } = await jwtVerify(token, secret);
+      const stage = String(payload.stage ?? "");
+      if (stage !== "mfa") {
+        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      }
+
+      return handler(req, ctx, payload);
+    } catch {
+      return NextResponse.json({ error: "Invalid token" }, { status: 403 });
+    }
+  };
+}
 
 export function withRoles(
   allowed: Role[],

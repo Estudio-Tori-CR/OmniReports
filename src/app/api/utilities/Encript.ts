@@ -2,11 +2,41 @@ import { createHmac } from "node:crypto";
 import crypto from "crypto";
 
 class Encript {
+  private static readonly SCRYPT_PREFIX = "scrypt";
+  private static readonly SCRYPT_KEYLEN = 64;
+
   public Hash(value: string): string {
     const secret = process.env.SECRET as string;
     const hash = createHmac("sha256", secret).update(value).digest("hex");
 
     return hash;
+  }
+
+  public HashPassword(value: string): string {
+    const salt = crypto.randomBytes(16).toString("hex");
+    const derived = crypto.scryptSync(value, salt, Encript.SCRYPT_KEYLEN);
+    return `${Encript.SCRYPT_PREFIX}$${salt}$${derived.toString("hex")}`;
+  }
+
+  public VerifyPassword(value: string, storedHash: string): boolean {
+    if (!storedHash) return false;
+
+    const parts = storedHash.split("$");
+    const isScryptHash =
+      parts.length === 3 && parts[0] === Encript.SCRYPT_PREFIX;
+
+    if (!isScryptHash) {
+      return this.Hash(value) === storedHash;
+    }
+
+    const [, salt, storedHex] = parts;
+    if (!salt || !storedHex) return false;
+
+    const derived = crypto.scryptSync(value, salt, Encript.SCRYPT_KEYLEN);
+    const expected = Buffer.from(storedHex, "hex");
+
+    if (derived.length !== expected.length) return false;
+    return crypto.timingSafeEqual(derived, expected);
   }
 
   private getKey(): Buffer {

@@ -24,6 +24,10 @@ class MainBll {
     this.log = new Logs();
   }
 
+  private isModernPasswordHash(hash: string | null | undefined): boolean {
+    return typeof hash === "string" && hash.startsWith("scrypt$");
+  }
+
   private sanitizeUser(user: User | null | undefined): User | null {
     if (!user) return null;
     return {
@@ -39,16 +43,34 @@ class MainBll {
   }
 
   public async LogIn(email: string, password: string) {
-    password = new Encript().Hash(password);
-    const result = await this.dal.LogIn(email, password);
+    const normalizeEmail = (email ?? "").trim().toLowerCase();
+    const providedPassword = password ?? "";
+    const encrypt = new Encript();
 
-    const isBlocked = await this.CountCredentialsIntent(email, result != null);
+    const user = await this.dal.ValidateEmail(normalizeEmail);
+    const passwordValid = user
+      ? encrypt.VerifyPassword(providedPassword, user.password)
+      : false;
+
+    const isBlocked = await this.CountCredentialsIntent(
+      normalizeEmail,
+      passwordValid,
+    );
 
     const response = new BaseResponse<User>();
-    if (result) {
+    if (user && passwordValid && user.isActive) {
+      if (!this.isModernPasswordHash(user.password)) {
+        await this.dal.UpdateUser(user._id?.toString() as string, {
+          password: encrypt.HashPassword(providedPassword),
+        });
+      }
+
       response.isSuccess = true;
       response.message = "Sign-in completed successfully.";
-      response.body = this.sanitizeUser(result) as User;
+      response.body = this.sanitizeUser(user) as User;
+    } else if (user && !user.isActive) {
+      response.isSuccess = false;
+      response.message = "Your user is blocked. Please contact support.";
     } else if (isBlocked) {
       response.isSuccess = false;
       response.message = "Your user is blocked. Please contact support.";
@@ -175,7 +197,7 @@ class MainBll {
     body.firstName = firstName;
     body.lastName = lastName;
     body.email = email;
-    body.password = new Encript().Hash(password);
+    body.password = new Encript().HashPassword(password);
     body.roles = "ADMIN";
     body.reports = body.reports ?? [];
     body.countIntents = 0;
@@ -194,7 +216,21 @@ class MainBll {
   }
 
   public async UpdateUser(userId: string, body: Partial<User>) {
-    const result = await this.dal.UpdateUser(userId, body);
+    const payload: Partial<User> = { ...body };
+
+    if (typeof payload.password === "string") {
+      const candidatePassword = payload.password.trim();
+      if (!candidatePassword) {
+        delete payload.password;
+      } else {
+        const looksLegacyHash = /^[a-f0-9]{64}$/i.test(candidatePassword);
+        if (!this.isModernPasswordHash(candidatePassword) && !looksLegacyHash) {
+          payload.password = new Encript().HashPassword(candidatePassword);
+        }
+      }
+    }
+
+    const result = await this.dal.UpdateUser(userId, payload);
     const response = new BaseResponse<null>();
 
     if (result) {
@@ -209,13 +245,23 @@ class MainBll {
   }
 
   public async ValidatePassword(currentPassword: string, userId: string) {
-    currentPassword = new Encript().Hash(currentPassword);
-    const result = await this.dal.ValidatePassword(currentPassword, userId);
+    const user = await this.dal.GetUser(userId);
+    const encrypt = new Encript();
     const response = new BaseResponse<User>();
-    if (result) {
+    const isValid = user
+      ? encrypt.VerifyPassword(currentPassword, user.password)
+      : false;
+
+    if (user && isValid) {
+      if (!this.isModernPasswordHash(user.password)) {
+        await this.dal.UpdateUser(userId, {
+          password: encrypt.HashPassword(currentPassword),
+        });
+      }
+
       response.isSuccess = true;
       response.message = "Current password validated successfully.";
-      response.body = this.sanitizeUser(result) as User;
+      response.body = this.sanitizeUser(user) as User;
     } else {
       response.isSuccess = false;
       response.message = "The current password is incorrect.";
@@ -234,7 +280,7 @@ class MainBll {
     }
 
     const result = await this.dal.UpdateUser(userId, {
-      password: new Encript().Hash(newPassword),
+      password: new Encript().HashPassword(newPassword),
     });
 
     if (result) {
@@ -590,6 +636,12 @@ class MainBll {
     const response = new BaseResponse<AuthenticatorResp>();
     try {
       const user = await this.dal.GetUser(userId);
+      if (!user || !user.isActive) {
+        response.isSuccess = false;
+        response.message = "Unable to generate verification code.";
+        return response;
+      }
+
       const tokenLength = parseInt(process.env.TOKEN_LENGTH ?? "6");
 
       const expireDate: Date = new Date(Date.now() + 15 * 60 * 1000);
@@ -608,11 +660,11 @@ class MainBll {
       try {
         await new Mail().SendMail({
           subject: "Your OmniReports verification code",
-          to: user?.email as string,
+          to: user.email,
           templateName: "authenticator",
           templateData: {
-            firstName: user?.firstName ?? "",
-            lastName: user?.lastName ?? "",
+            firstName: user.firstName ?? "",
+            lastName: user.lastName ?? "",
             token: autheticator.token,
             ip,
             DATE: new Date().toLocaleDateString(),
@@ -631,13 +683,12 @@ class MainBll {
       } catch (err) {
         this.log.log(`Error sending email with token: ${err}`, "error");
         response.isSuccess = false;
-        response.message =
-          "Verification code generated, but the email could not be sent.";
+        response.message = "Unable to generate verification code.";
       }
     } catch (err) {
       this.log.log(`Error sending token: ${err}`, "error");
       response.isSuccess = false;
-      response.message = "Failed to generate or send the verification code.";
+      response.message = "Unable to generate verification code.";
     }
 
     return response;
@@ -670,7 +721,7 @@ class MainBll {
       const user = await this.dal.GetUser(userId);
       if (!user) {
         response.isSuccess = false;
-        response.message = "User not found.";
+        response.message = "The verification code is invalid or has expired.";
         return response;
       }
 

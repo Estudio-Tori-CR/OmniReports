@@ -51,7 +51,7 @@ const Maintenance = () => {
   const reportId = searchParams.get("reportId") ?? "";
 
   useEffect(() => {
-    clientInstances.GetAll(true).then((response) => {
+    clientInstances.GetAll().then((response) => {
       const options: SelectOptions[] = [];
       if (response.isSuccess && response.body) {
         setInstances(response.body);

@@ -30,6 +30,15 @@ class MainDal {
     return result;
   }
 
+  public async GetActiveUserByEmail(email: string | null) {
+    if (!email) return null;
+    const result = await this.connection.find<User>(UserModel, {
+      email: email,
+      isActive: true,
+    });
+    return result[0];
+  }
+
   public async GetUser(userId: string | null) {
     if (!userId) return null;
     const result = await this.connection.find<User>(UserModel, { _id: userId });

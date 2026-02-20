@@ -6,12 +6,10 @@ import type { SubmitEvent } from "react";
 import type { CSSProperties } from "react";
 import PersonalButton from "../components/button";
 import AuthenticatorReq from "@/app/utilities/requests/authenticator/requests";
-import { useAppSelector } from "@/app/GlobalState/GlobalState";
 import Message from "../components/popups";
 
 export default function Authenticator() {
   const router = useRouter();
-  const { _id } = useAppSelector((s) => s.user);
 
   const [length, setLength] = useState<number[]>([]);
   const [token, setToken] = useState<string>("");
@@ -20,7 +18,7 @@ export default function Authenticator() {
   const client = new AuthenticatorReq(router);
 
   const sendAuthenticator = () => {
-    client.Send(_id).then((response) => {
+    client.Send().then((response) => {
       new Message().Toast({
         icon: response.isSuccess ? "success" : "error",
         title: response.message,
@@ -52,7 +50,7 @@ export default function Authenticator() {
 
   const onSubmit = (e: SubmitEvent) => {
     e.preventDefault();
-    client.Validate(_id, token).then((response) => {
+    client.Validate(token).then((response) => {
       if (response.isSuccess) {
         router.replace("/pages/reports/index");
       } else {

@@ -201,12 +201,14 @@ const ReportCard = ({
             </div>
           )}
           {canEdit && onExport && (
-            <div onClick={onExport}>
-              <span>
-                <PiExport />
-              </span>
-              Export
-            </div>
+            <ActionGuard allowed={["ADMIN"]}>
+              <div onClick={onExport}>
+                <span>
+                  <PiExport />
+                </span>
+                Export
+              </div>
+            </ActionGuard>
           )}
           {canEdit && onDeleteReport && (
             <div onClick={onDeleteReport} style={{ color: "var(--red)" }}>
@@ -290,14 +292,12 @@ const Index = () => {
       return;
     }
 
-    client
-      .GetAll()
-      .then((response) => {
-        if (response.isSuccess && response.body) {
-          setReports(response.body);
-          setFileImported(false);
-        }
-      });
+    client.GetAll().then((response) => {
+      if (response.isSuccess && response.body) {
+        setReports(response.body);
+        setFileImported(false);
+      }
+    });
   }, [client, fileImported, role]);
 
   const goToDirectory = (directoryName: string) => {

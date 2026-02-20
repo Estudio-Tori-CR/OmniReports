@@ -7,7 +7,7 @@ type ValidationResult =
 const READ_FIRST_KEYWORDS: Record<DbFlavor, Set<string>> = {
   MySql: new Set(["SELECT", "WITH", "SHOW", "DESCRIBE", "DESC", "EXPLAIN", "CALL"]),
   OracleDB: new Set(["SELECT", "WITH", "EXPLAIN"]), // Oracle does not have standard SHOW/DESC like MySQL
-  SQLServer: new Set(["SELECT", "WITH", "EXECUTE", "EXEC"]), // Note: we don't want exec here; we leave it out and block it below
+  SQLServer: new Set(["SELECT", "WITH", "EXECUTE", "EXEC"]),
 };
 
 // Forbidden keywords (outside of strings/comments)
@@ -272,7 +272,7 @@ class SqlScan {
     flush();
 
     // detect GO (batch separator) in SQL Server as isolated token
-    if (flavor === "sqlserver") {
+    if (flavor.toLowerCase() === "sqlserver") {
       for (let j = 0; j < tokens.length; j++) {
         if (tokens[j] === "GO") {
           hasGoBatch = true;
@@ -290,12 +290,12 @@ class SqlScan {
 
     const { tokens, hasSemicolon, hasGoBatch } = this.scanSql(trimmed, flavor);
 
-    // if (hasSemicolon) {
-    //   return {
-    //     ok: false,
-    //     reason: "Semicolon detected (possible multi-statement)",
-    //   };
-    // }
+    if (hasSemicolon) {
+      return {
+        ok: false,
+        reason: "Semicolon detected (possible multi-statement)",
+      };
+    }
     if (hasGoBatch) {
       return { ok: false, reason: "GO detected (SQL Server batch separator)" };
     }
