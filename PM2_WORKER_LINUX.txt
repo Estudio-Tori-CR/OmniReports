@@ -1,0 +1,41 @@
+OmniReports - Levantar worker con PM2 en Linux
+==============================================
+
+1) Requisitos
+- Node.js 20+ y npm instalados.
+- PM2 instalado globalmente:
+  npm i -g pm2
+
+2) Ir al proyecto e instalar dependencias
+- cd /ruta/a/OmniReports
+- npm ci
+
+3) Compilar el worker TypeScript
+- npm run worker:build
+
+4) Levantar el worker con PM2
+- pm2 start dist-worker/workers/report.worker.js --name omnireports-worker
+
+5) Verificar estado y logs
+- pm2 status
+- pm2 logs omnireports-worker
+
+6) Reiniciar / detener / eliminar
+- pm2 restart omnireports-worker
+- pm2 stop omnireports-worker
+- pm2 delete omnireports-worker
+
+7) Iniciar automaticamente al reiniciar el servidor
+- pm2 startup systemd -u <tu_usuario> --hp /home/<tu_usuario>
+- Ejecuta el comando que PM2 te imprime al final (con sudo).
+- pm2 save
+
+8) Despliegue de cambios del worker
+- git pull
+- npm ci
+- npm run worker:build
+- pm2 restart omnireports-worker
+
+Notas
+- El worker corre cada 5 minutos desde el proceso Node.
+- Si cambias workers/report.worker.ts, debes recompilar (npm run worker:build) antes de reiniciar en PM2.

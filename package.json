@@ -7,7 +7,9 @@
     "build": "next build",
     "buildWebPack": "next build --webpack",
     "start": "next start -p 3001 -H 0.0.0.0",
-    "lint": "eslint"
+    "lint": "eslint",
+    "worker:build": "tsc --outDir dist-worker --rootDir . --module commonjs --moduleResolution node --target ES2020 --skipLibCheck workers/report.worker.ts",
+    "worker:start": "npm run worker:build && node dist-worker/workers/report.worker.js"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.11.2",
