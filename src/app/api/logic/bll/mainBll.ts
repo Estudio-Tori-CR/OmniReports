@@ -923,8 +923,16 @@ class MainBll {
     return isBlocked;
   }
 
-  public async GetReportsToExecuteBySchedule(day: number, hour: string) {
-    const result = await this.dal.GetReportsToExecuteBySchedule(hour, day);
+  public async GetReportsToExecuteBySchedule(
+    day: number,
+    fromHour: string,
+    toHour: string,
+  ) {
+    const result = await this.dal.GetReportsToExecuteBySchedule(
+      fromHour,
+      toHour,
+      day,
+    );
     const response = new BaseResponse<DBReport[]>();
 
     if (result) {

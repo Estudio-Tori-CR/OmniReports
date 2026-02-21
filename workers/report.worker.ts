@@ -67,11 +67,13 @@ async function createWorkerToken(): Promise<string> {
 async function getReportsBySchedule(
   day: number,
   fromHour: string,
+  toHour: string,
 ): Promise<BaseResponse<ScheduledReport[]>> {
   const token = await createWorkerToken();
   const endpoint = new URL("/api/reports/reportsSheduled", WORKER_API_BASE_URL);
   endpoint.searchParams.set("day", day.toString());
-  endpoint.searchParams.set("hour", fromHour);
+  endpoint.searchParams.set("fromHour", fromHour);
+  endpoint.searchParams.set("toHour", toHour);
 
   const response = await fetch(endpoint.toString(), {
     method: "GET",
@@ -98,9 +100,7 @@ async function getReportsBySchedule(
   return data;
 }
 
-async function SendReport(
-  reportId: string,
-): Promise<BaseResponse<null>> {
+async function SendReport(reportId: string): Promise<BaseResponse<null>> {
   const token = await createWorkerToken();
   const endpoint = new URL("/api/reports/reportsSheduled", WORKER_API_BASE_URL);
   endpoint.searchParams.set("reportId", reportId.toString());
@@ -141,11 +141,15 @@ async function executeJob(): Promise<void> {
   try {
     log("Job started.");
 
-    const weekDayIndex = new Date(startedAt).getDay();
+    const now = new Date(startedAt);
+    const weekDayIndex = now.getDay();
     const fiveMinutesAgo = new Date(startedAt - 5 * 60 * 1000);
     const fromHour = toHHmm(fiveMinutesAgo);
+    const toHour = toHHmm(now);
 
-    const response = await getReportsBySchedule(weekDayIndex, fromHour);
+    log(`Schedule window [day=${weekDayIndex}]: ${fromHour} -> ${toHour}`);
+
+    const response = await getReportsBySchedule(weekDayIndex, fromHour, toHour);
     if (!response.isSuccess) {
       log(`Unable to load scheduled reports: ${response.message}`);
       return;

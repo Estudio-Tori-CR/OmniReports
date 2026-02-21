@@ -14,20 +14,33 @@ export const GET = withRoles(["ADMIN"], async (req: Request) => {
   try {
     const { searchParams } = new URL(req.url);
     const dayParam = searchParams.get("day") ?? "";
-    const hourParam = (searchParams.get("hour") ?? "").trim();
+    const fromHourParam = (searchParams.get("fromHour") ?? "").trim();
+    const toHourParam = (searchParams.get("toHour") ?? "").trim();
 
     const day = Number(dayParam);
     const isDayValid = Number.isInteger(day) && day >= 0 && day <= 6;
-    const isHourValid = /^([01]\d|2[0-3]):([0-5]\d)$/.test(hourParam);
+    const isFromHourValid = /^([01]\d|2[0-3]):([0-5]\d)$/.test(fromHourParam);
+    const isToHourValid =
+      toHourParam === "" || /^([01]\d|2[0-3]):([0-5]\d)$/.test(toHourParam);
 
-    if (!isDayValid || !isHourValid) {
+    if (!isDayValid || !isFromHourValid || !isToHourValid) {
       response.isSuccess = false;
-      response.message = "Invalid day/hour parameters.";
+      response.message = "Invalid day/hour range parameters.";
       return NextResponse.json(response, { status: 400 });
     }
 
+    const resolvedToHour =
+      toHourParam ||
+      `${String(new Date().getHours()).padStart(2, "0")}:${String(
+        new Date().getMinutes(),
+      ).padStart(2, "0")}`;
+
     const bll = new MainBll();
-    response = await bll.GetReportsToExecuteBySchedule(day, hourParam);
+    response = await bll.GetReportsToExecuteBySchedule(
+      day,
+      fromHourParam,
+      resolvedToHour,
+    );
   } catch (err) {
     response.isSuccess = false;
     response.message =

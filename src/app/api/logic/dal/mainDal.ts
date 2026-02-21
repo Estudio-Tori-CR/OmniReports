@@ -147,31 +147,29 @@ class MainDal {
   }
 
   public async GetReportsToExecuteBySchedule(
-    executionTime: string,
+    fromExecutionTime: string,
+    toExecutionTime: string,
     weekDay: number,
   ) {
-    const normalizedTime = executionTime.trim();
+    const normalizedFrom = fromExecutionTime.trim();
+    const normalizedTo = toExecutionTime.trim();
     const isValidDay = Number.isInteger(weekDay) && weekDay >= 0 && weekDay <= 6;
-    const isValidTime = /^([01]\d|2[0-3]):([0-5]\d)$/.test(normalizedTime);
+    const isValidFromTime = /^([01]\d|2[0-3]):([0-5]\d)$/.test(normalizedFrom);
+    const isValidToTime = /^([01]\d|2[0-3]):([0-5]\d)$/.test(normalizedTo);
 
-    if (!normalizedTime || !isValidDay || !isValidTime) {
+    if (!normalizedFrom || !normalizedTo || !isValidDay || !isValidFromTime || !isValidToTime) {
       return [] as DBReport[];
     }
 
-    const now = new Date();
-    const currentTime = `${String(now.getHours()).padStart(2, "0")}:${String(
-      now.getMinutes(),
-    ).padStart(2, "0")}`;
-
     // If the provided time is from previous day (e.g. now-5m across midnight),
     // clamp to 00:00 so only current-day schedules are considered.
-    const rangeStart = normalizedTime <= currentTime ? normalizedTime : "00:00";
+    const rangeStart = normalizedFrom <= normalizedTo ? normalizedFrom : "00:00";
 
     const result = await this.connection.find<DBReport>(ReportModel, {
       isActive: true,
       "deliverySettings.executionTime": {
         $gte: rangeStart,
-        $lte: currentTime,
+        $lte: normalizedTo,
       },
       "deliverySettings.weekDays": weekDay,
     });
