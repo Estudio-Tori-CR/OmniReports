@@ -113,65 +113,74 @@ export default function Authenticator() {
 
   return (
     <div className={style.loginContainer}>
-      <div className={style.loginInputsContainer}>
-        <div className={style.brandSection}>
-          <img src="../icon.png" alt="icon" className={style.brandIcon} />
-        </div>
-        <form onSubmit={onSubmit} className={style.formContent}>
-          <h2>Validate your token</h2>
-          <p className={style.subtitle}>
-            Enter the verification code sent to your email.
-          </p>
-          <div className={style.inputsContainer} style={inputsContainerStyle}>
-            {length.map((x) => {
-              return (
-                <input
-                  key={x}
-                  id={`token_input_${x}`}
-                  className={style.tokenInput}
-                  maxLength={1}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    const copy = [...token];
+      <div className={style.loginContent}>
+        <div className={style.loginInputsContainer}>
+          <div className={style.brandSection}>
+            <img src="../icon.png" alt="icon" className={style.brandIcon} />
+          </div>
+          <form onSubmit={onSubmit} className={style.formContent}>
+            <h2>Validate your token</h2>
+            <p className={style.subtitle}>
+              Enter the verification code sent to your email.
+            </p>
+            <div className={style.inputsContainer} style={inputsContainerStyle}>
+              {length.map((x) => {
+                return (
+                  <input
+                    key={x}
+                    id={`token_input_${x}`}
+                    className={style.tokenInput}
+                    maxLength={1}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      const copy = [...token];
 
-                    if (copy[x]) {
-                      copy[x] = value;
-                    } else {
-                      copy.push(value);
-                    }
-                    setToken(copy.join(""));
-                  }}
-                  onPaste={onPaste}
-                  onKeyUp={(e: React.KeyboardEvent<HTMLInputElement>) => {
-                    changeFocus(
-                      e,
-                      `token_input_${x + 1}`,
-                      `token_input_${x - 1}`,
-                    );
-                  }}
-                />
-              );
-            })}
-          </div>
-          <div className={style.sendAgainContainer}>
-            {seconds > 0 && (
-              <p className={style.waitToSend}>{seconds}s to send again</p>
-            )}
-            {seconds === 0 && (
-              <button
-                type="button"
-                onClick={sendAuthenticator}
-                className={style.sendAgain}
-              >
-                Send Again
-              </button>
-            )}
-          </div>
-          <div className={style.actions}>
-            <PersonalButton text="Validate" type="submit" />
-          </div>
-        </form>
+                      if (copy[x]) {
+                        copy[x] = value;
+                      } else {
+                        copy.push(value);
+                      }
+                      setToken(copy.join(""));
+                    }}
+                    onPaste={onPaste}
+                    onKeyUp={(e: React.KeyboardEvent<HTMLInputElement>) => {
+                      changeFocus(
+                        e,
+                        `token_input_${x + 1}`,
+                        `token_input_${x - 1}`,
+                      );
+                    }}
+                  />
+                );
+              })}
+            </div>
+            <div className={style.sendAgainContainer}>
+              {seconds > 0 && (
+                <p className={style.waitToSend}>{seconds}s to send again</p>
+              )}
+              {seconds === 0 && (
+                <button
+                  type="button"
+                  onClick={sendAuthenticator}
+                  className={style.sendAgain}
+                >
+                  Send Again
+                </button>
+              )}
+            </div>
+            <div className={style.actions}>
+              <PersonalButton text="Validate" type="submit" />
+            </div>
+          </form>
+        </div>
       </div>
+      <footer className={style.pageFooter}>
+        <div className={style.footerBadge}>
+          <span className={style.footerBrand}>OmniReports</span>
+          <span className={style.footerSeparator}>|</span>
+          <span>Proprietary software of Estudio-Tori. All rights reserved.</span>
+        </div>
+      </footer>
     </div>
   );
 }

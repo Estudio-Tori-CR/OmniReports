@@ -54,29 +54,38 @@ export default function Home() {
 
   return (
     <div className={style.loginContainer}>
-      <div className={style.loginInputsContainer}>
-        <img
-          src="./icon.png"
-          alt="icon"
-          className="icon"
-          style={{ width: "250px", height: "200px" }}
-        />
-        <form onSubmit={onSubmit}>
-          <PersonalInput
-            labelText="Email"
-            type="text"
-            value={username}
-            onChange={setUsername}
+      <div className={style.loginContent}>
+        <div className={style.loginInputsContainer}>
+          <img
+            src="./icon.png"
+            alt="icon"
+            className="icon"
+            style={{ width: "250px", height: "200px" }}
           />
-          <PersonalInput
-            labelText="Password"
-            type="password"
-            value={password}
-            onChange={setPassword}
-          />
-          <PersonalButton text="Log In" isPrimary={true} type="submit" />
-        </form>
+          <form onSubmit={onSubmit}>
+            <PersonalInput
+              labelText="Email"
+              type="text"
+              value={username}
+              onChange={setUsername}
+            />
+            <PersonalInput
+              labelText="Password"
+              type="password"
+              value={password}
+              onChange={setPassword}
+            />
+            <PersonalButton text="Log In" isPrimary={true} type="submit" />
+          </form>
+        </div>
       </div>
+      <footer className={style.pageFooter}>
+        <div className={style.footerBadge}>
+          <span className={style.footerBrand}>OmniReports</span>
+          <span className={style.footerSeparator}>|</span>
+          <span>Proprietary software of Estudio-Tori. All rights reserved.</span>
+        </div>
+      </footer>
     </div>
   );
 }

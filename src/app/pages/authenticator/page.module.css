@@ -1,9 +1,16 @@
 .loginContainer {
   width: 100%;
-  height: 100%;
-  display: grid;
-  padding: 1rem;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
   background: radial-gradient(circle at 20% 20%, #0e2e4a, #061b2f 58%);
+}
+
+.loginContent {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
 }
 
 .loginInputsContainer {
@@ -11,7 +18,6 @@
   width: 100%;
   max-width: 560px;
   background: linear-gradient(180deg, #ffffff 0%, #f6fbff 100%);
-  place-self: center;
   text-align: center;
   padding: 2rem;
   box-sizing: border-box;
@@ -94,6 +100,37 @@
   margin-top: 0.35rem;
 }
 
+.pageFooter {
+  padding: 0 1rem 1.2rem;
+  display: flex;
+  justify-content: center;
+}
+
+.footerBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  max-width: 92%;
+  padding: 0.55rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid rgba(150, 188, 215, 0.35);
+  background: rgba(10, 30, 48, 0.28);
+  backdrop-filter: blur(5px);
+  color: #dbe8f3;
+  font-size: 0.76rem;
+  line-height: 1.3;
+}
+
+.footerBrand {
+  letter-spacing: 0.03em;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.footerSeparator {
+  opacity: 0.6;
+}
+
 @media (max-width: 1024px) {
   .inputsContainer {
     grid-template-columns: repeat(var(--token-columns-mobile), minmax(0, 3rem));
@@ -106,5 +143,12 @@
 
   .brandIcon {
     width: 180px;
+  }
+
+  .footerBadge {
+    border-radius: 0.75rem;
+    padding: 0.6rem 0.7rem;
+    gap: 0.45rem;
+    font-size: 0.72rem;
   }
 }

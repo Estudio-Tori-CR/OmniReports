@@ -1,15 +1,22 @@
 .loginContainer {
   width: 100%;
-  height: 100%;
-  display: grid;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
   background-color: var(--primary-color);
+}
+
+.loginContent {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
 }
 
 .loginInputsContainer {
   height: max-content;
   width: 30%;
   background-color: var(--white);
-  place-self: center;
   text-align: center;
   padding: 3rem;
   box-sizing: border-box;
@@ -21,8 +28,46 @@
   color: var(--black) !important;
 }
 
+.pageFooter {
+  padding: 0 1rem 1.2rem;
+  display: flex;
+  justify-content: center;
+}
+
+.footerBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  max-width: 92%;
+  padding: 0.55rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(4px);
+  color: #edf3f9;
+  font-size: 0.76rem;
+  line-height: 1.3;
+}
+
+.footerBrand {
+  letter-spacing: 0.03em;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.footerSeparator {
+  opacity: 0.55;
+}
+
 @media (max-width: 1024px) {
-  .loginInputsContainer{
+  .loginInputsContainer {
     width: 90%;
+  }
+
+  .footerBadge {
+    border-radius: 0.75rem;
+    padding: 0.6rem 0.7rem;
+    gap: 0.45rem;
+    font-size: 0.72rem;
   }
 }
