@@ -620,12 +620,38 @@ class ReportsBll {
       return response;
     }
 
+    const escapeHtml = (value: string): string =>
+      value
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+
+    const now = new Date();
+    const filesListHtml = execution.body.files
+      .map((file) => `- ${escapeHtml(file.fileName)}`)
+      .join("<br />");
+
     await new Mail().SendMail({
       to,
       cc: cc || undefined,
       bcc: bcc || undefined,
       subject: `Scheduled report - ${report.name}`,
-      text: `Please find attached the scheduled report "${report.name}".`,
+      text: `Your scheduled report "${report.name}" has been generated successfully. Files attached: ${execution.body.files
+        .map((file) => file.fileName)
+        .join(", ")}`,
+      templateName: "scheduled_report",
+      templateData: {
+        reportName: report.name ?? "Report",
+        DATE: now.toLocaleDateString(),
+        TIME: now.toLocaleTimeString(),
+        FILES_COUNT: execution.body.files.length.toString(),
+        FILES_LIST: filesListHtml || "- report.xlsx",
+        URL_LOGIN: process.env.URL_LOGIN ?? "",
+        LOGO_URL: process.env.LOGO_URL ?? "",
+        EMAIL_SUPPORT: process.env.EMAIL_SUPPORT ?? "",
+      },
       attachments: execution.body.files.map((file) => ({
         filename: file.fileName,
         content: file.contentBase64,

@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Scheduled Report Generated - OmniReports</title>
+  </head>
+
+  <body
+    style="
+      margin: 0;
+      padding: 0;
+      background: #f5f7fb;
+      font-family: Arial, Helvetica, sans-serif;
+    "
+  >
+    <table
+      width="100%"
+      cellpadding="0"
+      cellspacing="0"
+      style="background: #f5f7fb; padding: 24px 0"
+    >
+      <tr>
+        <td align="center">
+          <table
+            width="680"
+            cellpadding="0"
+            cellspacing="0"
+            style="
+              background: #ffffff;
+              border-radius: 16px;
+              overflow: hidden;
+              box-shadow: 0 8px 22px rgba(0, 0, 0, 0.08);
+            "
+          >
+            <!-- HEADER -->
+            <tr>
+              <td
+                style="
+                  padding: 26px 28px;
+                  background: linear-gradient(90deg, #071b2d, #0b2b4a);
+                "
+              >
+                <table width="100%" cellpadding="0" cellspacing="0">
+                  <tr>
+                    <td align="left" style="vertical-align: middle">
+                      <img
+                        src="{{LOGO_URL}}"
+                        alt="OmniReports"
+                        style="height: 56px; display: block"
+                      />
+                    </td>
+                    <td align="right" style="color: #d7ecff; font-size: 14px">
+                      Automated delivery
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <!-- BODY -->
+            <tr>
+              <td style="padding: 28px">
+                <h2 style="margin: 0 0 12px 0; font-size: 22px; color: #0b2b4a">
+                  Scheduled report generated successfully
+                </h2>
+
+                <p
+                  style="
+                    margin: 0 0 18px 0;
+                    font-size: 15px;
+                    color: #2a2a2a;
+                    line-height: 1.6;
+                  "
+                >
+                  The scheduled report <b>{{reportName}}</b> was generated
+                  automatically and is attached to this email.
+                </p>
+
+                <div
+                  style="
+                    background: #f0f6ff;
+                    border: 1px solid #d6e7ff;
+                    padding: 16px;
+                    border-radius: 12px;
+                  "
+                >
+                  <p
+                    style="margin: 0 0 10px 0; font-size: 14px; color: #0b2b4a"
+                  >
+                    <b>Execution details</b>
+                  </p>
+
+                  <p
+                    style="
+                      margin: 0;
+                      font-size: 14px;
+                      color: #2a2a2a;
+                      line-height: 1.8;
+                    "
+                  >
+                    <b>Date:</b> {{DATE}}<br />
+                    <b>Time:</b> {{TIME}}<br />
+                    <b>Attached files:</b> {{FILES_COUNT}}
+                  </p>
+                </div>
+
+                <div
+                  style="
+                    margin-top: 18px;
+                    background: #ffffff;
+                    border: 1px solid #e5e7eb;
+                    padding: 16px;
+                    border-radius: 12px;
+                  "
+                >
+                  <p
+                    style="margin: 0 0 10px 0; font-size: 14px; color: #0b2b4a"
+                  >
+                    <b>Files included</b>
+                  </p>
+                  <p
+                    style="
+                      margin: 0;
+                      font-size: 14px;
+                      color: #2a2a2a;
+                      line-height: 1.8;
+                    "
+                  >
+                    {{FILES_LIST}}
+                  </p>
+                </div>
+
+                <div style="margin-top: 22px; text-align: center">
+                  <a
+                    href="{{URL_LOGIN}}"
+                    style="
+                      display: inline-block;
+                      background: #0c7de8;
+                      color: #ffffff;
+                      text-decoration: none;
+                      padding: 12px 18px;
+                      border-radius: 12px;
+                      font-weight: bold;
+                      font-size: 14px;
+                    "
+                  >
+                    Open OmniReports
+                  </a>
+                </div>
+
+                <p
+                  style="
+                    margin: 22px 0 0 0;
+                    font-size: 12.5px;
+                    color: #4b5563;
+                    line-height: 1.6;
+                  "
+                >
+                  This email was sent automatically by OmniReports. Please do
+                  not reply to this message.
+                </p>
+              </td>
+            </tr>
+
+            <!-- FOOTER -->
+            <tr>
+              <td
+                style="
+                  padding: 18px 26px;
+                  background: #0b2b4a;
+                  color: #b9d9ff;
+                  font-size: 12px;
+                "
+              >
+                <table width="100%" cellpadding="0" cellspacing="0">
+                  <tr>
+                    <td>&copy; {{YEAR}} <b>OmniReports</b>. All rights reserved.</td>
+                    <td align="right">Support: {{EMAIL_SUPPORT}}</td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
